@@ -1,0 +1,126 @@
+---
+name: The Seven Continents
+qset:
+  version: 1
+  data:
+    name: The Seven Continents
+    items:
+      - 
+        items:
+          - 
+            id: null
+            type: QA
+            questions:
+              - 
+                text: North America
+            answers:
+              - 
+                value: 100
+                text: North America
+            options:
+              labelBoxY: 61
+              labelBoxX: 36.75
+              endPointY: 200
+              endPointX: 138
+          - 
+            id: null
+            type: QA
+            questions:
+              - 
+                text: South America
+            answers:
+              - 
+                value: 100
+                text: South America
+            options:
+              labelBoxY: 457
+              labelBoxX: 29.75
+              endPointY: 315
+              endPointX: 194.75
+          - 
+            id: null
+            type: QA
+            questions:
+              - 
+                text: Asia
+            answers:
+              - 
+                value: 100
+                text: Asia
+            options:
+              labelBoxY: 55
+              labelBoxX: 427.75
+              endPointY: 198
+              endPointX: 423.75
+          - 
+            id: null
+            type: QA
+            questions:
+              - 
+                text: Europe
+            answers:
+              - 
+                value: 100
+                text: Europe
+            options:
+              labelBoxY: 26
+              labelBoxX: 234.75
+              endPointY: 190
+              endPointX: 328.75
+          - 
+            id: null
+            type: QA
+            questions:
+              - 
+                text: Australia
+            answers:
+              - 
+                value: 100
+                text: Australia
+            options:
+              labelBoxY: 456
+              labelBoxX: 445.75
+              endPointY: 334
+              endPointX: 503.75
+          - 
+            id: null
+            type: QA
+            questions:
+              - 
+                text: Antarctica
+            answers:
+              - 
+                value: 100
+                text: Antarctica
+            options:
+              labelBoxY: 484
+              labelBoxX: 227.75
+              endPointY: 422
+              endPointX: 336.75
+          - 
+            id: null
+            type: QA
+            questions:
+              - 
+                text: Africa
+            answers:
+              - 
+                value: 100
+                text: Africa
+            options:
+              labelBoxY: 355
+              labelBoxX: 301.75
+              endPointY: 266
+              endPointX: 317.75
+        Qcount: 7
+        masterGroup: 0
+    options:
+      imageScale: 0.58255813953488
+      imageX: 11.35
+      backgroundTheme: themeCorkBoard
+      imageY: 117
+    assets:
+      - <%MEDIA="_assets/1.png"%>
+    Qcount: 7
+    Gcount: 1
+    masterGroup: 1

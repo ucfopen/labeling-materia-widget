@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Canvas xmlns:mx="http://www.adobe.com/2006/mxml"
+	width="195"
+	height="104"
+	backgroundAlpha="1.0"
+	backgroundColor="0x9cb6d4"
+	cornerRadius="6"
+	borderStyle="solid"
+	creationComplete="{onCreationComplete()}">
+	<mx:Label text="Theme:" y="2" x="8"/>
+	<mx:Canvas id="corkSelector"
+		verticalCenter="0"
+		left="10"  borderStyle="solid" borderColor="#3E617C">
+		<mx:Image buttonMode="true"
+			source="@Embed(source='assets/cork-theme.jpg')"
+			click="{selectTheme(THEME_CORK_BOARD); selectCorkBoard();}"
+			toolTip="Click to use the cork board theme."/>
+	</mx:Canvas>
+	<mx:Canvas id="graphSelector"
+		verticalCenter="0"
+		horizontalCenter="0"
+		borderStyle="solid" borderColor="#3E617C">
+		<mx:Image buttonMode="true"
+			source="@Embed(source='assets/graph-theme.png')"
+			click="{selectTheme(THEME_GRAPH_PAPER); selectGraphPaper();}"
+			toolTip="Click to use the graph paper theme."/>
+	</mx:Canvas>
+	<mx:ColorPicker id="myColorPicker"
+		focusEnabled="false"
+		verticalCenter="15"
+		right="24"
+		change="{colorSelected()}"/>
+	<mx:Canvas id="customSelector"
+		verticalCenter="0"
+		borderStyle="solid" borderColor="#3E617C"
+		right="10">
+		<mx:Canvas id="solidColorPreviewCanvas"
+			width="{customThemeImage.contentWidth}"
+			height="{customThemeImage.contentWidth}"
+			backgroundAlpha="1.0"
+			backgroundColor="{myColorPicker.selectedColor}"/>
+		<mx:Image id="customThemeImage" buttonMode="true"
+			source="@Embed(source='assets/custom-bg-theme.png')"
+			click="{selectTheme(THEME_SOLID_COLOR); startColorPicking(event); selectSolidColor();}"
+			creationComplete="{solidColorPreviewCanvas.width = customThemeImage.contentWidth; solidColorPreviewCanvas.height = customThemeImage.contentHeight; }"
+			toolTip="Click to use a custom color as the background."/>
+	</mx:Canvas>
+	 <mx:Metadata>
+		[Event(name="themeChange", type="flash.events.Event")]
+	</mx:Metadata>
+	<mx:Script>
+		<![CDATA[
+			//public var changed:Function = null;
+			// enum for themes selected
+			public static const THEME_SOLID_COLOR:String = "themeSolidColor";
+			public static const THEME_CORK_BOARD:String = "themeCorkBoard";
+			public static const THEME_GRAPH_PAPER:String = "themeGraphPaper";
+			protected var _currentTheme:String = THEME_CORK_BOARD;
+			public function get selectedColor():int
+			{
+				return myColorPicker.selectedColor;
+			}
+			public function get selectedTheme():String
+			{
+				return _currentTheme;
+			}
+			public function selectTheme(s:String):void
+			{
+				_currentTheme = s;
+				dispatchEvent( new Event("themeChange"));
+			}
+			protected function onCreationComplete():void
+			{
+				// it will start with the cork board theme
+				selectCorkBoard();
+			}
+			protected function startColorPicking(e:Event):void
+			{
+				myColorPicker.mx_internal::displayDropdown(true);
+			}
+			protected function colorSelected():void
+			{
+				stage.focus = null; // TODO FIXIT: not working!
+				// The problem is that there is a blue rect from the color picker
+				//  it is in its focused state!
+				selectSolidColor();
+				dispatchEvent( new Event("themeChange"));
+			}
+			// a glow to show which theme is selected
+			protected var _selectionGlowFilter:GlowFilter;
+			protected function selectSolidColor():void
+			{
+				if(_selectionGlowFilter == null)
+				{
+					_selectionGlowFilter = makeSelectionGlowFilter();
+				}
+				customSelector.filters = [_selectionGlowFilter];
+				corkSelector.filters = [];
+				graphSelector.filters = [];
+			}
+			protected function selectCorkBoard():void
+			{
+				if(_selectionGlowFilter == null)
+				{
+					_selectionGlowFilter = makeSelectionGlowFilter();
+				}
+				customSelector.filters = [];
+				corkSelector.filters = [_selectionGlowFilter];
+				graphSelector.filters = [];
+			}
+			protected function selectGraphPaper():void
+			{
+				if(_selectionGlowFilter == null)
+				{
+					_selectionGlowFilter = makeSelectionGlowFilter();
+				}
+				customSelector.filters = [];
+				corkSelector.filters = [];
+				graphSelector.filters = [_selectionGlowFilter];
+			}
+			protected function makeSelectionGlowFilter():GlowFilter
+			{
+				const COLOR:int = 0x000055;
+				const ALPHA:Number = 0.4;
+				const X_BLUR:Number = 8.0;
+				const Y_BLUR:Number = X_BLUR;
+				const STRENGTH:Number = 3.0;
+				var g:GlowFilter = new GlowFilter(COLOR, ALPHA, X_BLUR,Y_BLUR,STRENGTH,1);
+				return g;
+			}
+		]]>
+	</mx:Script>
+</mx:Canvas>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:HBox xmlns:mx="http://www.adobe.com/2006/mxml" width="100%" verticalAlign="middle">
+	<mx:Button label="Attach Label"
+		toolTip="Click here and then click a label target in the image."
+		/>
+	<mx:TextArea text="Enter label text here..." color="0x000000" width="100%"
+		/>
+	<mx:Button label="Delete" fontSize="12" toolTip="Delete this label."/>
+	<mx:Script>
+		<![CDATA[
+			public override function set data(value:Object):void
+			{
+			}
+		]]>
+	</mx:Script>
+</mx:HBox>

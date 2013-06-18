@@ -1,0 +1,1150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<materia:CreatorBase xmlns:mx="http://www.adobe.com/2006/mxml"
+					 xmlns:materia="materia.*"
+					 xmlns:components="materia.components.*" xmlns:local="*" width="100%"
+					 height="100%"
+					 addedToStage="{onAddedToStage()}">
+	<mx:Style>
+		.instructionBoxDark
+		{
+			backgroundColor:#303030;
+			borderStyle:solid;
+			borderColor:#000000;
+			drop-shadow-enabled: true;
+			background-alpha: .8;
+			color: #f0f0f0;
+			corner-radius: 2px;
+			font-size: 11pt;
+			padding-top: 5;
+			padding-bottom: 5;
+			padding-left: 5;
+			padding-right: 5;
+		}
+		.smallInstructionText
+		{
+			font-size:10;
+			color:#000000;
+		}
+		.instructionTextWhite
+		{
+			font-size:13;
+			font-weight:bold;
+			color:#f0f0f0;
+		}
+	</mx:Style>
+	<mx:Canvas width="1010" height="600"
+			   verticalScrollPolicy="off" horizontalScrollPolicy="off"
+			   horizontalCenter="0" y="20">
+		<mx:Canvas width="{GAME_AREA_WIDTH}" height="100%" left="0"
+				   horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:Canvas width="{LABELING_AREA_WIDTH}" height="{LABELING_AREA_HEIGHT}"
+					   right="0"
+					   horizontalScrollPolicy="off" verticalScrollPolicy="off"
+					   backgroundColor="0xffffff" backgroundAlpha="1"
+					   click="{endLabelEditor();}"/>
+			<mx:SWFLoader width="{LABELING_AREA_WIDTH}" height="{LABELING_AREA_HEIGHT}"
+						  right="0" scaleContent="false"
+						  source="{_gameScreen}"/>
+			<components:ScrollableSizableImage id="imageToBeLabeled"
+											   width="{DRAG_AREA_WIDTH}" height="{DRAG_AREA_HEIGHT}"
+											   top="40" right="0"
+											   click="{endLabelEditor();}"
+											   repositionDone="{repositionDone()}"/>
+			<mx:Canvas id="mouseOverIntercept"
+					   x="193" y="40"
+					   mouseDown="{backgroundMouseDown(event);}"
+					   visible="{_stateAddingLabels}">
+				<mx:SWFLoader id="cursorArea" source="{new MovieClip()}" right="0"/>
+			</mx:Canvas>
+			<mx:SWFLoader id="movieClipArea" source="{new MovieClip()}"
+						  width="{LABELING_AREA_WIDTH}" height="{LABELING_AREA_HEIGHT}"
+						  right="0"/>
+			<mx:Canvas id="labelEditingOverlayCanvas"
+					   width="{LABELING_AREA_WIDTH}" height="{LABELING_AREA_HEIGHT}"
+					   minWidth="{LABELING_AREA_WIDTH}" minHeight="{LABELING_AREA_HEIGHT}"
+					   right="0"
+					   horizontalScrollPolicy="off" verticalScrollPolicy="off"
+					   clipContent="false"/>
+			<mx:HBox width="300" top="4" horizontalCenter="0">
+				<mx:Label text="Title:" styleName="sectionLabel"/>
+				<mx:TextInput id="titleTextInput" width="100%" text="{instanceTitle}" maxChars="{CreatorConfig.MAX_TITLE_LENGTH}" change="{instanceTitle=titleTextInput.text;}"/>
+			</mx:HBox>
+			<mx:Canvas y="40" width="193" height="100%" backgroundColor="0" alpha="0.5"></mx:Canvas>
+			<mx:VBox visible="{_stateAddingLabels}" width="160" left="5" top="120" verticalAlign="middle" styleName="instructionBoxDark">
+				<mx:Text width="140" styleName="instructionTextWhite" selectable="false" fontWeight="normal"
+						 htmlText="The term list is disabled in creator mode.&lt;br&gt;&lt;br&gt;Students will see the labels you create here."/>
+			</mx:VBox>
+		</mx:Canvas>
+		<mx:VBox width="{SIDE_BAR_WIDTH}" height="100%" right="0">
+			<mx:Canvas width="100%" height="102"
+					   backgroundAlpha="1.0" backgroundColor="0x9cb6d4"
+					   cornerRadius="6" borderStyle="solid">
+				<mx:Label x="7" y="5" text="Image Options:"/>
+				<mx:Button id="loadImageButton"
+						   y="27"
+						   left="10" right="10"
+						   label="Select Image" styleName="gameButton"
+						   click="{beginLoadImage()}"/>
+				<mx:Button y="63"
+						   left="10" right="10"
+						   label="Move/Resize Image" styleName="gameButton"
+						   click="{moveResizeImageClick()}"/>
+			</mx:Canvas>
+			<local:ThemeChoicePane id="themeChooser" width="100%" themeChange="{themeChanged()}"/>
+		</mx:VBox>
+		<!-- here are some canvases of stuff that will be visible only at certain times
+		maybe I should use states for this? -->
+		<mx:Canvas id="imageDirectionsOverlay"
+				   width="100%" height="100%"
+				   visible="{_stateNeedsAnImage}">
+			<mx:Image x="293.5" y="130" source="@Embed(source='assets/DefaultImage.jpg')"/>
+			<mx:Image x="497" y="2"
+					  source="@Embed(source='assets/helperArrow.png')"
+					  mouseEnabled="false" mouseChildren="false"
+					  filters="{[getADropShadow()]}"/>
+			<mx:VBox x="667.6" y="80.9"
+					 width="289.62122"
+					 verticalAlign="middle"
+					 styleName="instructionBoxDark">
+				<mx:Text width="260"
+						 styleName="instructionTextWhite"
+						 selectable="false"
+						 text="Start by selecting or uploading an image from the Media Bank."/>
+			</mx:VBox>
+		</mx:Canvas>
+		<mx:Canvas id="repositioningOverlay"
+				   width="100%" height="100%"
+				   visible="{_stateRepositionImage}"
+				   horizontalScrollPolicy="off" verticalScrollPolicy="off">
+			<mx:Canvas width="200" height="100%"
+					   right="0"
+					   backgroundAlpha="1.0" backgroundColor="0x9cb6d4"
+					   cornerRadius="6"
+					   borderStyle="solid">
+				<mx:Label x="25" y="10" text="Reposition / Resize"/>
+				<mx:Button x="97" y="36"
+						   label="Cancel"
+						   styleName="gameButton"
+						   click="{repositionCancel()}"/>
+				<mx:Button x="30" y="36"
+						   label="Done"
+						   styleName="gameButton"
+						   click="{repositionDone()}"/>
+			</mx:Canvas>
+		</mx:Canvas>
+		<mx:Canvas width="100%"
+				   verticalScrollPolicy="off" horizontalScrollPolicy="off"
+				   visible="{_stateRepositionImage}"
+				   mouseEnabled="false" mouseChildren="false">
+			<mx:Image x="986" y="450"
+					  rotation="180"
+					  source="@Embed(source='assets/helperArrow.png')"
+					  filters="{[getADropShadow()]}"/>
+			<mx:VBox x="821" y="180"
+					 width="178"
+					 styleName="instructionBoxDark">
+				<mx:Text width="156"
+						 text="Reposition and resize your image as needed and click 'Done' when finished."
+						 selectable="false"
+						 styleName="instructionTextWhite"/>
+			</mx:VBox>
+		</mx:Canvas>
+		<mx:Canvas id="addingLabelsOverlay"
+				   visible="{_stateAddingLabels}">
+			<mx:VBox x="819" y="221"
+					 width="177"
+					 borderColor="#F3F2BB"
+					 styleName="instructionBoxDark">
+				<mx:Text width="163"
+						 selectable="false"
+						 styleName="instructionTextWhite"
+						 text="Click anywhere on the image to add a label."/>
+			</mx:VBox>
+		</mx:Canvas>
+	</mx:Canvas>
+	<mx:Script>
+		<![CDATA[
+			import materia.CreatorConfig;
+			import materia.PopUpAlert;
+			import materia.questionStorage.Question;
+			import materia.questionStorage.QuestionGroup;
+			import materia.questionStorage.QuestionSet;
+			
+			import mx.controls.Alert;
+			import mx.controls.Image;
+			import mx.controls.TextArea;
+			import mx.messaging.AbstractConsumer;
+			protected static const TRACE_STRING:String = "Labeling.mxml";
+			protected static const CURRENT_WIDGET_VERSION:uint = 2;
+			protected static const GAME_AREA_WIDTH:Number = 800.0;
+			protected static const SIDE_BAR_WIDTH:Number = 200.0;
+			protected static const LABEL_EDITOR_BUTTONS_HEIGHT:Number = 20.0;
+			protected static const Y_GAP_BETWEEN_IMPORTED_LABELS:Number = 10.0;
+			protected static const MAX_NUM_LABELS:int = 30;
+			protected static const SCREEN_STATE_NEEDS_AN_IMAGE:int = 0;
+			protected static const SCREEN_STATE_LOADING_IMAGE:int = 1;
+			protected static const SCREEN_STATE_REPOSITIONING_IMAGE:int = 2;
+			protected static const SCREEN_STATE_ADDING_LABELS:int = 3;
+			protected static const HIDE_MOUSEOVER_DELAY:Number = 500;
+			// the dimensions of the labeling play area
+			protected static const LABELING_AREA_WIDTH:Number = 800.0;
+			protected static const LABELING_AREA_HEIGHT:Number = 600.0;
+			protected static const DRAG_AREA_WIDTH:Number = 606;
+			protected static const DRAG_AREA_HEIGHT:Number = 560;
+			[Bindable]
+			protected var _stateNeedsAnImage:Boolean = true;
+			[Bindable]
+			protected var _stateLoadingImage:Boolean = false;
+			[Bindable]
+			protected var _stateRepositionImage:Boolean = false;
+			[Bindable]
+			protected var _stateAddingLabels:Boolean = false;
+			[Bindable]
+			protected var _showImageOptionsCanvas:Boolean = false;
+			// part of the creator looks like the game
+			[Bindable]
+			protected var _gameScreen:LabelingScreen = new LabelingScreen();
+			// the area of the game that labels' final positions will be in
+			protected var _labelDragArea:MovieClip =  _gameScreen.ImageArea;
+			protected var _hasAnImage:Boolean = false;
+			protected var _endPointsArray:Array = new Array();
+			protected var _currentlyDraggedEndPoint:EndPoint;
+			protected var _validCursor:Sprite;
+			protected var _labelsList:Array = []; // a list of the label objects
+			protected var _qidsList:Array = []; // array parallel to _labelsList,
+			protected var _waitingToHideList:Array = [];
+			protected var _labelToEdit:LabelingLabel;
+			protected var _imageAssetId:String = "";
+			protected var _editingTextArea:TextArea;
+			protected var _editingOkButton:Button;
+			protected var _editLabelButton:Button;
+			protected var _currentEditingLabel:LabelingLabel; // the label with the editing box current in it
+			protected var _currentMouseoveringLabel:LabelingLabel; // the label currently being mouseoverd
+			protected var curImportedQuestionX:Number = 0;
+			protected var curImportedQuestionY:Number = 0;
+			protected var _solidColorBackgroundClip:MovieClip;
+			protected var _oldVersionXOffset:Number = 195;
+			protected var _oldVersionYOffset:Number = 40;
+			protected var _alertIsOpen:Boolean = false;
+			protected function onAddedToStage():void
+			{
+				hideUnNeededGameScreenElements();
+				stage.addEventListener(KeyboardEvent.KEY_DOWN, listenForEnterKey, true, 0, true);
+				imageToBeLabeled.scrollRect = new Rectangle(0, 0, LABELING_AREA_WIDTH, LABELING_AREA_HEIGHT);
+				//set up graphic for cursor to change into when over label area
+				_validCursor = new Sprite();
+				_validCursor.graphics.beginFill(0xFFFFFF);
+				_validCursor.graphics.drawCircle(0,0,7);
+				_validCursor.graphics.endFill();
+				_validCursor.graphics.beginFill(0x333333);
+				_validCursor.graphics.drawCircle(0,0,5);
+				_validCursor.graphics.endFill();
+				_validCursor.mouseEnabled = false;
+				//draw invisible box to catch mouse-over events over the label area
+				mouseOverIntercept.mouseEnabled = true;
+				mouseOverIntercept.mouseChildren = false;
+				mouseOverIntercept.graphics.beginFill(0,0);
+				mouseOverIntercept.graphics.drawRect(0,0,_labelDragArea.width,_labelDragArea.height);
+				mouseOverIntercept.graphics.endFill();
+				mouseOverIntercept.addEventListener(MouseEvent.MOUSE_OVER,overLabelArea,false,0,true);
+				mouseOverIntercept.addEventListener(MouseEvent.MOUSE_OUT,outLabelArea,false,0,true);
+				themeChanged(); // to start off with the correct theme displayed
+				if( _labelsList.length > 0 ||  _hasAnImage )
+				{
+					setScreenState(SCREEN_STATE_ADDING_LABELS);
+				}
+			}
+			protected function overLabelArea(e:MouseEvent):void
+			{
+				//don't replace the cursor if we're currently dragging an endpoint
+				if(_currentlyDraggedEndPoint != null) return;
+				Mouse.hide();
+				cursorArea.addChild(_validCursor);
+				stage.addEventListener(MouseEvent.MOUSE_MOVE, moveValidCursor,false,0,true);
+			}
+			protected function outLabelArea(e:MouseEvent):void
+			{
+				//if the cursor was never replaced
+				if(_validCursor.parent == null) return;
+				Mouse.show();
+				cursorArea.removeChild(_validCursor);
+				stage.removeEventListener(MouseEvent.MOUSE_MOVE, moveValidCursor);
+			}
+			protected function moveValidCursor(e:MouseEvent):void
+			{
+				var x:Number = cursorArea.mouseX;
+				var y:Number = cursorArea.mouseY;
+				if(x > _labelDragArea.width|| y < 0)
+				{
+					mouseOverIntercept.dispatchEvent(new MouseEvent(MouseEvent.MOUSE_OUT));
+					return;
+				}
+				_validCursor.x = x;
+				_validCursor.y = y;
+			}
+			protected function listenForEnterKey(e:KeyboardEvent):void
+			{
+				if(!_alertIsOpen && _currentEditingLabel != null)
+				{
+					if(e.keyCode == Keyboard.ENTER)
+					{
+						if(!hasDuplicates())
+						{
+							endLabelEditor();
+						}
+						else
+						{
+							e.preventDefault();
+							e.stopImmediatePropagation();
+						}
+					}
+					else if(e.keyCode == Keyboard.ESCAPE)
+					{
+						e.stopImmediatePropagation();
+						_currentEditingLabel.dispatchEvent(new Event("EVENT_CLOSE_BUTTON_CLICK"));
+					}
+				}
+			}
+			protected function hideUnNeededGameScreenElements():void
+			{
+				_gameScreen.doneButtonHelperMessage.visible = false;
+				_gameScreen.topHeader.doneButton.visible = false;
+				_gameScreen.topHeader.titleLabel.visible = false;
+			}
+			protected function beginLoadImage():void
+			{
+				openMediaScreen(onMediaLoaded);
+			}
+			protected function onMediaLoaded(assets:Array):void
+			{
+				if(assets.length > 0)
+				{
+					_imageAssetId = assets[0].id;
+					imageToBeLabeled.addEventListener(ScrollableSizableImage.EVENT_IMAGE_LOAD_COMPLETE, moveResizeImageClick, false, 0, true);
+					imageToBeLabeled.source = CreatorConfig.getKogneatoAssetLink(_imageAssetId);
+					_hasAnImage = true;
+				}
+			}
+			// the questions ids (used if they are imported)
+			protected function addLabel(txt:String = "Enter label text...", qid:int = 0,
+										labelX:Number = 0.0, labelY:Number = 0.0,
+										endPointX:Number = 0.0, endPointY:Number = 0.0):LabelingLabel
+			{
+				var l:LabelingLabel = new LabelingLabel();
+				l.usingInCreator = true;
+				l.addEventListener("EVENT_MOUSE_OVER_LABEL", mouseOverLabel, false, 0, true);
+				l.addEventListener("EVENT_MOUSE_OUT_LABEL", mouseOutLabel, false, 0, true);
+				l.addEventListener("EVENT_LABEL_MOVED", labelMoved, false, 0, true);
+				l.addEventListener("EVENT_LABEL_DOUBLE_CLICK", labelDoubleClicked, false, 0, true);
+				l.addEventListener("EVENT_CLOSE_BUTTON_CLICK", labelCloseClicked, false, 0, true);
+				l.addEventListener("EVENT_SPLIT_BUTTON_CLICK", labelSplitClicked, false, 0, true);
+				l.setLabelText(txt, null, 20);
+				l.labelBox.x = labelX;
+				l.labelBox.y = labelY;
+				l.setEndpointLocation(endPointX, endPointY);
+				const LABEL_WIDTH:Number = 150;
+				const LABEL_HEIGHT:Number = 32;
+				l.labelBox.labelBox.gotoAndStop("normal");
+				l.doResizeFontToFit(true, 14, 40);
+				l.setLabelSize(LABEL_WIDTH, LABEL_HEIGHT);
+				l.setStageArea(_labelDragArea.width, _labelDragArea.height,_labelDragArea.x,_labelDragArea.y);
+				_labelsList.push(l);
+				_qidsList.push(qid);
+				movieClipArea.source.addChild(l);
+				return l;
+			}
+			protected function createNewEndPoint(x:int, y:int, l:LabelingLabel):void
+			{
+				var ep:EndPoint = new EndPoint(x,y,l,_labelDragArea);
+				ep.filters = [getADropShadow()];
+				ep.addEventListener(EndPoint.ENDPOINT_EMPTY,removeEndPoint,false,0,true);
+				ep.addEventListener(EndPoint.ENDPOINT_DRAGGING,onEndPointDrag,false,0,true);
+				ep.addEventListener(EndPoint.ENDPOINT_RELEASED,onEndPointRelease,false,0,true);
+				ep.addEventListener(EndPoint.ENDPOINT_APPEND, appendToEndPoint,false,0,true);
+				movieClipArea.source.addChild(ep);
+				movieClipArea.source.setChildIndex(ep,0);
+				_endPointsArray.push(ep);
+			}
+			protected function removeEndPoint(e:Event):void
+			{
+				var ep:EndPoint = EndPoint(e.target);
+				ep.removeEventListener(EndPoint.ENDPOINT_EMPTY,removeEndPoint);
+				_endPointsArray.splice(_endPointsArray.indexOf(ep),1);
+				movieClipArea.source.removeChild(ep);
+				ep = null;
+			}
+			protected function onEndPointDrag(e:Event):void
+			{
+				stage.addEventListener(MouseEvent.MOUSE_MOVE,compareEndPointLocations,false,0,true);
+				_currentlyDraggedEndPoint = EndPoint(e.target);
+			}
+			protected function onEndPointRelease(e:Event):void
+			{
+				stage.removeEventListener(MouseEvent.MOUSE_MOVE,compareEndPointLocations);
+				if(_currentlyDraggedEndPoint.attached)
+				{
+					_currentlyDraggedEndPoint.addEventListener(EndPoint.FOUND_DUPES, alertForDupes,false,0,true);
+					_currentlyDraggedEndPoint.combineEndPoints(createNewEndPoint);
+				}
+				_currentlyDraggedEndPoint = null;
+			}
+			protected function compareEndPointLocations(e:MouseEvent):void
+			{
+				var xdist:Number
+				var ydist:Number
+				var dist:Number
+				if(_currentlyDraggedEndPoint.attached)
+				{
+					xdist = _currentlyDraggedEndPoint.x - movieClipArea.source.mouseX;
+					ydist = _currentlyDraggedEndPoint.y - movieClipArea.source.mouseY;
+					dist = Math.sqrt((xdist*xdist)+(ydist*ydist));
+					if(dist >= EndPoint.PRELINK_BREAK_RADIUS)
+					{
+						_currentlyDraggedEndPoint.breakPreLink();
+					}
+					return;
+				}
+				//check the distance between the currently dragged endpoint and every other endpoint
+				for each(var ep:EndPoint in _endPointsArray)
+				{
+					if(ep != _currentlyDraggedEndPoint)
+					{
+						xdist = ep.x - movieClipArea.source.mouseX;//_currentlyDraggedEndPoint.x;
+						ydist = ep.y - movieClipArea.source.mouseY;//_currentlyDraggedEndPoint.y;
+						dist = Math.sqrt((xdist*xdist)+(ydist*ydist));
+						//if it's touching one, highlight that one and stop looking
+						if(!_currentlyDraggedEndPoint.attached && dist <= EndPoint.PRELINK_LINK_RADIUS)
+						{
+							_currentlyDraggedEndPoint.x = ep.x;
+							_currentlyDraggedEndPoint.y = ep.y;
+							_currentlyDraggedEndPoint.preLink(ep);
+							break;
+						}
+					}
+				}
+			}
+			protected function appendToEndPoint(e:Event):void
+			{
+				var ep:EndPoint = EndPoint(e.target);
+				var l:LabelingLabel = addLabel();
+				l.labelBox.x = ep.lastLabelX+10;
+				l.labelBox.y = ep.lastLabelY+10;
+				l.setEndpointLocation(ep.x,ep.y);
+				ep.addLabel(l);
+				startLabelEditor(l);
+			}
+			protected function labelCloseClicked(e:Event):void
+			{
+				var l:LabelingLabel = e.currentTarget as LabelingLabel;
+				if(l == _currentEditingLabel || !hasDuplicates())
+				{
+					endLabelEditor(); // incase we were editing this label
+					var i:int = _labelsList.indexOf(l);
+					if(i != -1)
+					{
+						_labelsList.splice(i,1);
+						_qidsList.splice(i,1);
+					}
+					removeLabel(l);
+				}
+				else
+				{
+					e.stopImmediatePropagation();
+				}
+			}
+			protected function labelSplitClicked(e:Event):void
+			{
+				var l:LabelingLabel = e.currentTarget as LabelingLabel;
+				if(l == _currentEditingLabel || !hasDuplicates())
+				{
+					endLabelEditor();
+					var i:int = _labelsList.indexOf(l);
+					//split the label off
+					EndPoint(l.creatorEndPoint).removeLabel(l);
+					createNewEndPoint(l.labelBox.x+(l.labelBox.width/2),l.labelBox.y+(l.labelBox.height*2),l);
+				}
+				else
+				{
+					e.stopImmediatePropagation();
+				}
+			}
+			protected function removeLabel(l:LabelingLabel):void
+			{
+				hideMouseoverObjects(l);
+				//edit button is still tweening after its label reference is removed, this hides it immediately
+				_editLabelButton.visible = false;
+				movieClipArea.source.removeChild(l);
+				l.removeEventListener("EVENT_MOUSE_OVER_LABEL", mouseOverLabel);
+				l.removeEventListener("EVENT_MOUSE_OUT_LABEL", mouseOutLabel);
+				l.removeEventListener("EVENT_LABEL_MOVED", labelMoved);
+				l.removeEventListener("EVENT_LABEL_DOUBLE_CLICK", labelDoubleClicked);
+				l.removeEventListener("EVENT_CLOSE_BUTTON_CLICK", labelCloseClicked);
+				l.removeEventListener("EVENT_LABEL_SPLIT_CLICK", labelSplitClicked);
+				l = null;
+			}
+			protected function mouseOverLabel(e:Event):void
+			{
+				var l:LabelingLabel = e.currentTarget as LabelingLabel;
+				_currentMouseoveringLabel = l;
+				showMouseoverStuff(l);
+			}
+			protected function showMouseoverStuff(labelingLabel:LabelingLabel):void
+			{
+				cancelHideMouseoverObjects(labelingLabel);
+				if(EndPoint(labelingLabel.creatorEndPoint).labels.length>1)
+				{
+					labelingLabel.showSplitButton(true);
+				}
+				labelingLabel.showDeleteButton(true);
+				showEditButton();
+				positionEditButton(labelingLabel);
+			}
+			protected function showEditButton(show:Boolean = true):void
+			{
+				if( _editLabelButton == null)
+				{
+					_editLabelButton = new Button();
+					_editLabelButton.label = "Edit";
+					_editLabelButton.height = LABEL_EDITOR_BUTTONS_HEIGHT;
+					labelEditingOverlayCanvas.addChild(_editLabelButton);
+					_editLabelButton.addEventListener(MouseEvent.CLICK, editLabelButtonClick, false, 0, true);
+					_editLabelButton.addEventListener(MouseEvent.MOUSE_OVER, mouseOverEditButton, false, 0, true);
+					_editLabelButton.addEventListener(MouseEvent.MOUSE_OUT, mouseOutEditButtton, false, 0, true);
+				}
+				// we dont need to show the edit button if we are already editing text
+				if(_editingTextArea != null && _editingTextArea.visible == true)
+				{
+					_editLabelButton.visible = false;
+				}
+				else
+				{
+					_editLabelButton.visible = show;
+				}
+			}
+			protected function mouseOverEditButton(e:Event):void
+			{
+				// the same effect as mouse-overing the label
+				showMouseoverStuff(_currentMouseoveringLabel);
+			}
+			protected function mouseOutEditButtton(e:Event):void
+			{
+				// the same effect as mouse-outing the label
+				cancelHideMouseoverObjects(_currentMouseoveringLabel);
+				hideMouseoverObjects(_currentMouseoveringLabel);
+			}
+			protected function positionEditButton(l:LabelingLabel):void
+			{
+				if(_editLabelButton != null)
+				{
+					var mc:MovieClip = l.labelBox;
+					_editLabelButton.x = mc.x + 4.0;
+					_editLabelButton.y = mc.y + mc.labelBox.height;
+				}
+			}
+			protected function editLabelButtonClick(e:Event):void
+			{
+				startLabelEditor(_currentMouseoveringLabel);
+				// NOTE: starting the label editor will take care of hiding the edit button
+			}
+			// objects: { label: , timer: }
+			// that show the timer that will hide the label, and the label that will hide
+			protected function cancelHideMouseoverObjects(l:LabelingLabel):void
+			{
+				for(var i:int =0; i< _waitingToHideList.length; i++)
+				{
+					if( _waitingToHideList[i].label == l)
+					{
+						cancelHideTimer(_waitingToHideList[i].timer);
+						_waitingToHideList.splice(i,1);
+						break; // should only be on the list once
+					}
+				}
+			}
+			protected function cancelHideTimer(t:Timer):void
+			{
+				t.removeEventListener(TimerEvent.TIMER_COMPLETE, hideTimerComplete);
+				t.stop();
+			}
+			protected function mouseOutLabel(e:Event):void
+			{
+				cancelHideMouseoverObjects(e.target as LabelingLabel);
+				hideMouseoverObjects(e.target as LabelingLabel);
+			}
+			protected function hideMouseoverObjects(l:LabelingLabel):void
+			{
+				cancelHideMouseoverObjects(l);
+				var hideTimer:Timer = new Timer(HIDE_MOUSEOVER_DELAY, 1);
+				hideTimer.addEventListener(TimerEvent.TIMER_COMPLETE, hideTimerComplete);
+				hideTimer.start();
+				_waitingToHideList.push( { label:l, timer: hideTimer } );
+			}
+			protected function hideTimerComplete(e:Event):void
+			{
+				var hideEditButton:Boolean = false;
+				for(var i:int =0; i< _waitingToHideList.length; i++)
+				{
+					if( _waitingToHideList[i].timer == e.currentTarget)
+					{
+						cancelHideTimer(_waitingToHideList[i].timer);
+						_waitingToHideList[i].label.hideDeleteButton(true);
+						if(_waitingToHideList[i].label.isSplitButtonShowing)
+						{
+							_waitingToHideList[i].label.hideSplitButton(true);
+						}
+						if(_currentMouseoveringLabel == _waitingToHideList[i].label)
+						{
+							hideEditButton = true;
+						}
+						_waitingToHideList.splice(i,1);
+					}
+				}
+				// if we mouseovered a new label, the edit button will be on it, and we dont want to hide it
+				if(hideEditButton == true)
+				{
+					showEditButton(false);
+				}
+			}
+			protected function labelMoved(e:Event):void
+			{
+				positionEditButton(e.currentTarget as LabelingLabel);
+			}
+			protected function labelDoubleClicked(e:Event):void
+			{
+				if(!hasDuplicates())
+				{
+					endLabelEditor(); // if we were editing a label before
+					startLabelEditor(e.target as LabelingLabel);
+				}
+				else
+				{
+					e.stopImmediatePropagation();
+				}
+			}
+			protected function labelEditorFocusOut(e:Event):void
+			{
+				if(!hasDuplicates())
+				{
+					endLabelEditor();
+				}
+				else
+				{
+					e.stopImmediatePropagation();
+				}
+			}
+			protected function labelEditorOKClick(e:Event):void
+			{
+				labelEditorFocusOut(e);
+			}
+			protected function startLabelEditor(theLabel:LabelingLabel):void
+			{
+				showEditButton(false);
+				_currentEditingLabel = theLabel;
+				if(_editingTextArea == null)
+				{
+					_editingTextArea = new TextArea();
+					_editingTextArea.setStyle('color', 0x000000);
+					//_editingTextArea.addEventListener(FocusEvent.FOCUS_OUT, labelEditorFocusOut, false, 0, true);
+					labelEditingOverlayCanvas.addChild(_editingTextArea);
+					_editingOkButton = new Button();
+					_editingOkButton.height = LABEL_EDITOR_BUTTONS_HEIGHT;
+					_editingOkButton.label = "OK";
+					_editingOkButton.addEventListener(MouseEvent.CLICK, labelEditorOKClick, false, 0, true);
+					labelEditingOverlayCanvas.addChild(_editingOkButton);
+					_editingTextArea.focusEnabled = false;
+				}
+				_editingTextArea.text = _currentEditingLabel.fullText;
+				_editingTextArea.visible = true;
+				_editingTextArea.setFocus();
+				_editingTextArea.setSelection(0, _editingTextArea.text.length);
+				_editingOkButton.visible = true;
+				positionLabelEditor(theLabel);
+			}
+			protected function positionLabelEditor(theLabel:LabelingLabel):void
+			{
+				if(_editingTextArea != null)
+				{
+					var mc:MovieClip = theLabel.labelBox;
+					_editingTextArea.width = mc.labelBox.width - 8.0;
+					_editingTextArea.height = mc.labelBox.height - 8.0;
+					_editingTextArea.x = mc.x + 4.0;
+					_editingTextArea.y = mc.y + 4.0;
+					_editingOkButton.y = _editingTextArea.y + _editingTextArea.height + 4.0;
+					_editingOkButton.x = _editingTextArea.x;
+				}
+			}
+			protected function endLabelEditor():void
+			{
+				if(_editingTextArea != null && _editingTextArea.visible == true && _currentEditingLabel != null)
+				{
+					_currentEditingLabel.setLabelText(_editingTextArea.text, null, 20);
+					_editingTextArea.visible = false;
+					_editingOkButton.visible = false;
+				}
+				_currentEditingLabel = null;
+			}
+			protected function hasDuplicates():Boolean
+			{
+				var hasDupe:Boolean = false;
+				if(_currentEditingLabel == null) return hasDupe;
+				for each(var l:LabelingLabel in _currentEditingLabel.creatorEndPoint.labels)
+				{
+					if(l != _currentEditingLabel && l.fullText == _editingTextArea.text)
+					{
+						alertForDupes();
+						hasDupe = true;
+						break;
+					}
+				}
+				return hasDupe;
+			}
+
+			protected function alertForDupes(e:Event = null):void
+			{
+				if(!_alertIsOpen) Alert.show("Duplicate labels can not be attached to the same endpoint.","Duplicate Labels",4,null,alertClosed);
+				_alertIsOpen = true;
+			}
+
+			protected function alertClosed(e:Event):void
+			{
+				_alertIsOpen = false;
+				if(_currentEditingLabel != null)
+				{
+					_editingTextArea.setFocus();
+					_editingTextArea.setSelection(0,_editingTextArea.text.length);
+				}
+			}
+
+			protected function moveResizeImageClick(e:Event = null):void
+			{
+				// make sure there is an image loaded
+				if(imageToBeLabeled.displayedImage.content != null)
+				{
+					shutOffTools();
+					repositionStart();
+				}
+			}
+
+			protected function shutOffTools(doResetScreenState:Boolean = true):void
+			{
+				// deselect everything on the tools bar, and stop all tool actions
+				imageToBeLabeled.allowScrollingAndSizing = false;
+				if(doResetScreenState)
+				{
+					setScreenState(SCREEN_STATE_ADDING_LABELS);
+				}
+			}
+
+			protected function repositionStart():void
+			{
+				//fix this, was a hack to make sure image size didn't exceed stage size
+				//imageToBeLabeled.stageWidth = _labelDragArea.width;
+				//imageToBeLabeled.stageHeight = _labelDragArea.height;
+				setScreenState(SCREEN_STATE_REPOSITIONING_IMAGE);
+				imageToBeLabeled.allowScrollingAndSizing = true;
+				imageToBeLabeled.storeCurrentImageSize();
+			}
+
+			protected function repositionCancel():void
+			{
+				// stop repositioning and go back to the previous position ( when we called repositionStart
+				shutOffTools();
+				imageToBeLabeled.loadPreviousImageSize();
+			}
+
+			protected function repositionDone():void
+			{
+				shutOffTools();
+			}
+
+			protected function backgroundMouseDown(event:Event):void
+			{
+				if(_currentEditingLabel != null)
+				{
+					// they probably just clicked off the background to end editing their current label
+					if(!hasDuplicates())
+					{
+						endLabelEditor();
+					}
+					else
+					{
+						event.stopImmediatePropagation();
+					}
+				}
+				else if(_stateAddingLabels == true  &&
+					isMouseOnLabelingArea(movieClipArea.mouseX, movieClipArea.mouseY) )
+				{
+					var l:LabelingLabel = placeNewLabel();
+					if(l)
+					{
+						createNewEndPoint(movieClipArea.mouseX,movieClipArea.mouseY,l);
+					}
+				}
+			}
+
+			protected function placeNewLabel():LabelingLabel
+			{
+				if(! canAddMoreLabels())
+				{
+					showTooManyLabelsMessage();
+					return null;
+				}
+				var l:LabelingLabel = addLabel();
+				var clickedX:Number = movieClipArea.mouseX;
+				var clickedY:Number = movieClipArea.mouseY;
+				l.setEndpointLocation(clickedX, clickedY);
+				setLabelLocation(clickedX,clickedY,l);
+				if(l.labelBox.x < _labelDragArea.x)
+				{
+					l.labelBox.x = _labelDragArea.x;
+				}
+				editLabelOnNextMouseup(l);
+				return l;
+			}
+
+			//offset labels from endpoints based on the quadrant the endpoint is in
+			protected function setLabelLocation(inX:Number,inY:Number,l:LabelingLabel):void
+			{
+				var labelAreaHalfWidth:Number = DRAG_AREA_WIDTH / 2.0;
+				var labelAreaHalfHeight:Number = DRAG_AREA_HEIGHT / 2.0;
+				const LABEL_START_OFFSET_X:Number = 140.0;
+				const LABEL_START_OFFSET_Y:Number = 50.0;
+				if(inX < labelAreaHalfWidth)
+				{
+					if(inY < labelAreaHalfHeight)
+					{
+						l.labelBox.x = inX + LABEL_START_OFFSET_X - l.labelBox.labelBox.width/2.0;
+						l.labelBox.y = inY + LABEL_START_OFFSET_Y - l.labelBox.labelBox.height/2.0;
+					}
+					else
+					{
+						l.labelBox.x = inX + LABEL_START_OFFSET_X - l.labelBox.labelBox.width/2.0;
+						l.labelBox.y = inY - LABEL_START_OFFSET_Y - l.labelBox.labelBox.height/2.0;
+					}
+				}
+				else
+				{
+					if(inY < labelAreaHalfHeight)
+					{
+						l.labelBox.x = inX - LABEL_START_OFFSET_X - l.labelBox.labelBox.width/2.0;
+						l.labelBox.y = inY + LABEL_START_OFFSET_Y - l.labelBox.labelBox.height/2.0;
+					}
+					else
+					{
+						l.labelBox.x = inX - LABEL_START_OFFSET_X - l.labelBox.labelBox.width/2.0;
+						l.labelBox.y = inY - LABEL_START_OFFSET_Y - l.labelBox.labelBox.height/2.0;
+					}
+				}
+			}
+
+			//middle ground between clicking to auto-focus text and clicking to cancel editing
+			protected function editLabelOnNextMouseup(l:LabelingLabel):void
+			{
+				_labelToEdit = l;
+				stage.addEventListener(MouseEvent.MOUSE_UP, onMouseupEditLable, false, 0, true);
+			}
+
+			protected function onMouseupEditLable(e:Event):void
+			{
+				stage.removeEventListener(MouseEvent.MOUSE_UP, onMouseupEditLable);
+				callLater(delayedEditLabel);
+			}
+
+			protected function delayedEditLabel():void
+			{
+				startLabelEditor(_labelToEdit);
+			}
+
+			protected function isMouseOnLabelingArea(theX:Number, theY:Number):Boolean
+			{
+				if(theX < _labelDragArea.x || theX > _labelDragArea.x + _labelDragArea.width) return false;
+				if(theY < _labelDragArea.y || theY > _labelDragArea.y + _labelDragArea.height) return false;
+				return true;
+			}
+
+			public override function init():void
+			{
+				super.init();
+				instanceTitle = 'New Labeling Widget';
+			}
+			
+			protected override function initExistingWidget(title:String, widget:Object, qset:Object, version:String, baseUrl:String):void
+			{
+				super.initExistingWidget(title, widget, qset, version, baseUrl);
+				// load the image and add the labels
+				// the image
+				_imageAssetId = questionSet.assets[0];
+				if(_imageAssetId != "")
+				{
+					imageToBeLabeled.source = CreatorBase.resolveSource(_imageAssetId);
+					_hasAnImage = true;
+					setScreenState(SCREEN_STATE_ADDING_LABELS);
+				}
+				imageToBeLabeled.displayedImage.x = questionSet.options["imageX"];
+				imageToBeLabeled.displayedImage.y = questionSet.options["imageY"];
+				imageToBeLabeled.imageScale = questionSet.options["imageScale"];
+				//same necessary hackfix for image size
+				//imageToBeLabeled.stageWidth = _labelDragArea.width;
+				//imageToBeLabeled.stageHeight = _labelDragArea.height;
+				if(questionSet.options.version && questionSet.options.version >= CURRENT_WIDGET_VERSION)
+				{
+					_oldVersionXOffset = 0;
+					_oldVersionYOffset = 0;
+				}
+				var questions:Array = questionSet.getQuestions();
+				for(var i:int = 0; i < questions.length; i++)
+				{
+					var q:Question = questions[i];
+					var l:LabelingLabel = addLabel(q.getAnswer(), q.id,
+						q.options["labelBoxX"]+_oldVersionXOffset,
+						q.options["labelBoxY"]+_oldVersionYOffset,
+						q.options["endPointX"]+_oldVersionXOffset,
+						q.options["endPointY"]+_oldVersionYOffset);
+					var pointExists:Boolean = false;
+					for each(var ep:EndPoint in _endPointsArray)
+					{
+						if(l.endPointX == ep.x && l.endPointY == ep.y)
+						{
+							pointExists = true;
+							ep.addLabel(l);
+							break;
+						}
+					}
+					if(!pointExists)
+					{
+						createNewEndPoint(l.endPointX,l.endPointY,l);
+					}
+				}
+			}
+
+			// called when a batch of functions is going to be imported
+			public override function startImportingSet():void
+			{
+				if(!_stateAddingLabels)
+				{
+					Alert.show("Labels can not be imported before an image has been selected!");
+					return;
+				}
+				if(! canAddMoreLabels())
+				{
+					showTooManyLabelsMessage();
+					return;
+				}
+				setScreenState(SCREEN_STATE_ADDING_LABELS);
+				// sets of questions will start showing in the top left, and stack down the screen
+				curImportedQuestionX = 0;
+				curImportedQuestionY = 0;
+			}
+
+			public override function addImportedQuestion(question:Question):Question
+			{
+				if(! canAddMoreLabels())
+				{
+					return null;
+				}
+				var q:Question = super.addImportedQuestion(question);
+				// add a label with the new question
+				var labelX:Number = curImportedQuestionX + 200;
+				var labelY:Number = curImportedQuestionY + 40;
+				var endPointX:Number = labelX + 200;
+				var endPointY:Number = labelY + 40;
+				var newLabel:LabelingLabel = addLabel(q.getAnswer(), q.id, labelX, labelY, endPointX, endPointY);
+				createNewEndPoint(endPointX,endPointY,newLabel);
+				curImportedQuestionY += newLabel.labelBox.height + Y_GAP_BETWEEN_IMPORTED_LABELS;
+				if(endPointY > DRAG_AREA_HEIGHT)
+				{
+					curImportedQuestionY = 40;
+					curImportedQuestionX += 200;
+					labelX = curImportedQuestionX;
+					labelY = curImportedQuestionY;
+					endPointX = labelX + 200;
+					endPointY = labelY + 40;
+				}
+				return q;
+			}
+
+			protected function canAddMoreLabels():Boolean
+			{
+				if(_labelsList.length + 1 > MAX_NUM_LABELS || !_stateAddingLabels) return false;
+				return true;
+			}
+
+			protected function showTooManyLabelsMessage():void
+			{
+				var p:PopUpAlert = new PopUpAlert();
+				p.message = "There cannot be more than "+MAX_NUM_LABELS+" labels in a labeling widget.";
+				p.title = "Too Many Labels";
+				p.addButton("OK",0,false);
+				p.show(this);
+			}
+
+			/**
+			 * Validate the Labeling Game
+			 * */
+			private function checkForErrors():Boolean
+			{
+				// problems with the game title will be caught by the popup on game publish
+				if( _hasAnImage == false )
+				{
+					Alert.show("You must have an image in your labeling widget.","Game Error");
+					return true;
+				}
+				if (_labelsList.length == 0)
+				{
+					Alert.show("You must have at least one label on your image.","Game Error");
+					return true;
+				}
+				return false;
+			}
+			
+			public override function onSaveClicked(mode:String = 'save'):void
+			{
+				if(!checkForErrors())
+				{
+					ExternalInterface.call("__materia_flash_save", instanceTitle, makeQSet().convertToObject(), questionSetVersion);
+				}
+				
+			}
+
+			protected function makeQSet():QuestionSet
+			{
+				// the imageId, image x and y coords, and image scale will all be stored as qset options
+				var theQSet:QuestionSet = new QuestionSet(instanceTitle);
+				theQSet.options.version = CURRENT_WIDGET_VERSION;
+				// putting them in a qgroup because we might want to do the multiple page thing
+				var qGroup:QuestionGroup = new QuestionGroup();
+				for(var i:int=0; i<_labelsList.length; i++)
+				{
+					var q:Question;
+					q = new Question(Question.QA_QUESTION);
+					var l:LabelingLabel = _labelsList[i];
+					q.addAnswer(l.fullText);
+					q.addQuestion(l.fullText);
+					q.id = _qidsList[i];
+					q.addOption("labelBoxX", l.labelBox.x);
+					q.addOption("labelBoxY", l.labelBox.y);
+					q.addOption("endPointX", l.endPointX);
+					q.addOption("endPointY", l.endPointY);
+					qGroup.addChild(q);
+				}
+				theQSet.addChild(qGroup);
+				theQSet.assets = [_imageAssetId];
+				theQSet.addOption("imageX", imageToBeLabeled.displayedImage.x);
+				theQSet.addOption("imageY", imageToBeLabeled.displayedImage.y);
+				theQSet.addOption("imageScale", imageToBeLabeled.imageScale);
+				theQSet.addOption("backgroundTheme", themeChooser.selectedTheme);
+				if(themeChooser.selectedTheme == ThemeChoicePane.THEME_SOLID_COLOR)
+				{
+					var color:int = themeChooser.selectedColor;
+					theQSet.addOption("backgroundColor", color);
+				}
+				return theQSet;
+			}
+			// this is used to show the solid color used for the theme
+			protected function themeChanged():void
+			{
+				switch(themeChooser.selectedTheme)
+				{
+					case ThemeChoicePane.THEME_CORK_BOARD:
+					{
+						_gameScreen.corkBoardBackground.visible = true;
+						_gameScreen.graphPaperBackground.visible = false;
+						if(_solidColorBackgroundClip)
+						{
+							_solidColorBackgroundClip.visible = false;
+						}
+					}
+						break;
+					case ThemeChoicePane.THEME_GRAPH_PAPER:
+					{
+						_gameScreen.corkBoardBackground.visible = false;
+						_gameScreen.graphPaperBackground.visible = true;
+						if(_solidColorBackgroundClip)
+						{
+							_solidColorBackgroundClip.visible = false;
+						}
+					}
+						break;
+					case ThemeChoicePane.THEME_SOLID_COLOR:
+					{
+						_gameScreen.corkBoardBackground.visible = false;
+						_gameScreen.graphPaperBackground.visible = false;
+						if(! _solidColorBackgroundClip)
+						{
+							initSolidColorbackgroundClip();
+						}
+						_solidColorBackgroundClip.visible = true;
+						_solidColorBackgroundClip.graphics.clear();
+						_solidColorBackgroundClip.graphics.beginFill(themeChooser.selectedColor);
+						_solidColorBackgroundClip.graphics.drawRect(0,0,
+							_gameScreen.corkBoardBackground.width,
+							_gameScreen.corkBoardBackground.height);
+						_solidColorBackgroundClip.graphics.endFill();
+					}
+						break;
+				}
+				//put a tiny drop shadow on the image unless the theme is a solid color
+				if(!_solidColorBackgroundClip || !_solidColorBackgroundClip.visible)
+				{
+					imageToBeLabeled.filters = [new DropShadowFilter(1,90,0,.8,2,2,.65)];
+				}
+				else
+				{
+					imageToBeLabeled.filters = [];
+				}
+			}
+			protected function initSolidColorbackgroundClip():void
+			{
+				_solidColorBackgroundClip = new MovieClip();
+				_solidColorBackgroundClip.x = _gameScreen.corkBoardBackground.x;
+				_solidColorBackgroundClip.y = _gameScreen.corkBoardBackground.y;
+				_gameScreen.addChild(_solidColorBackgroundClip);
+				_gameScreen.setChildIndex(_solidColorBackgroundClip, _gameScreen.getChildIndex(_gameScreen.corkBoardBackground));
+			}
+			protected function setScreenState(theState:int):void
+			{
+				_stateNeedsAnImage = false;
+				_stateLoadingImage = false;
+				_stateRepositionImage = false;
+				_stateAddingLabels = false;
+				switch(theState)
+				{
+					case SCREEN_STATE_NEEDS_AN_IMAGE:
+						_stateNeedsAnImage = true;
+						break;
+					case SCREEN_STATE_LOADING_IMAGE:
+						_stateLoadingImage = true;
+						break;
+					case SCREEN_STATE_REPOSITIONING_IMAGE:
+						_stateRepositionImage = true;
+						break;
+					case SCREEN_STATE_ADDING_LABELS:
+						_stateAddingLabels = true;
+						break;
+				}
+			}
+			protected function getADropShadow():BitmapFilter
+			{
+				var color:Number = 0x000000;
+				var angle:Number = 90;
+				var alpha:Number = 0.8;
+				var blurX:Number = 8;
+				var blurY:Number = 8;
+				var distance:Number = 8;
+				var strength:Number = 0.65;
+				var inner:Boolean = false;
+				var knockout:Boolean = false;
+				var quality:Number = BitmapFilterQuality.HIGH;
+				return new DropShadowFilter(distance, angle, color, alpha,
+					blurX, blurY, strength, quality,
+					inner, knockout);
+			}
+			protected function onEndPointClick(e:MouseEvent):void
+			{
+				e.stopImmediatePropagation();
+				var l:LabelingLabel = placeNewLabel();
+				var end:EndPoint = EndPoint(e.target);
+				end.addLabel(l);
+			}
+		]]>
+	</mx:Script>
+</materia:CreatorBase>
