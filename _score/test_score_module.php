@@ -114,7 +114,7 @@ class Test_Score_Modules_Labeling extends \Basetest
 		');
 	}
 
-	protected function _makeWidget()
+	protected function _make_widget()
 	{
 		$this->_asAuthor();
 
@@ -126,7 +126,7 @@ class Test_Score_Modules_Labeling extends \Basetest
 
 	public function test_check_answer()
 	{
-		$inst = $this->_makeWidget();
+		$inst = $this->_make_widget();
 		$play_session = \Materia\Api::session_play_create($inst->id);
 		$qset = \Materia\Api::question_set_get($inst->id, $play_session);
 		$logs = array();
@@ -172,6 +172,6 @@ class Test_Score_Modules_Labeling extends \Basetest
 		$this_score = \Materia\Api::widget_instance_play_scores_get($play_session);
 
 		$this->assertInternalType('array', $this_score);
-		$this->assertEquals(33, $this_score[0]['overview']['score']);
+		$this->assertEquals(33.333333333333, $this_score[0]['overview']['score']);
 	}
 }
