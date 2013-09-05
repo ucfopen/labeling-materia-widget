@@ -871,8 +871,19 @@
 			{
 				super.initExistingWidget(title, widget, qset, version, baseUrl);
 				// load the image and add the labels
-				// the image
-				_imageAssetId = questionSet.assets[0];
+				// old versions of the qset put assets in qset.assets[]
+				// if this exists, move it to qset.options.image
+				if(questionSet.assets.length > 0 && questionSet.assets[0].length > 0)
+				{
+					_imageAssetId = questionSet.assets[0];	
+				}
+				// otherwise, get it from the place it should be now
+				else
+				{
+					_imageAssetId = questionSet.options.image.id
+				}
+				
+				
 				if(_imageAssetId != "")
 				{
 					imageToBeLabeled.source = CreatorBase.resolveSource(_imageAssetId);
@@ -1008,10 +1019,9 @@
 			protected function makeQSet():QuestionSet
 			{
 				// the imageId, image x and y coords, and image scale will all be stored as qset options
-				var theQSet:QuestionSet = new QuestionSet(instanceTitle);
+				var theQSet:QuestionSet = new QuestionSet();
 				theQSet.options.version = CURRENT_WIDGET_VERSION;
 				// putting them in a qgroup because we might want to do the multiple page thing
-				var qGroup:QuestionGroup = new QuestionGroup();
 				for(var i:int=0; i<_labelsList.length; i++)
 				{
 					var q:Question;
@@ -1024,14 +1034,13 @@
 					q.addOption("labelBoxY", l.labelBox.y);
 					q.addOption("endPointX", l.endPointX);
 					q.addOption("endPointY", l.endPointY);
-					qGroup.addChild(q);
+					theQSet.addChild(q);
 				}
-				theQSet.addChild(qGroup);
-				theQSet.assets = [_imageAssetId];
 				theQSet.addOption("imageX", imageToBeLabeled.displayedImage.x);
 				theQSet.addOption("imageY", imageToBeLabeled.displayedImage.y);
 				theQSet.addOption("imageScale", imageToBeLabeled.imageScale);
 				theQSet.addOption("backgroundTheme", themeChooser.selectedTheme);
+				theQSet.addOption('image', {materiaType:'asset', id:_imageAssetId})
 				if(themeChooser.selectedTheme == ThemeChoicePane.THEME_SOLID_COLOR)
 				{
 					var color:int = themeChooser.selectedColor;
