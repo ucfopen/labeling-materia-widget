@@ -102,7 +102,17 @@ package
 			_screen.removeChild(topHeader);
 			this.addChild(topHeader);
 			initLabels();
-			getImageAssetSprite(EngineCore.qSetData.assets[0], initLabelImage);
+
+			// supports old version of asset storage
+			if(EngineCore.qSetData.hasOwnProperty('assets') && EngineCore.qSetData.assets is Array && EngineCore.qSetData.assets.length > 0)
+			{
+				getImageAssetSprite(EngineCore.qSetData.assets[0], initLabelImage);
+			}
+			// new version of asset storage
+			else
+			{
+				getImageAssetSprite(EngineCore.qSetData.options.image.id, initLabelImage);	
+			}
 			// set the background behind the image
 			switch(EngineCore.qSetData.options["backgroundTheme"])
 			{
@@ -131,7 +141,20 @@ package
 				_oldVersionXOffset = 0;
 				_oldVersionYOffset = 0;
 			}
-			var orderedQuestions:Array = EngineCore.qSetData.items[0].items;
+
+			var orderedQuestions:Array
+
+			// get questions from old structures, unecissarily nested items[0].items
+			if(EngineCore.qSetData.items[0].hasOwnProperty('items') && EngineCore.qSetData.items[0].items.length > 0)
+			{
+				orderedQuestions = EngineCore.qSetData.items[0].items;
+			}
+			// get questions from new structures, no cruft
+			else
+			{
+				orderedQuestions = EngineCore.qSetData.items
+			}
+			
 			var questions:Array = [];
 			while (orderedQuestions.length > 0) {
 				questions.push(orderedQuestions.splice(Math.round(Math.random() * (orderedQuestions.length - 1)), 1)[0]);
