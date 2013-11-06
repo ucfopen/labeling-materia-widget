@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Labeling Creator</title>
+		<meta charset='utf-8' />
+		<style type='text/css'></style>
+		<script type='text/javascript' src='/js/materia.require.js'></script>
+		<script type='text/javascript' src='js/jquery.js'></script>
+		<script type='text/javascript' src='js/jqueryui.js'></script>
+		<script type='text/javascript' src='js/spectrum.js'></script>
+		<link rel='stylesheet' type='text/css' href='css/creator.css'>
+		<link rel='stylesheet' type='text/css' href='css/spectrum.css'>
+		<link rel='stylesheet' type='text/css' href='css/jquery-ui-1.10.3.custom.css'>
+		<script type='text/javascript'>
+			require(['creatorcore', 'js/creator'], function(util) {
+				Materia.CreatorCore.start(Labeling.Creator);
+			});
+		</script>
+	</head>
+	<body>
+		<div class='sidepanel left'></div>
+		<div class='sidepanel right'></div>
+		<div class='frame' id='frame'>
+			<div id='header'>
+				<div id='title' contenteditable='true'></div>
+			</div>
+			<div id='controls'>
+				<div id='maincontrols'>
+					<h1>Controls</h1>
+					<div class='backgroundtile graph'></div>
+					<div class='backgroundtile cork'></div>
+					<div class='backgroundtile color'><input id='colorpicker' type='color' name='color'></div>
+					<input type='button' value='Move and Resize' id='btnMoveResize'>
+					<input type='button' value='Choose Image' data-intro='Choose an image' id='btnChooseImage'>
+				</div>
+				<div id='resizecontrols' style='display:none'>
+					<h1>Move and Resize</h1>
+					<input type='button' value='Done' id='btnMoveResizeDone'>
+				</div>
+			</div>
+			<div id="board" class="screen board">
+				<div id='imagewrapper'>
+					<img id='image' src=''>
+				</div>
+				<canvas id='canvas' width=1000 height=1000></canvas>
+				<div id='terms'></div>
+				<div class='arrow_box'>Start here</div>
+			</div>
+		</div>
+	</body>
+</html>
