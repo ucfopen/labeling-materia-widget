@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>HTML Widget Engine</title>
+		<meta charset="utf-8" />
+		<meta name='viewport' content='width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, target-densitydpi=device-dpi'>
+		<style type="text/css"></style>
+		<script type="text/javascript" src="/js/materia.require.js"></script>
+		<link rel="stylesheet/less" type="text/css" href="css/widget.css">
+		<script src='js/widget.js'></script>
+		<script type="text/javascript">
+			require(['enginecore', 'score'], function(util) {
+				Materia.Engine.start(Labeling.Engine);
+			});
+		</script>
+	</head>
+	<body>
+		<div id='header'>
+			<h1 id='title'></h1>
+		</div>
+		<div id='termlist'>
+			<h1>Terms</h1>
+			<div id='nextbtn' class='icon-arrow-up'></div>
+			<div id='prevbtn' class='icon-arrow-down'></div>
+		</div>
+		<div id="board" class="screen board">
+			<canvas id='image' width=1000 height=1000></canvas>
+		</div>
+		<button id='checkBtn'>Submit Answers</button>
+		<div id='alertbox'>
+			<span id='alertcaption'>Are you sure you're ready?</span><br>
+			<input id='confirmbtn' type='button' value='Submit answers'>
+			<input id='cancelbtn' type='button' value='Not yet'>
+		</div>
+		<div id='ghost' class='term' style='opacity:0'>&nbsp;</div>
+		<div id='donearrow'>
+			<h1>Click to submit</h1>
+			This will grade your labeling assignment and take you to the score screen.
+		</div>
+	</body>
+</html>
