@@ -140,7 +140,10 @@ Namespace('Labeling').Engine = do ->
 			question.options.labelBoxY = parseInt(question.options.labelBoxY)
 
 			$('#termlist').append term
-		_arrangeList()
+
+		# run once the labels are ready
+		window.onload = ->
+			_arrangeList()
 
 		# attach document listeners
 		document.addEventListener('touchend', _mouseUpEvent, false)
