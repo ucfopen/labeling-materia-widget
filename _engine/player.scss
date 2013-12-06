@@ -109,24 +109,37 @@ div.term {
 	padding: 5px;
 }
 
-#alertbox {
+#backgroundcover {
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	background: #000;
+	z-index: 9999;
+
 	display: none;
+	opacity: 0;
+}
+
+#alertbox {
 	width: 300px;
-	left: 50%;
+	left: 70%;
 	top: 49%;
-	margin-left: -85px;
+	margin-left: -250px;
 	margin-top: -50px;
 	padding: 15px;
 	position: absolute;
 	background: #fff;
-	border: solid 1px #333;
+	border: solid 1px #999;
 	border-radius: 5px;
 	z-index: 10000;
-	box-shadow: 0px 0px 10px #333;
+	box-shadow: 0px 0px 5px #000;
 	text-align: center;
 
 	opacity: 0;
-	
+	display: none;
+
 	color: #333;
 
 	input {
@@ -143,18 +156,11 @@ div.term {
 		-webkit-transition: all 0.1s ease;
 		position: relative;
 	}
-
-	-webkit-transition: all 0.2s ease;
-	-moz-transition: all 0.2s ease;
-	transition: all 0.2s ease;
 }
 
-#alertbox.fadein {
-	opacity: 1;
-}
-
-#alertbox.fadeout {
-	opacity: 0;
+.fade {
+	-webkit-transition: opacity 0.2s ease;
+	transition: opacity 0.2s ease;
 }
 
 input {
