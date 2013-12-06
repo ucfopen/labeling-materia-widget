@@ -272,15 +272,16 @@ input {
 	}
 }
 
+// iPad likes transform better
 @-webkit-keyframes bobber {
 	0% {
-		margin-top: 0px;
+		-webkit-transform: translate(0,0px);
 	}
 	50% {
-		margin-top: 10px;
+		-webkit-transform: translate(0,10px);
 	}
 	100% {
-		margin-top: 0px;
+		-webkit-transform: translate(0,0px);
 	}
 }
 @keyframes bobber {

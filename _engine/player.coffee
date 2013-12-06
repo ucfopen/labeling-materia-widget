@@ -164,7 +164,7 @@ Namespace('Labeling').Engine = do ->
 		found = false
 
 		for question in _questions
-			node = document.getElementById('term_'+question.id)
+			node = _g('term_'+question.id)
 
 			# if it's not placed, put it in the left list
 			if !node.getAttribute('data-placed')
@@ -186,8 +186,9 @@ Namespace('Labeling').Engine = do ->
 		if not found and _curPage > 0
 			_curPage--
 			_arrangeList()
-		if not found and _curPage is 0
-			$('#donearrow').css 'display', 'block'
+		else
+			if not found and _curPage is 0
+				$('#donearrow').css 'display', 'block'
 
 	# when a term is mouse downed
 	_mouseDownEvent = (e) ->
@@ -261,7 +262,7 @@ Namespace('Labeling').Engine = do ->
 			fadeOutCurMatch = true
 
 		for question in _questions
-			node = document.getElementById('term_'+question.id)
+			node = _g('term_'+question.id)
 			if fadeOutCurMatch and node.getAttribute('data-placed') == _curMatch.id
 				_g('term_' + question.id).style.opacity = 0.5
 				_curterm.style.zIndex = _zIndex++
@@ -294,7 +295,7 @@ Namespace('Labeling').Engine = do ->
 			if _labelTextsByQuestionId[_curMatch.id]
 				# find the node and put it back in the terms list
 				for question in _questions
-					node = document.getElementById('term_'+question.id)
+					node = _g('term_'+question.id)
 					if node.getAttribute('data-placed') == _curMatch.id
 						node.setAttribute('data-placed','')
 						break
