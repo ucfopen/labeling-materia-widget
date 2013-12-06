@@ -119,7 +119,7 @@ qset:
     options:
       image:
         materiaType: asset
-        id: <%MEDIA="_assets/1.png"%>
+        id: <%MEDIA="assets/1.png"%>
       imageScale: 0.58255813953488
       imageX: 11.35
       imageY: 117

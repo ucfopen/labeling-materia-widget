@@ -1,21 +1,22 @@
 <!DOCTYPE html>
 <html>
 	<head>
-		<title>HTML Widget Engine</title>
+		<title>Labeling Engine</title>
 		<meta charset="utf-8" />
 		<meta name='viewport' content='width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=0, target-densitydpi=device-dpi'>
-		<style type="text/css"></style>
-		<script type="text/javascript" src="/js/materia.require.js"></script>
-		<link rel="stylesheet/less" type="text/css" href="css/widget.css">
-		<script src='js/widget.js'></script>
-		<script type="text/javascript">
-			require(['enginecore', 'score'], function(util) {
-				Materia.Engine.start(Labeling.Engine);
-			});
-		</script>
+
+		<!-- STYLESHEETS -->
+		<link rel="stylesheet" type="text/css" href="player.css">
+
+		<!-- REQUIRED MATERIA JAVASCRIPT -->
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="/js/materia.enginecore.js"></script>
+		<script type="text/javascript" src="/js/materia.score.js"></script>
+
+		<script type="text/javascript" src="player.js"></script>
 	</head>
 	<body>
-		<div id='header'>
+			<div id='header'>
 			<h1 id='title'></h1>
 		</div>
 		<div id='termlist'>
@@ -37,5 +38,10 @@
 			<h1>Click to submit</h1>
 			This will grade your labeling assignment and take you to the score screen.
 		</div>
+
+		<!-- INITIALIZE -->
+		<script type="text/javascript">
+			Materia.Engine.start(Labeling.Engine);
+		</script>
 	</body>
 </html>

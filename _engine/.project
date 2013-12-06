@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <projectDescription>
-	<name>labeling_engine</name>
+	<name>labeling_creator</name>
 	<comment></comment>
 	<projects>
 	</projects>
@@ -12,10 +12,15 @@
 		</buildCommand>
 	</buildSpec>
 	<natures>
+		<nature>com.adobe.flexbuilder.project.flexnature</nature>
 		<nature>com.adobe.flexbuilder.project.actionscriptnature</nature>
-		<nature>org.eclipse.wst.common.project.facet.core.nature</nature>
 	</natures>
 	<linkedResources>
+		<link>
+			<name>[source path] labeling_engine</name>
+			<type>2</type>
+			<location>/Volumes/Ifrit/git/Materia-Core-Widgets/labeling_engine</location>
+		</link>
 		<link>
 			<name>bin-debug</name>
 			<type>2</type>

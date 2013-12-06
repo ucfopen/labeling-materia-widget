@@ -72,9 +72,9 @@ Namespace('Labeling').Engine = do ->
 		# set background
 		switch _qset.options.backgroundTheme
 			when 'themeGraphPaper'
-				background = 'url(_assets/labeling-graph-bg.png)'
+				background = 'url(assets/labeling-graph-bg.png)'
 			when 'themeCorkBoard'
-				background = 'url(_assets/labeling-cork-bg.jpg)'
+				background = 'url(assets/labeling-cork-bg.jpg)'
 			else
 				# convert to hex and zero pad the background, which is stored as an integer
 				background = '#' + ('000000' + _qset.options.backgroundColor.toString(16)).substr(-6)
