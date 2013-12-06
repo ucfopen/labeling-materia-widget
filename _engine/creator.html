@@ -1,21 +1,27 @@
 <!DOCTYPE html>
-<html>
+<!-- INJECTS IE CLASSES ONTO HTML TAG -->
+<!--[if IE 8 ]>    <html class="IE8"> <![endif]-->
+<!--[if IE 9 ]>    <html class="IE9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class=""> <!--<![endif]-->
 	<head>
 		<title>Labeling Creator</title>
 		<meta charset='utf-8' />
-		<style type='text/css'></style>
-		<script type='text/javascript' src='/js/materia.require.js'></script>
-		<script type='text/javascript' src='js/jquery.js'></script>
-		<script type='text/javascript' src='js/jqueryui.js'></script>
-		<script type='text/javascript' src='js/spectrum.js'></script>
-		<link rel='stylesheet' type='text/css' href='css/creator.css'>
-		<link rel='stylesheet' type='text/css' href='css/spectrum.css'>
-		<link rel='stylesheet' type='text/css' href='css/jquery-ui-1.10.3.custom.css'>
-		<script type='text/javascript'>
-			require(['creatorcore', 'js/creator'], function(util) {
-				Materia.CreatorCore.start(Labeling.Creator);
-			});
-		</script>
+
+		<!-- STYLESHEETS -->
+		<link rel='stylesheet' type='text/css' href='creator.css'>
+		<link rel='stylesheet' type='text/css' href='spectrum.css'>
+		<link rel='stylesheet' type='text/css' href='jquery-ui-1.10.3.custom.css'>
+
+		<!-- REQUIRED MATERIA JAVASCRIPT -->
+		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+		<script type="text/javascript" src="/js/materia.creatorcore.js"></script>
+
+		<!-- YOUR PREREQUISITES -->
+		<script type='text/javascript' src='jqueryui.js'></script>
+		<script type='text/javascript' src='spectrum.js'></script>
+
+		<!-- MAIN CREATOR SCRIPT -->
+		<script src="creator.js"></script>
 	</head>
 	<body>
 		<div class='sidepanel left'></div>
@@ -47,5 +53,9 @@
 				<div class='arrow_box'>Start here</div>
 			</div>
 		</div>
+		<!-- INITIALIZE -->
+		<script type="text/javascript">
+			Materia.CreatorCore.start(Labeling.Creator);
+		</script>
 	</body>
 </html>

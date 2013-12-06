@@ -1,6 +1,11 @@
 ---
+## What kind of widget your widget is (compile_html or compile_flash)
 type: compile_html
-target: widget.html
+
+# The location of your engine 
+target: creator.html
+
+# What assets to include with your engine
 include:
   - font
   - css
