@@ -150,6 +150,7 @@ div.term {
 	box-shadow: 3px 3px 18px #000;
 	opacity: 1;
 	margin: -10px;
+	word-break: break-all;
 	
 	.delete:before {
 		content: 'x';
@@ -224,6 +225,7 @@ input[type=button] {
 	padding: 5px;
 	margin: 4px;
 	width: 165px;
+	-webkit-appearance: none;
 }
 
 .arrow_box {
