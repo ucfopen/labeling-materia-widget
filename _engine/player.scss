@@ -162,6 +162,7 @@ div.term {
 
 .fade {
 	-webkit-transition: opacity 0.2s ease;
+	-ms-transition: opacity 0.2s ease;
 	transition: opacity 0.2s ease;
 }
 
