@@ -3,6 +3,12 @@
 	outline: 0;
 	padding: 0px;
 	margin: 0px;
+
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	-ms-user-select: none;
+	-o-user-select: none;
+	user-select: none !important;
 }
 
 /* Body font */
@@ -21,12 +27,6 @@ html, body {
 	margin: 0;
 
 	font-family: 'Roboto Slab', serif;
-
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-ms-user-select: none;
-	-o-user-select: none;
-	user-select: none !important;
 
 	overflow: hidden;
 	
@@ -67,6 +67,7 @@ html, body {
 #termlist {
 	position: absolute;
 	top: 50px;
+	bottom: 0px;
 	padding: 5px;
 	h1 {
 		text-align: center;
