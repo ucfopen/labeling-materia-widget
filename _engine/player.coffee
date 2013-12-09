@@ -141,9 +141,10 @@ Namespace('Labeling').Engine = do ->
 
 			$('#termlist').append term
 
-		# run once the labels are ready
-		window.onload = ->
+		# defer such that it is run once the labels are ready
+		setTimeout ->
 			_arrangeList()
+		,25
 
 		# attach document listeners
 		document.addEventListener('touchend', _mouseUpEvent, false)
