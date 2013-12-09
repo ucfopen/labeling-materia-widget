@@ -25,13 +25,6 @@ html, body {
 
 	font-family: 'Roboto Slab', serif;
 
-	-webkit-user-select: none;
-	-moz-user-select: none;
-	-moz-user-select: -moz-none;
-	-ms-user-select: none;
-	-o-user-select: none;
-	user-select: none;
-
 	overflow: hidden;
 }
 
@@ -111,7 +104,12 @@ html, body {
 
 	#title {
 		font-size: 25px;
-		font-weight: bold;
+		font-family: 'Roboto Slab';
+		text-align: center;
+		color: #fff;
+		background: none;
+		border: none;
+		width: 98%;
 	}
 }
 
@@ -138,6 +136,7 @@ html, body {
 
 div.term {
 	width: 150px;
+	min-height: 20px;
 	display: inline-block;
 	padding: 5px 0px;
 	color: #000;

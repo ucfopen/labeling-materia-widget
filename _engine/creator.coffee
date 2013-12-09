@@ -20,7 +20,7 @@ Namespace('Labeling').Creator = do ->
 	_offsetX = _offsetY = 0
 
 	initNewWidget = (widget, baseUrl) ->
-		$('#title').html 'New Labeling Widget'
+		$('#title').val 'New Labeling Widget'
 
 		# make a scaffold qset object
 		_qset = {}
@@ -129,7 +129,7 @@ Namespace('Labeling').Creator = do ->
 		$('#imagewrapper').css('top', (_qset.options.imageY))
 
 		# set the title from the qset
-		$('#title').html title
+		$('#title').val title
 
 		# add qset terms to the list
 		# legacy support:
@@ -371,7 +371,7 @@ Namespace('Labeling').Creator = do ->
 		_qset.assets = []
 		_qset.rand = false
 		_qset.name = ''
-		_title = $('#title').html()
+		_title = $('#title').val()
 		_okToSave = if _title? && _title != '' then true else false
 
 		items = []
