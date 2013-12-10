@@ -163,7 +163,8 @@ Namespace('Labeling').Engine = do ->
 		if _curPage < 0
 			_curPage = 0
 
-		y = 20 + -500 * _curPage
+		y = 20 + -570 * _curPage
+		maxY = 0
 
 		found = false
 
@@ -182,9 +183,10 @@ Namespace('Labeling').Engine = do ->
 					node.style.opacity = 1
 					found = true
 
+				maxY = y
 				y += $(node).height() + 25
 
-		$('#nextbtn').css 'opacity', if y > 520 then 1 else 0
+		$('#nextbtn').css 'opacity', if maxY > 580 then 1 else 0
 		$('#prevbtn').css 'opacity', if offScreen then 1 else 0
 
 		if not found and _curPage > 0

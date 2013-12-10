@@ -212,6 +212,11 @@ input {
 	/* Better Font Rendering =========== */
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
+
+	/* Make above ghost element */
+	z-index: 1000;
+
+	cursor: pointer;
 }
 
 .icon-arrow-up:before {
