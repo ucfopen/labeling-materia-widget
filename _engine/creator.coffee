@@ -5,7 +5,7 @@ It's a thing
 
 Widget	: Labeling, Creator
 Authors	: Jonathan Warner
-Updated	: 11/13
+Updated	: 12/13
 
 ###
 
@@ -155,55 +155,14 @@ Namespace('Labeling').Creator = do ->
 
 			# drawLine handles the curves and such; run it for inner
 			# and outer stroke
-			_drawLine(dotx, doty, labelx, labely, 6, '#fff')
-			_drawLine(dotx, doty, labelx, labely, 2, '#000')
+			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff')
+			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000')
 
 	
 	# Add term to the list, called by the click event
 	_addTerm = (e) ->
 		# draw a dot on the canvas for the question location
 		_makeTerm e.clientX-document.getElementById('frame').offsetLeft-document.getElementById('board').offsetLeft,e.clientY-50
-	
-	# draw the line from x1,y1 to x2,y2, with curve
-	_drawLine = (x1,y1,x2,y2,width,color) ->
-		_context.lineCap = 'round'
-		_context.beginPath()
-
-		# move lines
-		_context.moveTo(x1 + _offsetX,y1 + _offsetY)
-
-		# determine curvature based on direction of line
-		labelOffsetX = 0
-		labelOffsetY = 0
-		lineCurveOffsetY = 0
-		lineCurveOffsetX = 60
-		lineResultX = 60
-
-		# Arrange the curves based on which y or x is greater
-		if Math.abs(y1-y2) > 40
-			lineCurveOffsetX = 0
-			if y1 > y2
-				lineCurveOffsetY = 65
-				labelOffsetY = 20
-			else
-				lineCurveOffsetY = -35
-				labelOffsetY = -10
-			labelOffsetX = 60
-			lineResultX = 0
-		else if Math.abs(x1-x2) > 60
-			if x1 > x2
-				lineCurveOffsetX = 180
-				lineResultX = 140
-			else
-				lineResultX = -10
-				lineCurveOffsetX = -60
-
-		# draw curvedline on the canvas
-		_context.lineTo(x2 + labelOffsetX + lineCurveOffsetX + _offsetX, y2 + lineCurveOffsetY + _offsetY)
-		_context.lineTo(x2 + labelOffsetX + lineResultX + _offsetX, y2 + labelOffsetY + _offsetY)
-		_context.lineWidth = width
-		_context.strokeStyle = color
-		_context.stroke()
 	
 	# generate a term div
 	_makeTerm = (x,y,text = '',labelX=null,labelY=null) ->
