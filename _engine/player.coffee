@@ -5,7 +5,7 @@ It's a thing
 
 Widget	: Labeling
 Authors	: Jonathan Warner
-Updated	: 11/13
+Updated	: 12/13
 
 ###
 
@@ -343,49 +343,9 @@ Namespace('Labeling').Engine = do ->
 		# prevent iPad/etc from scrolling
 		e.preventDefault()
 
-	# draw a stylized line connecting to a term, with curvature
-	_drawLine = (x1,y1,x2,y2,width,color) ->
-		_context.beginPath()
-
-		# TODO: abstract this so both creator and engine use the same code
-		# move lines
-		_context.moveTo(x1 + _offsetX,y1 + _offsetY)
-
-		# determine curvature based on direction of line
-		labelOffsetX = 0
-		labelOffsetY = 0
-		lineCurveOffsetY = 0
-		lineCurveOffsetX = 60
-		lineResultX = 60
-
-		if Math.abs(y1-y2) > 40
-			lineCurveOffsetX = 0
-			if y1 > y2
-				lineCurveOffsetY = 65
-				labelOffsetY = 20
-			else
-				lineCurveOffsetY = -35
-				labelOffsetY = -10
-			labelOffsetX = 60
-			lineResultX = 0
-		else if Math.abs(x1-x2) > 60
-			if x1 > x2
-				lineCurveOffsetX = 180
-				lineResultX = 140
-			else
-				lineResultX = -10
-				lineCurveOffsetX = -60
-
-		_context.lineTo(x2 + labelOffsetX + lineCurveOffsetX + _offsetX, y2 + lineCurveOffsetY + _offsetY)
-		_context.lineTo(x2 + labelOffsetX + lineResultX + _offsetX, y2 + labelOffsetY + _offsetY)
-		_context.lineWidth = width
-		_context.strokeStyle = color
-		_context.lineCap = 'round'
-		_context.stroke()
-
 	_drawStrokedLine = (x1,y1,x2,y2,color1,color2) ->
-		_drawLine(x1, y1, x2, y2, 6, color1)
-		_drawLine(x1, y1, x2, y2, 2, color2)
+		Labeling.Draw.drawLine(_context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 6, color1)
+		Labeling.Draw.drawLine(_context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 2, color2)
 
 	# render the canvas frame
 	_drawBoard = ->
