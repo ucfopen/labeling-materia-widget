@@ -86,12 +86,19 @@ div.term {
 	text-align: center;
 	z-index: 1000;
 	border-radius: 5px;
-	border: solid 1px #aaa;
-	box-shadow: 3px 3px 18px #000;
+	border: solid 1px rgba(0,0,0,0.2);
+	box-shadow: 0px 5px 2px rgba(0,0,0,0.2);
 	left: -28px;
 	-webkit-transform: translate(50px,50px); 
 	transform: translate(50px,50px); 
 	word-break: break-all;
+	font-size: 14px;
+
+	&.placed {
+		background: #f7ecce;
+		box-shadow: 0px 5px 3px rgba(0,0,0,0.2);
+		border: none;
+	}
 }
 
 .ease {
@@ -228,7 +235,13 @@ input {
 
 #ghost {
 	box-shadow: 0px 0px 5px #000;
+	border: none;
 	z-index: 0;
+	&.hide {
+		opacity: 0 !important;
+		-webkit-transition: opacity 0.5s ease;
+		-webkit-transition-delay: 0.5s;
+	}
 }
 
 @-webkit-keyframes fadeout {
