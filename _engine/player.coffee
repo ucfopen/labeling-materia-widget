@@ -5,7 +5,7 @@ It's a thing
 
 Widget	: Labeling
 Authors	: Jonathan Warner
-Updated	: 12/13
+Updated	: 2/14
 
 ###
 
@@ -48,13 +48,13 @@ Namespace('Labeling').Engine = do ->
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
-		document.oncontextmenu = ->	false
-		document.addEventListener 'mousedown', (e) ->
-			if e.button is 2 then false else true
-		window.onselectstart =
-		document.onselectstart = (e) ->
-			e.preventDefault() if e and e.preventDefault
-			false
+		#document.oncontextmenu = ->	false
+		#document.addEventListener 'mousedown', (e) ->
+		#	if e.button is 2 then false else true
+		#window.onselectstart =
+		#document.onselectstart = (e) ->
+		#	e.preventDefault() if e and e.preventDefault
+		#	false
 
 		_qset = qset
 
@@ -355,7 +355,13 @@ Namespace('Labeling').Engine = do ->
 		_context.clearRect(0,0,1000,1000)
 
 		# draw the asset image
-		_context.drawImage(_img, _qset.options.imageX,_qset.options.imageY,_img.width * _qset.options.imageScale, _img.height * _qset.options.imageScale)
+		_context.shadowOffsetX = 0
+		_context.shadowOffsetY = 0
+		_context.shadowBlur = 10
+		_context.shadowColor = 'rgba(0,0,0,0.5)'
+		_context.drawImage(_img, _qset.options.imageX,_qset.options.imageY,(_img.width * _qset.options.imageScale), (_img.height * _qset.options.imageScale))
+		_context.shadowColor = ''
+		_context.shadowBlur = 0
 
 		# reference the ghost object, and make it invisible
 		ghost = _g('ghost')

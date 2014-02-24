@@ -18,7 +18,7 @@ qset:
         options:
           labelBoxY: 61
           labelBoxX: 36.75
-          endPointY: 200
+          endPointY: 215
           endPointX: 138
       - 
         materiaType: question
@@ -67,7 +67,7 @@ qset:
           labelBoxY: 26
           labelBoxX: 234.75
           endPointY: 190
-          endPointX: 328.75
+          endPointX: 340.75
       - 
         materiaType: question
         id: null
@@ -99,7 +99,7 @@ qset:
           labelBoxY: 484
           labelBoxX: 227.75
           endPointY: 422
-          endPointX: 336.75
+          endPointX: 330.75
       - 
         materiaType: question
         id: null
@@ -120,7 +120,7 @@ qset:
       image:
         materiaType: asset
         id: <%MEDIA="assets/1.png"%>
-      imageScale: 0.58255813953488
-      imageX: 11.35
-      imageY: 117
+      imageScale: 0.56255813953488
+      imageX: 20.35
+      imageY: 125
       backgroundTheme: themeCorkBoard
