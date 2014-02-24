@@ -316,7 +316,7 @@ Namespace('Labeling').Engine = do ->
 			_curterm.style.webkitTransform =
 			_curterm.style.msTransform =
 			_curterm.style.transform =
-				'translate(' + (_curMatch.options.labelBoxX + 210 + _offsetX) + 'px,' + (_curMatch.options.labelBoxY + _offsetY - 45) + 'px)'
+				'translate(' + (_curMatch.options.labelBoxX + 210 + _offsetX) + 'px,' + (_curMatch.options.labelBoxY + _offsetY - 20) + 'px)'
 			_curterm.className += ' placed'
 
 			# identify this element with the question it is answering
@@ -401,15 +401,8 @@ Namespace('Labeling').Engine = do ->
 
 	# show the "are you done?" warning dialog
 	_showAlert = (action) ->
-		ab = $('#alertbox')
-		ab.css 'display','block'
-		bc = $('#backgroundcover')
-		bc.css 'display','block'
-
-		setTimeout ->
-			ab.css 'opacity',1
-			bc.css 'opacity',0.5
-		,10
+		$('#alertbox').addClass 'show'
+		$('#backgroundcover').addClass 'show'
 
 		$('#confirmbtn').unbind('click').click ->
 			_hideAlert()
@@ -417,15 +410,8 @@ Namespace('Labeling').Engine = do ->
 
 	# hide the warning dialog
 	_hideAlert = ->
-		ab = $('#alertbox')
-		bc = $('#backgroundcover')
-		ab.css 'opacity',0
-		bc.css 'opacity',0
-
-		setTimeout ->
-			ab.css 'display','none'
-			bc.css 'display','none'
-		,190
+		$('#alertbox').removeClass 'show'
+		$('#backgroundcover').removeClass 'show'
 
 	# submit every question and the placed answer to Materia for scoring
 	_submitAnswers = ->

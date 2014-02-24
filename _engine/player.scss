@@ -18,6 +18,18 @@
 	font-weight: 400;
 	src: local('Roboto Slab Regular'), local('RobotoSlab-Regular'), url(http://themes.googleusercontent.com/static/fonts/robotoslab/v2/y7lebkjgREBJK96VQi37ZrrIa-7acMAeDBVuclsi6Gc.woff) format('woff');
 }
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 100;
+  src: local('Lato Hairline'), local('Lato-Hairline'), url(http://themes.googleusercontent.com/static/fonts/lato/v7/Kom15zUm24dIPfIRiNogNuvvDin1pK8aKteLpeZ5c0A.woff) format('woff');
+}
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Lato Regular'), local('Lato-Regular'), url(http://themes.googleusercontent.com/static/fonts/lato/v7/qIIYRU-oROkIk8vfvxw6QvesZW2xOQ-xsNqO47m55DA.woff) format('woff');
+}
 
 html, body {
 	cursor: default;
@@ -26,7 +38,7 @@ html, body {
 	padding: 0;
 	margin: 0;
 
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Lato', serif;
 
 	overflow: hidden;
 	
@@ -53,14 +65,27 @@ html, body {
 	top: 0px;
 	left: 0px;
 	right: 0px;
-	height: 34px;
-	text-align: center;
+	height: 33px;
 	background: #444;
 	padding: 8px;
+
+	.logo {
+		display: block;
+		background: url(assets/materialogo.png) no-repeat;
+		width: 60px;
+		height: 50px;
+		float: left;
+		margin-left: 20px;
+		margin-top: 2px;
+	}
+
 	h1 {
-		margin-top: 5px;
-		font-size: 25px; 
+		margin-left: 8px;
+		font-family: 'Lato', serif;
+		font-weight: 100;
+		font-size: 22px !important;
 		vertical-align: middle;
+		margin-top: 5px;
 	}
 }
 
@@ -74,6 +99,7 @@ html, body {
 		font-size: 20px;
 	}
 	width: 190px;
+	background: url(assets/checker.png);
 }
 
 div.term {
@@ -93,6 +119,7 @@ div.term {
 	transform: translate(50px,50px); 
 	word-break: break-all;
 	font-size: 14px;
+	font-family: 'Roboto Slab';
 
 	&.placed {
 		background: #f7ecce;
@@ -112,12 +139,13 @@ div.term {
 	position: fixed;
 	right: 10px;
 	top: 6px;
-	border: solid 1px #333;
-	background: #111f2c;
-	color: #fff;
-	font-size: 14px;
-	margin-top: 5px;
-	padding: 5px;
+	border: solid 1px #353535;
+	border-radius: 25px;
+	background: #363636;
+	color: #ccc;
+	font-size: 13px;
+	margin-top: 2px;
+	padding: 8px 15px;
 }
 
 #backgroundcover {
@@ -127,10 +155,13 @@ div.term {
 	bottom: 0px;
 	left: 0px;
 	background: #000;
-	z-index: 9999;
-
-	display: none;
+	z-index: -1;
 	opacity: 0;
+	-webkit-transition: all 0.5s ease;
+	&.show {
+		z-index: 9999;
+		opacity: 0.5;
+	}
 }
 
 #alertbox {
@@ -144,12 +175,17 @@ div.term {
 	background: #fff;
 	border: solid 1px #999;
 	border-radius: 5px;
-	z-index: 10000;
+	z-index: -1;
+	opacity: 0;
+	-webkit-transition: all 0.5s ease;
+
+	&.show {
+		z-index: 10000;
+		opacity: 1;
+	}
+
 	box-shadow: 0px 0px 5px #000;
 	text-align: center;
-
-	opacity: 0;
-	display: none;
 
 	color: #333;
 
