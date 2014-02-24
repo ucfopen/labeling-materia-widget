@@ -129,7 +129,7 @@ Namespace('Labeling').Engine = do ->
 			term.addEventListener('touchstart', _mouseDownEvent, false)
 			term.addEventListener('MSPointerDown', _mouseDownEvent, false)
 
-			fontSize = (16 - question.questions[0].text.length / 10)
+			fontSize = (15 - question.questions[0].text.length / 10)
 			fontSize = 12 if fontSize < 12
 			term.style.fontSize = fontSize + 'px'
 
@@ -317,6 +317,7 @@ Namespace('Labeling').Engine = do ->
 			_curterm.style.msTransform =
 			_curterm.style.transform =
 				'translate(' + (_curMatch.options.labelBoxX + 210 + _offsetX) + 'px,' + (_curMatch.options.labelBoxY + _offsetY - 45) + 'px)'
+			_curterm.className += ' placed'
 
 			# identify this element with the question it is answering
 			_curterm.setAttribute('data-placed', _curMatch.id)
@@ -387,6 +388,7 @@ Namespace('Labeling').Engine = do ->
 				ghost.style.msTransform =
 				ghost.style.transform = 'translate(' + (question.options.labelBoxX + 210 + _offsetX) + 'px,' + (question.options.labelBoxY + _offsetY + 35) + 'px)'
 				ghost.style.opacity = 0.5
+				_g('ghost').className = 'term'
 
 			# draw a dot on the canvas for the question location
 			_context.beginPath()
