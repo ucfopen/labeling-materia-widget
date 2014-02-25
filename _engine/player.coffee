@@ -103,6 +103,24 @@ Namespace('Labeling').Engine = do ->
 		_canvas = document.getElementById('image')
 		_context = _canvas.getContext('2d')
 
+		# draw a dot on the canvas for the question location
+		context = document.getElementById('previewimg0').getContext('2d')
+		_drawDot(160,80,6,context)
+		_drawDot(200,110,6,context)
+		_drawDot(130,120,6,context)
+
+		context = document.getElementById('previewimg1').getContext('2d')
+		_drawStrokedLine(166,78,100,20,'#fff','#000',context)
+		_drawDot(160,80,6,context)
+		context = document.getElementById('previewimg2').getContext('2d')
+		_drawStrokedLine(200,110,150,90,'#fff','#000',context)
+		_drawDot(200,110,6,context)
+		context = document.getElementById('previewimg3').getContext('2d')
+		_drawStrokedLine(130,120,80,140,'#fff','#000',context)
+		_drawDot(130,120,6,context)
+
+		$('#gotitbtn').click _hideAlert
+
 		# load the image asset
 		# when done, render the board
 		_img = new Image()
@@ -349,10 +367,19 @@ Namespace('Labeling').Engine = do ->
 
 		# prevent iPad/etc from scrolling
 		e.preventDefault()
+	
+	_drawDot = (x,y,radius,context) ->
+		context.beginPath()
+		context.arc(x, y, radius, 2 * Math.PI, false)
+		context.fillStyle = '#fff'
+		context.fill()
+		context.lineWidth = radius - 3
+		context.strokeStyle = '#000'
+		context.stroke()
 
-	_drawStrokedLine = (x1,y1,x2,y2,color1,color2) ->
-		Labeling.Draw.drawLine(_context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 6, color1)
-		Labeling.Draw.drawLine(_context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 2, color2)
+	_drawStrokedLine = (x1,y1,x2,y2,color1,color2,context = _context) ->
+		Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 6, color1)
+		Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 2, color2)
 
 	# render the canvas frame
 	_drawBoard = ->
@@ -416,6 +443,7 @@ Namespace('Labeling').Engine = do ->
 	_hideAlert = ->
 		$('#alertbox').removeClass 'show'
 		$('#backgroundcover').removeClass 'show'
+		$('#previewbox').removeClass 'show'
 
 	# submit every question and the placed answer to Materia for scoring
 	_submitAnswers = ->

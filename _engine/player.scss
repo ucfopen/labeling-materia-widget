@@ -174,7 +174,7 @@ div.term {
 	}
 }
 
-#alertbox {
+.box {
 	width: 300px;
 	left: 70%;
 	top: 49%;
@@ -215,9 +215,6 @@ div.term {
 
 	}
 	#confirmbtn {
-		background: #5fac4b;
-		color: #fff;
-		border: solid 1px #4f9c3b;
 	}
 }
 
@@ -229,6 +226,11 @@ div.term {
 
 input {
 	-webkit-appearance: none;
+	&.green {
+		background: #5fac4b;
+		color: #fff;
+		border: solid 1px #4f9c3b;
+	}
 }
 
 #nextbtn {
@@ -351,7 +353,7 @@ input {
 	}
 }
 
-// iPad likes transform better
+//iPad likes transform better
 @-webkit-keyframes bobber {
 	0% {
 		-webkit-transform: translate(10px,0px);
@@ -372,6 +374,216 @@ input {
 	}
 	100% {
 		margin-right: 0px;
+	}
+}
+
+.preview {
+	display: block;
+	position: absolute;
+	opacity: 0;
+	z-index: -999;
+	margin-top: -150px;
+
+	&.show {
+		opacity: 1;
+		z-index: 99999;
+	}
+
+	.board {
+		margin: 10px auto;
+		position: relative;
+		background: #dfdfdf;
+		display: block;
+		width: 250px;
+		height: 200px;
+
+		.terms {
+			background: #aaa;
+			width: 80px;
+			top: 0px;
+			height: 100%;
+			display: block;
+		}
+
+		.term {
+			display: block;
+			margin-top: 5px;
+			position: relative;
+			width: 60px;
+			padding-top: 15px;
+			left: -40px;
+			top: -40px;
+			box-shadow: 0px 0px 3px rgba(0,0,0,0.2);
+
+			&.first {
+				animation: firstterm 8s infinite;
+			}
+			&.second {
+				animation: secondterm 8s infinite;
+			}
+			&.third {
+				animation: thirdterm 8s infinite;
+			}
+		}
+		.cursor {
+			background: url(assets/cursor.png) no-repeat;
+			display: block;
+			width: 20px;
+			height: 30px;
+			position: absolute;
+			top: 50px;
+			left: 100px;
+			animation: cursor 8s infinite;
+			z-index: 999999;
+		}
+		.img {
+			position: absolute;
+			left: 100px;
+			top: 60px;
+			background: url(assets/preview.png) no-repeat;
+			background-color: #fff;
+			width: 130px;
+			height: 85px;
+			display: block;
+			padding: 0px;
+			border: solid 1px #ccc;
+			box-shadow: 0px 0px 5px rgba(0,0,0,0.1);
+		}
+		.previewimg {
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			z-index: 10;
+		}
+		#previewimg1 {
+			animation: firstimg 8s infinite;
+			opacity: 0;
+		}
+		#previewimg2 {
+			animation: secondimg 8s infinite;
+			opacity: 0;
+		}
+		#previewimg3 {
+			animation: thirdimg 8s infinite;
+			opacity: 0;
+		}
+	}
+}
+
+@keyframes cursor {
+	0% {
+		left: 120px;
+		top: 120px;
+	}
+	10% {
+		left: 30px;
+		top: 25px;
+	}
+	20% {
+		left: 160px;
+		top: 40px;
+	}
+	25% {
+		left: 160px;
+		top: 40px;
+	}
+	35% {
+		left: 38px;
+		top: 55px;
+	}
+	45% {
+		left: 200px;
+		top: 90px;
+	}
+	60% {
+		left: 38px;
+		top: 75px;
+	}
+	70% {
+		left: 135px;
+		top: 150px;
+	}
+	100% {
+		left: 135px;
+		top: 150px;
+	}
+}
+
+@keyframes firstterm {
+	10% {
+		left: -40px;
+		top: -40px;
+	}
+	20% {
+		left: 80px;
+		top: -20px;
+	}
+	100% {
+		left: 80px;
+		top: -20px;
+	}
+}
+
+@keyframes secondterm {
+	35% {
+		left: -40px;
+		top: -40px;
+	}
+	45% {
+		left: 130px;
+		top: -10px;
+	}
+	100% {
+		left: 130px;
+		top: -10px;
+	}
+}
+@keyframes thirdterm {
+	60% {
+		left: -40px;
+		top: -40px;
+	}
+	70% {
+		left: 60px;
+		top: 30px;
+	}
+	100% {
+		left: 60px;
+		top: 30px;
+	}
+}
+
+@keyframes firstimg {
+	15% {
+		opacity: 0;
+	}
+	20% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+@keyframes secondimg {
+	40% {
+		opacity: 0;
+	}
+	45% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 1;
+	}
+}
+@keyframes thirdimg {
+	65% {
+		opacity: 0;
+	}
+	70% {
+		opacity: 1;
+	}
+	100% {
+		opacity: 1;
 	}
 }
 
