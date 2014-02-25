@@ -103,21 +103,24 @@ Namespace('Labeling').Engine = do ->
 		_canvas = document.getElementById('image')
 		_context = _canvas.getContext('2d')
 
-		# draw a dot on the canvas for the question location
+		# draw preview board
+		dots = [[160,80],[200,110],[130,120]]
 		context = document.getElementById('previewimg0').getContext('2d')
-		_drawDot(160,80,6,context)
-		_drawDot(200,110,6,context)
-		_drawDot(130,120,6,context)
+
+		for dot in dots
+			_drawDot(dot[0],dot[1],6,context)
 
 		context = document.getElementById('previewimg1').getContext('2d')
 		_drawStrokedLine(166,78,100,20,'#fff','#000',context)
-		_drawDot(160,80,6,context)
+		_drawDot(dots[0][0],dots[0][1],6,context)
+
 		context = document.getElementById('previewimg2').getContext('2d')
 		_drawStrokedLine(200,110,150,90,'#fff','#000',context)
-		_drawDot(200,110,6,context)
+		_drawDot(dots[1][0],dots[1][1],6,context)
+
 		context = document.getElementById('previewimg3').getContext('2d')
 		_drawStrokedLine(130,120,80,140,'#fff','#000',context)
-		_drawDot(130,120,6,context)
+		_drawDot(dots[2][0],dots[2][1],6,context)
 
 		$('#gotitbtn').click _hideAlert
 
