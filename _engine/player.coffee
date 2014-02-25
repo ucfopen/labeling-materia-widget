@@ -396,7 +396,7 @@ Namespace('Labeling').Engine = do ->
 
 			# draw a dot on the canvas for the question location
 			_context.beginPath()
-			_context.arc(question.options.endPointX + _offsetX,question.options.endPointY + _offsetY, 7, 2 * Math.PI, false)
+			_context.arc(question.options.endPointX + _offsetX,question.options.endPointY + _offsetY, 9, 2 * Math.PI, false)
 			_context.fillStyle = dotBackground
 			_context.fill()
 			_context.lineWidth = 3
