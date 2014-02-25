@@ -183,8 +183,7 @@ div.term {
 	padding: 15px;
 	position: absolute;
 	background: #fff;
-	border: solid 1px #999;
-	border-radius: 5px;
+	border: solid 1px #777;
 	z-index: -1;
 	opacity: 0;
 	-webkit-transition: all 0.5s ease;
@@ -194,7 +193,7 @@ div.term {
 		opacity: 1;
 	}
 
-	box-shadow: 0px 0px 5px #000;
+	box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
 	text-align: center;
 
 	color: #333;
@@ -211,8 +210,8 @@ div.term {
 		-moz-transition: all 0.1s ease;
 		-webkit-transition: all 0.1s ease;
 		position: relative;
-		padding: 10px;
-		width: 100px;
+		padding: 7px;
+		width: 110px;
 
 	}
 	#confirmbtn {
