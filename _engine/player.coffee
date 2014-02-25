@@ -40,6 +40,9 @@ Namespace('Labeling').Engine = do ->
 	_offsetX				= 0
 	_offsetY				= 0
 
+	# state of the puzzle completion
+	_isPuzzleComplete		= false
+
 	# zIndex of the terms, incremented so that the dragged term is always on top
 	_zIndex					= 1000
 
@@ -190,9 +193,11 @@ Namespace('Labeling').Engine = do ->
 			if not found and _curPage is 0
 				$('#donearrow').css 'opacity', '1'
 				$('#checkBtn').addClass 'done'
+				_isPuzzleComplete = true
 			else
 				$('#donearrow').css 'opacity', '0'
 				$('#checkBtn').removeClass 'done'
+				_isPuzzleComplete = false
 
 	# when a term is mouse downed
 	_mouseDownEvent = (e) ->
@@ -413,11 +418,16 @@ Namespace('Labeling').Engine = do ->
 
 	# submit every question and the placed answer to Materia for scoring
 	_submitAnswers = ->
-		_showAlert ->
-			for question in _questions
-				Materia.Score.submitQuestionForScoring question.id, _labelTextsByQuestionId[question.id]
+		if not _isPuzzleComplete
+			_showAlert _submitAnswersToMateria
+		else
+			_submitAnswersToMateria()
 
-			Materia.Engine.end()
+	_submitAnswersToMateria = ->
+		for question in _questions
+			Materia.Score.submitQuestionForScoring question.id, _labelTextsByQuestionId[question.id]
+
+		Materia.Engine.end()
 
 	#public
 	manualResize: true
