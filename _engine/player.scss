@@ -476,27 +476,23 @@ input {
 		top: 120px;
 	}
 	10% {
-		left: 30px;
-		top: 25px;
+		left: 38px;
+		top: 75px;
 	}
 	20% {
 		left: 160px;
 		top: 40px;
 	}
-	25% {
-		left: 160px;
-		top: 40px;
-	}
 	35% {
 		left: 38px;
-		top: 25px;
+		top: 55px;
 	}
 	45% {
 		left: 200px;
 		top: 90px;
 	}
 	60% {
-		left: 38px;
+		left: 30px;
 		top: 25px;
 	}
 	70% {
@@ -510,31 +506,25 @@ input {
 }
 
 @keyframes firstterm {
-	10% {
+	60% {
 		left: -40px;
 		top: -40px;
 	}
-	20% {
-		left: 80px;
-		top: -20px;
+	70% {
+		left: 60px;
+		top: 90px;
 	}
 	100% {
-		left: 80px;
-		top: -20px;
+		left: 60px;
+		top: 90px;
 	}
 }
 
+
 @keyframes secondterm {
-	10% {
-		left: -40px;
-		top: -40px;
-	}
-	20% {
-		top: -70px;
-	}
 	35% {
 		left: -40px;
-		top: -70px;
+		top: -40px;
 	}
 	45% {
 		left: 130px;
@@ -545,33 +535,19 @@ input {
 		top: -10px;
 	}
 }
+
 @keyframes thirdterm {
 	10% {
 		left: -40px;
 		top: -40px;
 	}
 	20% {
-		top: -70px;
-	}
-	35% {
-		left: -40px;
-		top: -70px;
-	}
-	45% {
-		left: -40px;
-		top: -100px;
-	}
-	60% {
-		left: -40px;
-		top: -100px;
-	}
-	70% {
-		left: 60px;
-		top: 30px;
+		left: 80px;
+		top: -80px;
 	}
 	100% {
-		left: 60px;
-		top: 30px;
+		left: 80px;
+		top: -80px;
 	}
 }
 
