@@ -32,11 +32,29 @@
 			<canvas id='image' width=1000 height=1000></canvas>
 		</div>
 		<button id='checkBtn'>Submit Answers</button>
-		<div id='backgroundcover' class='fade'></div>
-		<div id='alertbox' class='fade'>
+		<div id='backgroundcover' class='fade show'></div>
+		<div id='alertbox' class='box fade'>
 			<span id='alertcaption'>You haven't placed all the labels yet.<br>Submit anyway?</span><br>
 			<input id='cancelbtn' type='button' value='Cancel'>
-			<input id='confirmbtn' type='button' value='OK'>
+			<input id='confirmbtn' class='green' type='button' value='OK'>
+		</div>
+		<div class='box preview show' id='previewbox'>
+			<b>How to play</b>
+			<div class='board'>
+				<div class='terms'>
+					<div class='term first'></div>
+					<div class='term second'></div>
+					<div class='term third'></div>
+				</div>
+				<canvas id='previewimg0' class='previewimg' width=300 height=150></canvas>
+				<canvas id='previewimg1' class='previewimg' width=300 height=150></canvas>
+				<canvas id='previewimg2' class='previewimg' width=300 height=150></canvas>
+				<canvas id='previewimg3' class='previewimg' width=300 height=150></canvas>
+				<div class='img'></div>
+				<div class='cursor'></div>
+			</div>
+			Drag labels to their corresponding destinations.<br>
+			<input class='green' type='button' id='gotitbtn' value='Got it!'>
 		</div>
 		<div id='ghost' class='term' style='opacity:0'>&nbsp;</div>
 		<div id='donearrow'><b>Click to finish</b></div>
