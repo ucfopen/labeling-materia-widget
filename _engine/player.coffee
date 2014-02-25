@@ -328,6 +328,7 @@ Namespace('Labeling').Engine = do ->
 				for question in _questions
 					node = _g('term_'+question.id)
 					if node.getAttribute('data-placed') == _curMatch.id
+						node.className = 'term ease'
 						node.setAttribute('data-placed','')
 						break
 				
@@ -390,10 +391,14 @@ Namespace('Labeling').Engine = do ->
 		_context.clearRect(0,0,1000,1000)
 
 		# draw the asset image
-		_context.shadowOffsetX = 0
-		_context.shadowOffsetY = 0
-		_context.shadowBlur = 10
-		_context.shadowColor = 'rgba(0,0,0,0.5)'
+		# only use shadow if its not graph paper, because
+		# that would look bad
+		if _qset.options.backgroundTheme != 'themeGraphPaper'
+			_context.shadowOffsetX = 0
+			_context.shadowOffsetY = 0
+			_context.shadowBlur = 10
+			_context.shadowColor = 'rgba(0,0,0,0.5)'
+
 		_context.drawImage(_img, _qset.options.imageX,_qset.options.imageY,(_img.width * _qset.options.imageScale), (_img.height * _qset.options.imageScale))
 		_context.shadowColor = ''
 		_context.shadowBlur = 0
