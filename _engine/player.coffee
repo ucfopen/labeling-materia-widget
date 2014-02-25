@@ -97,6 +97,7 @@ Namespace('Labeling').Engine = do ->
 		$('#checkBtn').click ->
 			_submitAnswers()
 		$('#cancelbtn').click _hideAlert
+		$('#backgroundcover').click _hideAlert
 
 		# get canvas context
 		_canvas = document.getElementById('image')
