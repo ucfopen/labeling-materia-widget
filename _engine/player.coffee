@@ -94,12 +94,6 @@ Namespace('Labeling').Engine = do ->
 		$('#checkBtn').click ->
 			_submitAnswers()
 		$('#cancelbtn').click _hideAlert
-		$('#donearrow').mouseover ->
-			# css fades out the arrow, but make it display none
-			# so that labels behind it can be interacted with
-			setTimeout ->
-				$('#donearrow').css 'display','none'
-			,200
 
 		# get canvas context
 		_canvas = document.getElementById('image')
@@ -194,7 +188,11 @@ Namespace('Labeling').Engine = do ->
 			_arrangeList()
 		else
 			if not found and _curPage is 0
-				$('#donearrow').css 'display', 'block'
+				$('#donearrow').css 'opacity', '1'
+				$('#checkBtn').addClass 'done'
+			else
+				$('#donearrow').css 'opacity', '0'
+				$('#checkBtn').removeClass 'done'
 
 	# when a term is mouse downed
 	_mouseDownEvent = (e) ->

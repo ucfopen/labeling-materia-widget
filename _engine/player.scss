@@ -30,6 +30,12 @@
   font-weight: 400;
   src: local('Lato Regular'), local('Lato-Regular'), url(http://themes.googleusercontent.com/static/fonts/lato/v7/qIIYRU-oROkIk8vfvxw6QvesZW2xOQ-xsNqO47m55DA.woff) format('woff');
 }
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  src: local('Lato Bold'), local('Lato-Bold'), url(http://themes.googleusercontent.com/static/fonts/lato/v7/qdgUG4U09HnJwhYI-uK18wLUuEpTyoUstqEm5AMlJo4.woff) format('woff');
+}
 
 html, body {
 	cursor: default;
@@ -146,6 +152,10 @@ div.term {
 	font-size: 13px;
 	margin-top: 2px;
 	padding: 8px 15px;
+	&.done {
+		background: #5fac4b;
+		color: #fff;
+	}
 }
 
 #backgroundcover {
@@ -287,18 +297,20 @@ input {
 
 #donearrow {
 	position: absolute;
-	background: #333;
-	border: 4px solid #777;
-	display: none;
+	background: #ffff82;
+	display: block;
+	opacity: 0;
 
-	width: 200px;
-	right: 15px;
-	top: 85px;
-	z-index: 10000000;
+	width: 100px;
+	right: 175px;
+	top: 12px;
+	height: 14px;
 
 	text-align: center;
 	font-size: 12px;
 	padding: 5px;
+
+	color: #333;
 
 	-webkit-animation: bobber 1s infinite;
 	-webkit-transition: opacity 0.2s ease;
@@ -310,8 +322,8 @@ input {
 	}
 
 	&:after, &:before {
-		bottom: 100%;
-		left: 50%;
+		bottom: 0px;
+		left: 100%;
 		border: solid transparent;
 		content: " ";
 		height: 0;
@@ -322,42 +334,38 @@ input {
 
 	&:after {
 		border-color: rgba(136, 183, 213, 0);
-		border-bottom-color: #333;
-		border-width: 30px;
-		margin-left: 16px;
+		border-left-color: #ffff82;
+		border-width: 12px;
+		margin-left: 0px;
 	}
-	&:before {
-		border-color: rgba(194, 225, 245, 0);
-		border-bottom-color: #777;
-		border-width: 36px;
-		margin-left: 10px;
-	}
-	&:hover {
-		opacity: 0;
+
+	b {
+		text-transform: uppercase;
+		font-weight: bold;
 	}
 }
 
 // iPad likes transform better
 @-webkit-keyframes bobber {
 	0% {
-		-webkit-transform: translate(0,0px);
+		-webkit-transform: translate(10px,0px);
 	}
 	50% {
-		-webkit-transform: translate(0,10px);
+		-webkit-transform: translate(0px,0px);
 	}
 	100% {
-		-webkit-transform: translate(0,0px);
+		-webkit-transform: translate(10px,0px);
 	}
 }
 @keyframes bobber {
 	0% {
-		margin-top: 0px;
+		margin-right: 0px;
 	}
 	50% {
-		margin-top: 10px;
+		margin-right: 10px;
 	}
 	100% {
-		margin-top: 0px;
+		margin-right: 0px;
 	}
 }
 
