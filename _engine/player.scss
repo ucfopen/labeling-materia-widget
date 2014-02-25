@@ -489,7 +489,7 @@ input {
 	}
 	35% {
 		left: 38px;
-		top: 55px;
+		top: 25px;
 	}
 	45% {
 		left: 200px;
@@ -497,7 +497,7 @@ input {
 	}
 	60% {
 		left: 38px;
-		top: 75px;
+		top: 25px;
 	}
 	70% {
 		left: 135px;
@@ -525,9 +525,16 @@ input {
 }
 
 @keyframes secondterm {
-	35% {
+	10% {
 		left: -40px;
 		top: -40px;
+	}
+	20% {
+		top: -70px;
+	}
+	35% {
+		left: -40px;
+		top: -70px;
 	}
 	45% {
 		left: 130px;
@@ -539,9 +546,24 @@ input {
 	}
 }
 @keyframes thirdterm {
-	60% {
+	10% {
 		left: -40px;
 		top: -40px;
+	}
+	20% {
+		top: -70px;
+	}
+	35% {
+		left: -40px;
+		top: -70px;
+	}
+	45% {
+		left: -40px;
+		top: -100px;
+	}
+	60% {
+		left: -40px;
+		top: -100px;
 	}
 	70% {
 		left: 60px;
