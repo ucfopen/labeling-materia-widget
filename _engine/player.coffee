@@ -203,6 +203,7 @@ Namespace('Labeling').Engine = do ->
 					node.style.zIndex = -1
 				else
 					node.style.zIndex = ''
+					node.style.opacity = 1
 					found = true
 
 				maxY = y
@@ -485,6 +486,10 @@ Namespace('Labeling').Engine = do ->
 		$('#alertbox').removeClass 'show'
 		$('#backgroundcover').removeClass 'show'
 		$('#previewbox').removeClass 'show'
+		setTimeout ->
+			$('#previewbox').remove()
+		,1000
+
 
 	# submit every question and the placed answer to Materia for scoring
 	_submitAnswers = ->
