@@ -181,8 +181,9 @@ Namespace('Labeling').Engine = do ->
 	_arrangeList = ->
 		if _curPage < 0
 			_curPage = 0
+		console.log _curPage
 
-		y = 20 + -570 * _curPage
+		y = 10 + -440 * _curPage
 		maxY = 0
 
 		found = false
@@ -192,21 +193,53 @@ Namespace('Labeling').Engine = do ->
 
 			# if it's not placed, put it in the left list
 			if !node.getAttribute('data-placed')
-				if (y < 20)
-					node.style.opacity = 0
+				node.style.transform =
+				node.style.msTransform =
+				node.style.webkitTransform = 'translate(50px,'+y+'px)'
+				if (y < 10)
+					node.style.zIndex = -1
 					offScreen = true
+				else if y >= 490
+					node.style.zIndex = -1
 				else
-					node.style.transform =
-					node.style.msTransform =
-					node.style.webkitTransform = 'translate(50px,'+y+'px)'
-					node.style.opacity = 1
+					node.style.zIndex = ''
 					found = true
 
 				maxY = y
 				y += $(node).height() + 25
 
-		$('#nextbtn').css 'opacity', if maxY > 580 then 1 else 0
+		y = 50 + -440 * _curPage
+
+		if offScreen
+				
+			for question in _questions
+				node = _g('term_'+question.id)
+
+				# if it's not placed, put it in the left list
+				if !node.getAttribute('data-placed')
+					node.style.transform =
+					node.style.msTransform =
+					node.style.webkitTransform = 'translate(50px,'+y+'px)'
+					if (y < 50)
+						node.style.zIndex = -1
+						offScreen = true
+					else if y >= 490
+						node.style.zIndex = -1
+					else
+						node.style.zIndex = ''
+						found = true
+
+					maxY = y
+					y += $(node).height() + 25
+
+
+		$('#nextbtn').css 'opacity', if maxY >= 490 then 1 else 0
 		$('#prevbtn').css 'opacity', if offScreen then 1 else 0
+		$('#prevbtn').css 'z-index', if offScreen then '10000' else '0'
+		$('#blockbottom').css 'opacity', if maxY >= 490 then 1 else 0
+		$('#blocktop').css 'opacity', if offScreen then 1 else 0
+		$('#blocktop').css 'z-index', if offScreen then '9999' else '0'
+		
 
 		if not found and _curPage > 0
 			_curPage--
@@ -264,7 +297,7 @@ Namespace('Labeling').Engine = do ->
 		_curterm.style.transform =
 		_curterm.style.msTransform =
 		_curterm.style.webkitTransform = 'translate(' + (e.clientX - 30) + 'px,' + (e.clientY - 90) + 'px)'
-
+		
 		# check proximity against available drop points
 		minDist = Number.MAX_VALUE
 		_curMatch = null
