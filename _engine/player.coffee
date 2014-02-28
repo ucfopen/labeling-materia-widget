@@ -142,7 +142,7 @@ Namespace('Labeling').Engine = do ->
 
 			term = document.createElement 'div'
 			term.id = 'term_' + question.id
-			term.className = 'term ease'
+			term.className = 'term'
 			term.innerHTML = question.questions[0].text
 			term.addEventListener('mousedown', _mouseDownEvent, false)
 			term.addEventListener('touchstart', _mouseDownEvent, false)
@@ -163,7 +163,9 @@ Namespace('Labeling').Engine = do ->
 		# defer such that it is run once the labels are ready
 		setTimeout ->
 			_arrangeList()
-		,25
+			for node in $('.term')
+				node.className = 'term ease'
+		,0
 
 		# attach document listeners
 		document.addEventListener('touchend', _mouseUpEvent, false)
