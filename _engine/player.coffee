@@ -108,19 +108,19 @@ Namespace('Labeling').Engine = do ->
 		context = document.getElementById('previewimg0').getContext('2d')
 
 		for dot in dots
-			_drawDot(dot[0],dot[1],6,context)
+			_drawDot(dot[0],dot[1],6,2,context)
 
 		context = document.getElementById('previewimg1').getContext('2d')
 		_drawStrokedLine(166,78,100,20,'#fff','#000',context)
-		_drawDot(dots[0][0],dots[0][1],6,context)
+		_drawDot(dots[0][0],dots[0][1],6,2,context)
 
 		context = document.getElementById('previewimg2').getContext('2d')
 		_drawStrokedLine(200,110,150,90,'#fff','#000',context)
-		_drawDot(dots[1][0],dots[1][1],6,context)
+		_drawDot(dots[1][0],dots[1][1],6,2,context)
 
 		context = document.getElementById('previewimg3').getContext('2d')
 		_drawStrokedLine(130,120,80,140,'#fff','#000',context)
-		_drawDot(dots[2][0],dots[2][1],6,context)
+		_drawDot(dots[2][0],dots[2][1],6,2,context)
 
 		$('#gotitbtn').click _hideAlert
 
@@ -181,7 +181,6 @@ Namespace('Labeling').Engine = do ->
 	_arrangeList = ->
 		if _curPage < 0
 			_curPage = 0
-		console.log _curPage
 
 		y = 10 + -440 * _curPage
 		maxY = 0
@@ -209,37 +208,11 @@ Namespace('Labeling').Engine = do ->
 				maxY = y
 				y += $(node).height() + 25
 
-		y = 50 + -440 * _curPage
-
-		if offScreen
-				
-			for question in _questions
-				node = _g('term_'+question.id)
-
-				# if it's not placed, put it in the left list
-				if !node.getAttribute('data-placed')
-					node.style.transform =
-					node.style.msTransform =
-					node.style.webkitTransform = 'translate(50px,'+y+'px)'
-					if (y < 50)
-						node.style.zIndex = -1
-						offScreen = true
-					else if y >= 490
-						node.style.zIndex = -1
-					else
-						node.style.zIndex = ''
-						found = true
-
-					maxY = y
-					y += $(node).height() + 25
-
-
 		$('#nextbtn').css 'opacity', if maxY >= 490 then 1 else 0
 		$('#prevbtn').css 'opacity', if offScreen then 1 else 0
-		$('#prevbtn').css 'z-index', if offScreen then '10000' else '0'
+		$('#prevbtn').css 'z-index', if offScreen then '9999' else '0'
 		$('#blockbottom').css 'opacity', if maxY >= 490 then 1 else 0
-		$('#blocktop').css 'opacity', if offScreen then 1 else 0
-		$('#blocktop').css 'z-index', if offScreen then '9999' else '0'
+		$('#blocktop').css 'z-index', if offScreen then '999' else '0'
 		
 
 		if not found and _curPage > 0
@@ -330,7 +303,7 @@ Namespace('Labeling').Engine = do ->
 			node = _g('term_'+question.id)
 			if fadeOutCurMatch and node.getAttribute('data-placed') == _curMatch.id
 				_g('term_' + question.id).style.opacity = 0.5
-				_curterm.style.zIndex = _zIndex++
+				_curterm.style.zIndex = ++_zIndex
 			else
 				_g('term_' + question.id).style.opacity = 1
 
@@ -406,12 +379,12 @@ Namespace('Labeling').Engine = do ->
 		# prevent iPad/etc from scrolling
 		e.preventDefault()
 	
-	_drawDot = (x,y,radius,context) ->
+	_drawDot = (x,y,radius,border,context) ->
 		context.beginPath()
 		context.arc(x, y, radius, 2 * Math.PI, false)
 		context.fillStyle = '#fff'
 		context.fill()
-		context.lineWidth = radius - 3
+		context.lineWidth = border
 		context.strokeStyle = '#000'
 		context.stroke()
 
@@ -463,14 +436,7 @@ Namespace('Labeling').Engine = do ->
 				ghost.style.opacity = 0.5
 				_g('ghost').className = 'term'
 
-			# draw a dot on the canvas for the question location
-			_context.beginPath()
-			_context.arc(question.options.endPointX + _offsetX,question.options.endPointY + _offsetY, 9, 2 * Math.PI, false)
-			_context.fillStyle = dotBackground
-			_context.fill()
-			_context.lineWidth = 3
-			_context.strokeStyle = dotBorder
-			_context.stroke()
+			_drawDot(question.options.endPointX + _offsetX,question.options.endPointY + _offsetY, 9, 3, _context)
 
 	# show the "are you done?" warning dialog
 	_showAlert = (action) ->

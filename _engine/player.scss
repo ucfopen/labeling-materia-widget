@@ -74,7 +74,7 @@ html, body {
 	height: 33px;
 	background: #444;
 	padding: 8px;
-	z-index: 10000;
+	z-index: 999;
 
 	.logo {
 		display: block;
@@ -121,7 +121,7 @@ html, body {
 			bottom: 0px;
 			height: 57px;
 		}
-		z-index: 9999;
+		z-index: 2;
 	}
 }
 
@@ -133,7 +133,7 @@ div.term {
 	background: #fafafa;
 	position: fixed;
 	text-align: center;
-	z-index: 1000;
+	z-index: 1;
 	border-radius: 5px;
 	border: solid 1px rgba(0,0,0,0.2);
 	box-shadow: 0px 5px 2px rgba(0,0,0,0.2);
@@ -169,6 +169,7 @@ div.term {
 	font-size: 13px;
 	margin-top: 2px;
 	padding: 8px 15px;
+	z-index: 100;
 	&.done {
 		background: #5fac4b;
 		color: #fff;
@@ -186,16 +187,17 @@ div.term {
 	opacity: 0;
 	-webkit-transition: all 0.5s ease;
 	&.show {
-		z-index: 9999;
+		z-index: 10000;
 		opacity: 0.5;
+		-webkit-transition: opacity 0.5s ease;
 	}
 }
 
 .box {
 	width: 300px;
-	left: 70%;
+	left: 50%;
 	top: 49%;
-	margin-left: -250px;
+	margin-left: -150px;
 	margin-top: -50px;
 	padding: 15px;
 	position: absolute;
@@ -403,15 +405,15 @@ div.arrow {
 	display: block;
 	position: absolute;
 	opacity: 0;
-	z-index: -999;
+	z-index: -1;
 	margin-top: -150px;
-	width: 400px;
+	width: 390px;
 	margin-left: -175px;
 	left: 50%;
 
 	&.show {
 		opacity: 1;
-		z-index: 99999;
+		z-index: 10000;
 	}
 
 	.board {
@@ -423,7 +425,7 @@ div.arrow {
 		height: 200px;
 
 		.terms {
-			background: #aaa;
+			background: #ccc;
 			width: 80px;
 			top: 0px;
 			height: 100%;
@@ -440,6 +442,7 @@ div.arrow {
 			top: 50px;
 			box-shadow: 0px 0px 3px rgba(0,0,0,0.2);
 			transform: translate(-40px,-40px);
+			z-index: 5;
 
 			&.first {
 				animation: firstterm 8s infinite;
@@ -452,14 +455,11 @@ div.arrow {
 			}
 		}
 		.cursor {
-			background: url(assets/cursor.png) no-repeat;
 			position: absolute;
-			width: 48px;
-			height: 48px;
 			top: 0px;
 			left: 0px;
 			animation: cursor 8s infinite;
-			z-index: 999999;
+			z-index: 10;
 		}
 		.img {
 			position: absolute;
@@ -478,7 +478,7 @@ div.arrow {
 			position: absolute;
 			top: 0px;
 			left: 0px;
-			z-index: 10;
+			z-index: 4;
 		}
 		#previewimg1 {
 			animation: firstimg 8s infinite;
@@ -500,24 +500,24 @@ div.arrow {
 
 @keyframes cursor {
 	0% {
-		transform: translate(120px,120px);
+		transform: translate(120px,125px);
 	}
 	10% {
-		transform: translate(38px,75px);
+		transform: translate(38px,80px);
 	}
 	20% {
-		transform: translate(160px,40px);
+		transform: translate(160px,45px);
 	}
 	35% {
-		transform: translate(38px,55px);
+		transform: translate(38px,50px);
 	}
 	45% {
-		transform: translate(200px,90px);
+		transform: translate(205px,80px);
 	}
 	60% {
-		transform: translate(30px,25px);
+		transform: translate(30px,20px);
 	}
-	70% {
+	72% {
 		transform: translate(135px,150px);
 	}
 	100% {
@@ -529,7 +529,7 @@ div.arrow {
 	60% {
 		transform: translate(-40px,-40px);
 	}
-	70% {
+	72% {
 		transform: translate(60px,90px);
 	}
 	100% {
@@ -584,10 +584,10 @@ div.arrow {
 	}
 }
 @keyframes thirdimg {
-	65% {
+	67% {
 		opacity: 0;
 	}
-	70% {
+	72% {
 		opacity: 1;
 	}
 	100% {
@@ -598,11 +598,19 @@ div.arrow {
 @media only screen 
 and (min-device-width : 768px) 
 and (max-device-width : 1024px)  {
+	#header {
+		h1 {
+			font-weight: 400 !important;
+		}
+	}
 	.cursor {
 		background: #000 !important;
 		opacity: 0.5;
 		width: 18px !important;
 		height: 18px !important;
 		border-radius: 50px;
+		svg {
+			display: none;
+		}
 	}
 }
