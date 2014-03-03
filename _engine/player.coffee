@@ -214,8 +214,10 @@ Namespace('Labeling').Engine = do ->
 		$('#prevbtn').css 'opacity', if offScreen then 1 else 0
 		$('#prevbtn').css 'z-index', if offScreen then '9999' else '0'
 		$('#blockbottom').css 'opacity', if maxY >= 490 then 1 else 0
-		$('#blocktop').css 'z-index', if offScreen then '999' else '0'
-		
+		if offScreen
+			$('#blocktop').removeClass 'hide'
+		else
+			$('#blocktop').addClass 'hide'
 
 		if not found and _curPage > 0
 			_curPage--
