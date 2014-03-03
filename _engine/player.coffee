@@ -5,14 +5,13 @@ It's a thing
 
 Widget	: Labeling
 Authors	: Jonathan Warner
-Updated	: 2/14
+Updated	: 3/14
 
 ###
 
 Namespace('Labeling').Engine = do ->
 	_qset                   = null
 	_questions				= null
-	_instance				= {}
 
 	# cache element lookups
 	_domCache				= {}
@@ -51,13 +50,13 @@ Namespace('Labeling').Engine = do ->
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
-		#document.oncontextmenu = ->	false
-		#document.addEventListener 'mousedown', (e) ->
-		#	if e.button is 2 then false else true
-		#window.onselectstart =
-		#document.onselectstart = (e) ->
-		#	e.preventDefault() if e and e.preventDefault
-		#	false
+		document.oncontextmenu = ->	false
+		document.addEventListener 'mousedown', (e) ->
+			if e.button is 2 then false else true
+		window.onselectstart =
+		document.onselectstart = (e) ->
+			e.preventDefault() if e and e.preventDefault
+			false
 
 		_qset = qset
 
@@ -65,8 +64,6 @@ Namespace('Labeling').Engine = do ->
 		if (_questions[0].items)
 			_questions = _questions[0].items
 
-		_instance = instance
-		
 		# deal with some legacy qset things
 		if _qset.options.version is 2
 			_offsetX = -195
@@ -103,37 +100,16 @@ Namespace('Labeling').Engine = do ->
 		_canvas = document.getElementById('image')
 		_context = _canvas.getContext('2d')
 
-		# draw preview board
-		dots = [[160,80],[200,110],[130,120]]
-		context = document.getElementById('previewimg0').getContext('2d')
-
-		for dot in dots
-			_drawDot(dot[0],dot[1],6,2,context)
-
-		context = document.getElementById('previewimg1').getContext('2d')
-		_drawStrokedLine(166,78,100,20,'#fff','#000',context)
-		_drawDot(dots[0][0],dots[0][1],6,2,context)
-
-		context = document.getElementById('previewimg2').getContext('2d')
-		_drawStrokedLine(200,110,150,90,'#fff','#000',context)
-		_drawDot(dots[1][0],dots[1][1],6,2,context)
-
-		context = document.getElementById('previewimg3').getContext('2d')
-		_drawStrokedLine(130,120,80,140,'#fff','#000',context)
-		_drawDot(dots[2][0],dots[2][1],6,2,context)
-
-		$('#gotitbtn').click _hideAlert
+		# draw preview board for intro animation
+		_drawPreviewBoard()
 
 		# load the image asset
 		# when done, render the board
 		_img = new Image()
 		_img.onload = _drawBoard
 
-		if _qset.options.image
-			id = _qset.options.image.id
-		else
-			id = _qset.assets[0]
-		_img.src = Materia.Engine.getImageAssetUrl(id)
+		_img.src = Materia.Engine.getImageAssetUrl (
+			if _qset.options.image then _qset.options.image.id else _qset.assets[0])
 
 		# create term divs
 		for question in _questions
@@ -160,7 +136,7 @@ Namespace('Labeling').Engine = do ->
 
 			$('#termlist').append term
 
-		# defer such that it is run once the labels are ready
+		# defer such that it is run once the labels are ready in the DOM
 		setTimeout ->
 			_arrangeList()
 			for node in $('.term')
@@ -178,17 +154,41 @@ Namespace('Labeling').Engine = do ->
 
 		# once everything is drawn, set the height of the player
 		Materia.Engine.setHeight()
+	
+	_drawPreviewBoard = ->
+		# the locations of the dots on the map
+		dots = [ [160,80], [200,110], [130,120] ]
+		lines = [ [166,78,100,20], [200,110,150,90], [130,120,80,140] ]
+
+		# the initial board has all dots
+		context = document.getElementById('previewimg0').getContext('2d')
+		for dot in dots
+			_drawDot(dot[0],dot[1],6,2,context)
+
+		# each subsequent board has its dot and line
+		for i in [0..2]
+			context = document.getElementById('previewimg'+(i+1)).getContext('2d')
+			_drawStrokedLine(lines[i][0],lines[i][1],lines[i][2],lines[i][3],'#fff','#000',context)
+			_drawDot(dots[i][0],dots[i][1],6,2,context)
+
+		$('#gotitbtn').click _hideAlert
 
 	# arrange the items in the left list
 	_arrangeList = ->
-		if _curPage < 0
-			_curPage = 0
+		# the maximum height the terms can pass before we overflow onto another page
+		MAX_HEIGHT = 490
 
+		# if we went too far back, go to the 0th page
+		_curPage = 0 if _curPage < 0
+
+		# position of the terms
 		y = 10 + -440 * _curPage
-		maxY = 0
 
+		# state sentinels
+		maxY = 0
 		found = false
 
+		# move all the terms to their correct location
 		for question in _questions
 			node = _g('term_'+question.id)
 
@@ -197,11 +197,15 @@ Namespace('Labeling').Engine = do ->
 				node.style.transform =
 				node.style.msTransform =
 				node.style.webkitTransform = 'translate(50px,'+y+'px)'
-				if (y < 10)
+
+				# too high up, put it on the previous page
+				if y < 10
 					node.style.zIndex = -1
 					offScreen = true
-				else if y >= 490
+				# too far down, put it on the next page
+				else if y >= MAX_HEIGHT
 					node.style.zIndex = -1
+				# just right goldilocks
 				else
 					node.style.zIndex = ''
 					node.style.opacity = 1
@@ -210,23 +214,32 @@ Namespace('Labeling').Engine = do ->
 				maxY = y
 				y += $(node).height() + 25
 
-		$('#nextbtn').css 'opacity', if maxY >= 490 then 1 else 0
+		# hide buttons if they should not be visible
+		$('#nextbtn').css 'opacity', if maxY >= MAX_HEIGHT then 1 else 0
 		$('#prevbtn').css 'opacity', if offScreen then 1 else 0
 		$('#prevbtn').css 'z-index', if offScreen then '9999' else '0'
-		$('#blockbottom').css 'opacity', if maxY >= 490 then 1 else 0
+
+		# these covers provide padding to the terms during tweening
+		if maxY >= MAX_HEIGHT
+			$('#blockbottom').removeClass 'hide'
+		else
+			$('#blockbottom').addClass 'hide'
 		if offScreen
 			$('#blocktop').removeClass 'hide'
 		else
 			$('#blocktop').addClass 'hide'
 
+		# if nothing was found, the page is empty and we should go back automagically
 		if not found and _curPage > 0
 			_curPage--
 			_arrangeList()
 		else
+			# no more terms, we're done!
 			if not found and _curPage is 0
 				$('#donearrow').css 'opacity', '1'
 				$('#checkBtn').addClass 'done'
 				_isPuzzleComplete = true
+			# jk, reset the state
 			else
 				$('#donearrow').css 'opacity', '0'
 				$('#checkBtn').removeClass 'done'
@@ -234,8 +247,7 @@ Namespace('Labeling').Engine = do ->
 
 	# when a term is mouse downed
 	_mouseDownEvent = (e) ->
-		if not e?
-			e = window.event
+		e = window.event if not e?
 		
 		# show ghost term (but keep the opacity at 0)
 		_g('ghost').style.display = 'inline-block'
@@ -253,18 +265,14 @@ Namespace('Labeling').Engine = do ->
 
 		# don't scroll the page on an iPad
 		e.preventDefault()
-		if e.stopPropagation
-			e.stopPropagation()
-		false
+		e.stopPropagation() if e.stopPropagation?
 
 	# when the widget area has a cursor or finger move
 	_mouseMoveEvent = (e) ->
 		# if no term is being dragged, we don't care
-		if not _curterm?
-			return
+		return	if not _curterm?
 
-		if not e?
-			e = window.event
+		e = window.event if not e?
 
 		# if it's not a mouse move, it's probably touch
 		if not e.clientX
@@ -281,7 +289,7 @@ Namespace('Labeling').Engine = do ->
 		_curMatch = null
 		i = 0
 
-		# first look for ones that aren't filled, then try replacing
+		# first look for ones that aren't filled, then try replacing ones with a label filling them
 		# this is a two-pass process
 		onlyUnfilled = true
 		for pass in [1..2]
@@ -315,15 +323,12 @@ Namespace('Labeling').Engine = do ->
 
 		# don't scroll on iPad
 		e.preventDefault()
-		if e.stopPropagation
-			e.stopPropagation()
-		false
+		e.stopPropagation() if e.stopPropagation?
 
 	# when we let go of a term
 	_mouseUpEvent = (e) ->
 		# we don't care if nothing is selected
-		if not _curterm?
-			return
+		return if not _curterm?
 
 		# apply easing (for snap back animation)
 		_curterm.className = 'term ease'
@@ -383,6 +388,7 @@ Namespace('Labeling').Engine = do ->
 		# prevent iPad/etc from scrolling
 		e.preventDefault()
 	
+	# draw a dot on the specified canvas context
 	_drawDot = (x,y,radius,border,context) ->
 		context.beginPath()
 		context.arc(x, y, radius, 2 * Math.PI, false)
@@ -392,6 +398,7 @@ Namespace('Labeling').Engine = do ->
 		context.strokeStyle = '#000'
 		context.stroke()
 
+	# draw a stroked line (one big line, one smaller on top)
 	_drawStrokedLine = (x1,y1,x2,y2,color1,color2,context = _context) ->
 		Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 6, color1)
 		Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 2, color2)
@@ -460,20 +467,20 @@ Namespace('Labeling').Engine = do ->
 			$('#previewbox').remove()
 		,1000
 
-
-	# submit every question and the placed answer to Materia for scoring
+	# submit questions to Materia. Ask first if they aren't done
 	_submitAnswers = ->
 		if not _isPuzzleComplete
 			_showAlert _submitAnswersToMateria
 		else
 			_submitAnswersToMateria()
 
+	# submit every question and the placed answer to Materia for scoring
 	_submitAnswersToMateria = ->
 		for question in _questions
 			Materia.Score.submitQuestionForScoring question.id, _labelTextsByQuestionId[question.id]
-
 		Materia.Engine.end()
 
 	#public
 	manualResize: true
 	start: start
+
