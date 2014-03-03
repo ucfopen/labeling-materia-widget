@@ -8,47 +8,53 @@ html {
 	min-height: 100%;
 }
 
-/* Body font */
-@font-face {
-	font-family: 'Roboto Slab';
-	font-style: normal;
-	font-weight: 400;
-	src: local('Roboto Slab Regular'), local('RobotoSlab-Regular'), url(http://themes.googleusercontent.com/static/fonts/robotoslab/v2/y7lebkjgREBJK96VQi37ZrrIa-7acMAeDBVuclsi6Gc.woff) format('woff');
-}
+$green: #5fac4b;
 
 html, body {
 	cursor: default;
-	background: #333;
+	background: #fff;
 	color: #fff;
 	padding: 0;
 	margin: 0;
 
-	font-family: 'Roboto Slab', serif;
+	font-family: 'Lato', serif;
 
 	overflow: hidden;
 }
 
 .backgroundtile {
 	display: inline-block;
-	width: 50px;
-	height: 50px;
+	width: 28px;
+	height: 28px;
 	margin: 10px 3px;
 	cursor: pointer;
 	vertical-align: top;
+	border-radius: 32px;
 }
 .backgroundtile.graph {
 	background: url(assets/labeling-graph-bg.png);
+	background-position: 43px 42px;
 }
 .backgroundtile.cork {
 	background: url(assets/labeling-cork-bg.jpg);
+	background-position: 42px 42px;
 }
 .backgroundtile.color {
-	background: #aaa;
+	background: #a2a;
+	.color {
+		position:relative;
+		top: -24px;
+		left: 4px;
+		width: 20px;
+		height: 21px;
+		border-radius: 30px;
+		background: #333;
+	}
 }
 
 .frame {
 	width: 800px;
-	height: 551px;
+	height: 602px;
 	margin: auto;
 	position: relative;
 	display: block;
@@ -61,12 +67,15 @@ html, body {
 	left: 195px;
 	top: 50px;
 	width: 605px;
-	height: 500px;
+	height: 600px;
+	z-index: 1000;
 }
 #imagewrapper {
 	z-index: 0;
 	display: block;
 	width: 450px;
+	height: 300px;
+	background: #fff;
 	position: absolute;
 	left: 20px;
 	top: 10px;
@@ -82,6 +91,17 @@ html, body {
 		box-shadow: 0px 0px 15px #000;
 		margin: -2px;
 	}
+	#inputwrapper {
+		z-index: 1000;
+		position: absolute;
+		text-align: center;
+		top: 43%;
+		width: 100%;
+		input {
+			border: solid 2px #fff;
+		}
+	}
+
 }
 
 #canvas {
@@ -97,19 +117,40 @@ html, body {
 	left: 0px;
 	right: 0px;
 	height: 34px;
-	text-align: center;
 	background: #444;
 	padding: 8px;
 	z-index: 100;
+	.logo {
+		display: block;
+		background: url(assets/materialogo.png) no-repeat;
+		width: 60px;
+		height: 50px;
+		float: left;
+		margin-left: 17px;
+		margin-top: 2px;
+	}
 
-	#title {
-		font-size: 25px;
-		font-family: 'Roboto Slab';
-		text-align: center;
-		color: #fff;
-		background: none;
-		border: none;
-		width: 98%;
+	h1 {
+		margin-left: 8px;
+		font-family: 'Lato', serif;
+		font-weight: 100;
+		font-size: 22px !important;
+		vertical-align: middle;
+		margin-top: 3px;
+	}
+}
+
+#maincontrols {
+	position: absolute;
+	right: 10px;
+	top: 0px;
+
+	span {
+		display: inline-block;
+		margin-top: 15px;
+		margin-right: 10px;
+		color: #999;
+		font-size: 12px;
 	}
 }
 
@@ -121,6 +162,7 @@ html, body {
 	padding: 5px;
 	width: 185px;
 	z-index: 1;
+	background: url(assets/checker.png);
 
 	h1 {
 		text-align: center;
@@ -128,6 +170,10 @@ html, body {
 		padding: 0px;
 		margin: 0px;
 	}
+	input {
+		margin-left: 7px;
+	}
+
 }
 
 #terms {
@@ -151,6 +197,17 @@ div.term {
 	opacity: 1;
 	margin: -10px;
 	word-break: break-all;
+
+	padding: 8px 0px;
+
+	background: #fafafa;
+
+	border-radius: 5px;
+	border: solid 1px rgba(0,0,0,0.2);
+	box-shadow: 0px 5px 2px rgba(0,0,0,0.2);
+	background: #f7ecce;
+	box-shadow: 0px 5px 3px rgba(0,0,0,0.2);
+	border: none;
 	
 	.delete:before {
 		content: 'x';
@@ -163,10 +220,10 @@ div.term {
 		display:block;
 		background: #d44;
 		color: #fff;
-		padding: 1px 6px;
+		padding: 1px 6px 2px;
 		border-radius: 50px;
-		font-size: 14px;
 		border: solid 1px #c00;
+		font-size: 14px;
 		opacity: 0;
 		cursor: pointer;
 		-webkit-transition: all 0.1s ease;
@@ -174,6 +231,10 @@ div.term {
 	}
 	&:hover .delete {
 		opacity: 1;
+	}
+	&:hover {
+		border: solid 2px #27c0ff;
+		margin: -12px;
 	}
 }
 
@@ -188,6 +249,7 @@ div.dot {
 
 	&:hover {
 		cursor: move;
+		border: solid 3px #27c0ff;
 	}
 }
 
@@ -203,29 +265,13 @@ h1 {
 	width: 50%;
 	margin-left: -400px;
 	display:block;
-	background-color: #283645;
-	background: -webkit-linear-gradient(top, #142432, #283645, #142432);
-	background: -moz-linear-gradient(top, #142432, #283645, #142432);
-	background: -ms-linear-gradient(top, #142432, #283645, #142432);
-	background: -o-linear-gradient(top, #142432, #283645, #142432);
-	background-repeat: repeat-x;
+	background: inherit;
 	z-index: 100;
 
 	&.right {
 		right: 0px;
 		margin-right: -400px;
 	}
-}
-
-input[type=button] {
-	border: solid 1px #555;
-	background: #444;
-	font-size: 14px;
-	color: #fff;
-	padding: 5px;
-	margin: 4px;
-	width: 165px;
-	-webkit-appearance: none;
 }
 
 .arrow_box {
@@ -272,3 +318,87 @@ input[type=button] {
 	50% { margin-left: 10px; }
 	100% { margin-left: -10px; }
 }
+
+* {
+	-webkit-appearance: none;
+	outline: none;
+}
+
+input {
+	background: $green;
+	color: #fff;
+	font-size: 14px;
+	font-family: 'Lato';
+	font-weight: 100;
+	border: none;
+	width: 174px;
+	padding: 12px;
+	margin-bottom: 10px;
+	-webkit-appearance: none;
+}
+
+#backgroundcover {
+	position: fixed;
+	top: 0px;
+	right: 0px;
+	bottom: 0px;
+	left: 0px;
+	background: #000;
+	z-index: -1;
+	opacity: 0;
+	-webkit-transition: all 0.5s ease;
+	&.show {
+		z-index: 1000;
+		opacity: 0.8;
+		-webkit-transition: opacity 0.5s ease;
+	}
+}
+
+.box {
+	width: 300px;
+	left: 50%;
+	top: 49%;
+	margin-left: -150px;
+	margin-top: -50px;
+	padding: 15px;
+	position: absolute;
+	background: #fff;
+	border: solid 1px #777;
+	z-index: -1;
+	opacity: 0;
+	-webkit-transition: all 0.5s ease;
+
+	&.show {
+		z-index: 10000;
+		opacity: 1;
+	}
+
+	box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+	text-align: center;
+
+	color: #333;
+
+	input {
+		margin: 10px;
+		border: solid 1px #333;
+		font-family: 'Lato';
+		font-size: 16px;
+		color: #333;
+		background: #fff;
+		margin: 16px 6px 4px 6px;
+		transition: all 0.1s ease;
+		position: relative;
+		padding: 7px;
+		width: 110px;
+	}
+}
+
+#btnMoveResizeCancel {
+	background: #fff;
+	color: #000;
+	z-index: 90001;
+	position: absolute;
+	top: 55px;
+	left: 12px;
+}
+

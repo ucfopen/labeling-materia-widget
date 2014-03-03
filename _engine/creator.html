@@ -11,6 +11,7 @@
 		<link rel='stylesheet' type='text/css' href='creator.css'>
 		<link rel='stylesheet' type='text/css' href='spectrum.css'>
 		<link rel='stylesheet' type='text/css' href='jquery-ui-1.10.3.custom.css'>
+		<link href='http://fonts.googleapis.com/css?family=Lato:100,400,700|Roboto+Slab' rel='stylesheet' type='text/css'>
 
 		<!-- REQUIRED MATERIA JAVASCRIPT -->
 		<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
@@ -29,29 +30,40 @@
 		<div class='sidepanel right'></div>
 		<div class='frame' id='frame'>
 			<div id='header'>
-				<input id='title' type='text'>
+				<div class='logo'></div>
+				<h1 id='title'></h1>
+				<div id='maincontrols'>
+					<span>Background</span>
+					<div class='backgroundtile cork'></div>
+					<div class='backgroundtile graph'></div>
+					<div class='backgroundtile color'><input id='colorpicker' type='color' name='color'><div class='color'></div></div>
+				</div>
 			</div>
 			<div id='controls'>
-				<div id='maincontrols'>
-					<h1>Controls</h1>
-					<div class='backgroundtile graph'></div>
-					<div class='backgroundtile cork'></div>
-					<div class='backgroundtile color'><input id='colorpicker' type='color' name='color'></div>
-					<input type='button' value='Move and Resize' id='btnMoveResize'>
-					<input type='button' value='Choose Image' data-intro='Choose an image' id='btnChooseImage'>
-				</div>
-				<div id='resizecontrols' style='display:none'>
-					<h1>Move and Resize</h1>
-					<input type='button' value='Done' id='btnMoveResizeDone'>
-				</div>
+				<input type='button' value='Choose a different image' data-intro='Choose an image' id='btnChooseImage'>
+				<input type='button' value='Move &amp; resize image' id='btnMoveResize'>
 			</div>
+			<div id='backgroundcover'></div>
+			<input type='button' value='Cancel Move &amp; Resize' id='btnMoveResizeCancel' style='display:none'>
 			<div id="board" class="screen board">
 				<div id='imagewrapper'>
 					<img id='image' src=''>
+					<div id='inputwrapper'>
+						<div id='resizecontrols' style='display:none'>
+							<input type='button' value='Done' id='btnMoveResizeDone'>
+						</div>
+						<input type='button' value='Choose image to label' id='btnChooseImageStep1'>
+					</div>
 				</div>
 				<canvas id='canvas' width=1000 height=1000></canvas>
 				<div id='terms'></div>
 				<div class='arrow_box'>Start here</div>
+			</div>
+
+			<div id='titlebox' class='box fade'>
+				<span id='step1'>First, give your labeling widget a title</span>
+				<input id='titletxt' type='text' placeholder='My labeling widget'>
+				<input id='titlebtn' type='button' value='OK'>
 			</div>
 		</div>
 		<!-- INITIALIZE -->

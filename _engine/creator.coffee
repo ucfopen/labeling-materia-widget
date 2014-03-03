@@ -5,7 +5,7 @@ It's a thing
 
 Widget	: Labeling, Creator
 Authors	: Jonathan Warner
-Updated	: 12/13
+Updated	: 3/14
 
 ###
 
@@ -19,9 +19,12 @@ Namespace('Labeling').Creator = do ->
 	# offset for legacy support
 	_offsetX = _offsetY = 0
 
-	initNewWidget = (widget, baseUrl) ->
-		$('#title').val 'New Labeling Widget'
+	_lastImgDimensions = {}
 
+	initNewWidget = (widget, baseUrl) ->
+		$('#titlebox').addClass 'show'
+		$('#backgroundcover').addClass 'show'
+		
 		# make a scaffold qset object
 		_qset = {}
 		_qset.options = {}
@@ -56,10 +59,35 @@ Namespace('Labeling').Creator = do ->
 			_setBackground()
 		$('#btnMoveResize').click ->
 			_resizeMode true
+			_lastImgDimensions =
+				width: $('#imagewrapper').width()
+				height: $('#imagewrapper').height()
+				left: $('#imagewrapper').position().left
+				top: $('#imagewrapper').position().top
+			$('#btnMoveResizeCancel').css 'display','block'
 		$('#btnMoveResizeDone').click ->
 			_resizeMode false
+		$('#btnMoveResizeCancel').click ->
+			_resizeMode false
+			$('#imagewrapper').width _lastImgDimensions.width
+			$('#imagewrapper').height _lastImgDimensions.height
+			$('#imagewrapper').css 'left', _lastImgDimensions.left + 'px'
+			$('#imagewrapper').css 'top', _lastImgDimensions.top + 'px'
 		$('#btnChooseImage').click ->
 			Materia.CreatorCore.showMediaImporter()
+		$('#btnChooseImageStep1').click ->
+			Materia.CreatorCore.showMediaImporter()
+			$('#btnChooseImageStep1').css 'display','none'
+			
+
+		$('#title').click ->
+			$('#titlebox').addClass 'show'
+			$('#backgroundcover').addClass 'show'
+		$('#titlebtn').click ->
+			$('#titlebox').removeClass 'show'
+			$('#backgroundcover').removeClass 'show'
+			$('#title').html ($('#titletxt').val() or 'My labeling widget')
+			$('#step1').css 'display','none'
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
@@ -73,6 +101,7 @@ Namespace('Labeling').Creator = do ->
 			move: _updateColorFromSelector
 			change: _updateColorFromSelector
 			cancelText: ''
+			chooseText: 'Done'
 		})
 
 	# sets resize mode on and off, and sets UI accordingly
@@ -83,8 +112,12 @@ Namespace('Labeling').Creator = do ->
 		$('#resizecontrols').css 'display', if isOn then 'block' else 'none'
 		if isOn
 			$('#imagewrapper').addClass 'resizable'
+			$('#backgroundcover').addClass 'show'
 		else
 			$('#imagewrapper').removeClass 'resizable'
+			$('#backgroundcover').removeClass 'show'
+			$('#btnMoveResizeCancel').css 'display', 'none'
+
 
 	# set background color, called from the spectrum events	
 	_updateColorFromSelector = (color) ->
@@ -404,7 +437,7 @@ Namespace('Labeling').Creator = do ->
 		$('.arrow_box').css 'display','none'
 		
 		true
-
+	
 	# Public members
 	initNewWidget            : initNewWidget
 	initExistingWidget       : initExistingWidget
