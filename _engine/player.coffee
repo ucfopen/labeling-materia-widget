@@ -164,7 +164,7 @@ Namespace('Labeling').Engine = do ->
 		setTimeout ->
 			_arrangeList()
 			for node in $('.term')
-				node.className = 'term ease'
+				node.className += ' ease'
 		,0
 
 		# attach document listeners
