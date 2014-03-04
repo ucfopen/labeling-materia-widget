@@ -24,6 +24,8 @@ Namespace('Labeling').Creator = do ->
 	initNewWidget = (widget, baseUrl) ->
 		$('#titlebox').addClass 'show'
 		$('#backgroundcover').addClass 'show'
+		$('#imagewrapper').addClass 'firsttime'
+		$('#canvas').css 'display','none'
 		
 		# make a scaffold qset object
 		_qset = {}
@@ -77,8 +79,6 @@ Namespace('Labeling').Creator = do ->
 			Materia.CreatorCore.showMediaImporter()
 		$('#btnChooseImageStep1').click ->
 			Materia.CreatorCore.showMediaImporter()
-			$('#btnChooseImageStep1').css 'display','none'
-			
 
 		$('#title').click ->
 			$('#titlebox').addClass 'show'
@@ -413,6 +413,10 @@ Namespace('Labeling').Creator = do ->
 	# called from Materia creator page
 	# loads and sets appropriate data for loading image
 	onMediaImportComplete = (media) ->
+		$('#btnChooseImageStep1').css 'display','none'
+		$('#canvas').css 'display','block'
+		$('#imagewrapper').removeClass 'firsttime'
+
 		url = Materia.CreatorCore.getMediaUrl(media[0].id)
 		$('#image').attr 'src', url
 		$('#image').attr 'data-imgid', media[0].id
