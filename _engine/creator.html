@@ -28,6 +28,7 @@
 	<body>
 		<div class='sidepanel left'></div>
 		<div class='sidepanel right'></div>
+
 		<div class='frame' id='frame'>
 			<div id='header'>
 				<div class='logo'></div>
@@ -39,6 +40,7 @@
 					<div class='backgroundtile color'><input id='colorpicker' type='color' name='color'><div class='color'></div></div>
 				</div>
 			</div>
+
 			<div id='controls'>
 				<input type='button' value='Choose a different image' data-intro='Choose an image' id='btnChooseImage'>
 				<input type='button' value='Move &amp; resize image' id='btnMoveResize'>
@@ -62,9 +64,11 @@
 					</div><br>
 				</div>
 			</div>
+
 			<div id='backgroundcover'></div>
 			<div id='controlcover'></div>
 			<input type='button' value='Cancel Move &amp; Resize' id='btnMoveResizeCancel' style='display:none'>
+
 			<div id="board" class="screen board">
 				<div id='boardcover'></div>
 				<div id='imagewrapper'>
@@ -78,25 +82,14 @@
 				</div>
 				<canvas id='canvas' width=1000 height=1000></canvas>
 				<div id='terms'></div>
-				<div class='arrow_box'>
-					<?xml version="1.0" encoding="utf-8"?>
-					<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
-					<svg version="1.1"
-						 id="svg2" xmlns:cc="http://web.resource.org/cc/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/"
-						 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="200px" height="200px"
-						 viewBox="0 0 48 48" enable-background="new 0 0 48 48" xml:space="preserve">
-					<g id="layer1">
-						<path id="path4348" fill="#9b4ba4" stroke="#fff" d="M21.836,12.616L47.354,27.58L21.836,42.469v-7.135H1.699L1.7,19.872h20.137 L21.836,12.616L21.836,12.616z">
-						</path>
-						<text x="5" y="29.5" style='fill:#fff;font-size:3;'>Click to add your image</text>
-					</g>
-					</svg>
-			</div>
+				<div class='arrow'>
+					<svg version="1.1" id="svg2" xmlns:cc="http://web.resource.org/cc/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="200px" height="200px" viewBox="0 0 48 48" enable-background="new 0 0 48 48" xml:space="preserve"><g id="layer1"><path id="path4348" fill="#9b4ba4" stroke="#fff" d="M21.836,12.616L47.354,27.58L21.836,42.469v-7.135H1.699L1.7,19.872h20.137 L21.836,12.616L21.836,12.616z"></path><text x="5" y="29.5" style='fill:#fff;font-size:3;'>Click to add your image</text></g></svg>
+				</div>
 			</div>
 
 			<div id='titlebox' class='box fade'>
 				<span id='step1'>First, give your labeling widget a title</span>
-				<input id='titletxt' type='text' placeholder='My labeling widget'>
+				<input id='titletxt' type='text' placeholder='My labeling widget' autofocus='1'>
 				<input id='titlebtn' type='button' value='OK'>
 			</div>
 		</div>

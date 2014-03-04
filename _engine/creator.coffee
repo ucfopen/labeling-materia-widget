@@ -19,22 +19,32 @@ Namespace('Labeling').Creator = do ->
 	# offset for legacy support
 	_offsetX = _offsetY = 0
 
+	# store image dimensions in case the user cancels the resize
 	_lastImgDimensions = {}
 
+	# track if the user is "getting started" or well on their way
+	_gettingStarted = false
+
 	initNewWidget = (widget, baseUrl) ->
+		# prompt the user for a widget title
 		$('#titlebox').addClass 'show'
 		$('#backgroundcover').addClass 'show'
+
+		# the image will have a sheen to it to indicate it should be clicked
 		$('#imagewrapper').addClass 'firsttime'
+
+		# hide the canvas so we can interact with it
 		$('#canvas').css 'display','none'
+
+		# hide the default help text
 		$('#help_moving').css 'display','none'
+
+		_gettingStarted = true
 		
 		# make a scaffold qset object
 		_qset = {}
 		_qset.options = {}
 		_qset.options.backgroundTheme = 'themeCorkBoard'
-
-		# arrow that tells the user which button to press first	
-		$('.arrow_box').css 'display','block'
 
 		# set up the creator, shared between new and existing
 		_setupCreator()
@@ -61,6 +71,7 @@ Namespace('Labeling').Creator = do ->
 			_qset.options.backgroundColor = 11184810
 			$("#colorpicker").spectrum("show")
 			false
+
 		$('#btnMoveResize').click ->
 			_resizeMode true
 			_lastImgDimensions =
@@ -69,21 +80,19 @@ Namespace('Labeling').Creator = do ->
 				left: $('#imagewrapper').position().left
 				top: $('#imagewrapper').position().top
 			$('#btnMoveResizeCancel').css 'display','block'
-		$('#btnMoveResizeDone').click ->
-			_resizeMode false
-			$('#boardcover').css 'display','block'
-			$('#imagewrapper').addClass 'faded'
 		$('#btnMoveResizeCancel').click ->
 			_resizeMode false
 			$('#imagewrapper').width _lastImgDimensions.width
 			$('#imagewrapper').height _lastImgDimensions.height
 			$('#imagewrapper').css 'left', _lastImgDimensions.left + 'px'
 			$('#imagewrapper').css 'top', _lastImgDimensions.top + 'px'
+		$('#btnMoveResizeDone').click ->
+			_resizeMode false
+
 		$('#btnChooseImage').click ->
 			Materia.CreatorCore.showMediaImporter()
 		$('#btnChooseImageStep1').click ->
 			Materia.CreatorCore.showMediaImporter()
-			$('#help_adding').css 'display','block'
 			true
 
 		$('#title').click ->
@@ -94,6 +103,7 @@ Namespace('Labeling').Creator = do ->
 			$('#backgroundcover').removeClass 'show'
 			$('#title').html ($('#titletxt').val() or 'My labeling widget')
 			$('#step1').css 'display','none'
+			$('.arrow').css 'display','block'
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
@@ -123,7 +133,6 @@ Namespace('Labeling').Creator = do ->
 			$('#imagewrapper').removeClass 'resizable'
 			$('#controlcover').removeClass 'show'
 			$('#btnMoveResizeCancel').css 'display', 'none'
-
 
 	# set background color, called from the spectrum events	
 	_updateColorFromSelector = (color) ->
@@ -451,10 +460,17 @@ Namespace('Labeling').Creator = do ->
 			$('#imagewrapper').css('left', (600 / 2) - (iw.width() / 2))
 			$('#imagewrapper').css('top', (500 / 2) - (iw.height() / 2))
 
-		_resizeMode true
-		
-		# hide help tips
-		$('.arrow_box').css 'display','none'
+		if _gettingStarted
+			$('#help_adding').css 'display','block'
+			$('#boardcover').css 'display','block'
+			$('#imagewrapper').addClass 'faded'
+			
+			# hide help tips
+			$('.arrow').css 'display','none'
+
+			_gettingStarted = false
+		else
+			_resizeMode true
 		
 		true
 	
