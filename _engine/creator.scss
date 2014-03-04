@@ -303,7 +303,7 @@ h1 {
 		margin-right: -400px;
 	}
 }
-.arrow_box {
+.arrow {
 	position: absolute;
 	z-index: 1000;
 	top: 155px;
@@ -311,6 +311,7 @@ h1 {
 	animation: sway 2s infinite;
 	height: 200px;
 	width: 200px;
+	display: none;
 }
 @keyframes sway {
 	0% { margin-left: -10px; }
@@ -349,7 +350,7 @@ input {
 	-webkit-transition: all 0.5s ease;
 	&.show {
 		z-index: 2000;
-		opacity: 0.8;
+		opacity: 0.5;
 		-webkit-transition: opacity 0.5s ease;
 	}
 }
