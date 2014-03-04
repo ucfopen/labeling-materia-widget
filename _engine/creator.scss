@@ -82,6 +82,16 @@ html, body {
 	height: 600px;
 	z-index: 1000;
 }
+#boardcover {
+	background: rgba(39, 192, 255, 0.2);
+	border: solid 3px #27c0ff;
+	position: absolute;
+	left: 0px;
+	right: 0px;
+	top: 0px;
+	bottom: 49px;
+	display: none;
+}
 #imagewrapper {
 	z-index: 0;
 	display: block;
@@ -90,9 +100,14 @@ html, body {
 	position: absolute;
 	left: 80px;
 	top: 115px;
+
+
 	&.firsttime {
 		background: #ddd;
 		border: solid 3px #fff;
+	}
+	&.faded {
+		opacity: 0.8;
 	}
 	#image {
 		position: absolute;
@@ -309,6 +324,7 @@ h1 {
 }
 
 input {
+	animation: bloop 0.5s;
 	background: $green;
 	color: #fff;
 	font-size: 14px;

@@ -60,8 +60,6 @@ Namespace('Labeling').Creator = do ->
 			_qset.options.backgroundTheme = 'themeSolidColor'
 			_qset.options.backgroundColor = 11184810
 			$("#colorpicker").spectrum("show")
-			console.log 'eh'
-			#_setBackground()
 			false
 		$('#btnMoveResize').click ->
 			_resizeMode true
@@ -73,6 +71,8 @@ Namespace('Labeling').Creator = do ->
 			$('#btnMoveResizeCancel').css 'display','block'
 		$('#btnMoveResizeDone').click ->
 			_resizeMode false
+			$('#boardcover').css 'display','block'
+			$('#imagewrapper').addClass 'faded'
 		$('#btnMoveResizeCancel').click ->
 			_resizeMode false
 			$('#imagewrapper').width _lastImgDimensions.width
@@ -210,6 +210,8 @@ Namespace('Labeling').Creator = do ->
 
 		$('#help_adding').css 'display','none'
 		$('#help_moving').css 'display','block'
+		$('#boardcover').css 'display','none'
+		$('#imagewrapper').removeClass 'faded'
 	
 	# generate a term div
 	_makeTerm = (x,y,text = '',labelX=null,labelY=null) ->
@@ -377,7 +379,7 @@ Namespace('Labeling').Creator = do ->
 		_qset.assets = []
 		_qset.rand = false
 		_qset.name = ''
-		_title = $('#title').val()
+		_title = $('#title').html()
 		_okToSave = if _title? && _title != '' then true else false
 
 		items = []
