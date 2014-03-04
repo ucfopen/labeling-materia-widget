@@ -55,10 +55,13 @@ Namespace('Labeling').Creator = do ->
 		$('.cork').click  ->
 			_qset.options.backgroundTheme = 'themeCorkBoard'
 			_setBackground()
-		$('.color').click ->
+		$('.backgroundtile.color').click ->
 			_qset.options.backgroundTheme = 'themeSolidColor'
 			_qset.options.backgroundColor = 11184810
-			_setBackground()
+			$("#colorpicker").spectrum("show")
+			console.log 'eh'
+			#_setBackground()
+			false
 		$('#btnMoveResize').click ->
 			_resizeMode true
 			_lastImgDimensions =
@@ -112,10 +115,10 @@ Namespace('Labeling').Creator = do ->
 		$('#resizecontrols').css 'display', if isOn then 'block' else 'none'
 		if isOn
 			$('#imagewrapper').addClass 'resizable'
-			$('#backgroundcover').addClass 'show'
+			$('#controlcover').addClass 'show'
 		else
 			$('#imagewrapper').removeClass 'resizable'
-			$('#backgroundcover').removeClass 'show'
+			$('#controlcover').removeClass 'show'
 			$('#btnMoveResizeCancel').css 'display', 'none'
 
 
@@ -127,15 +130,20 @@ Namespace('Labeling').Creator = do ->
 
 	# sets background from the qset
 	_setBackground = ->
+		$('.backgroundtile').removeClass 'show'
+
 		# set background
 		switch _qset.options.backgroundTheme
 			when 'themeGraphPaper'
 				background = 'url(assets/labeling-graph-bg.png)'
+				$('.graph').addClass 'show'
 			when 'themeCorkBoard'
 				background = 'url(assets/labeling-cork-bg.jpg)'
+				$('.cork').addClass 'show'
 			else
 				# convert to hex and zero pad the background, which is stored as an integer
 				background = '#' + ('000000' + _qset.options.backgroundColor.toString(16)).substr(-6)
+				$('.color').addClass 'show'
 
 		$('#board').css('background',background)
 
