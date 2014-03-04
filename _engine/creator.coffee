@@ -26,6 +26,7 @@ Namespace('Labeling').Creator = do ->
 		$('#backgroundcover').addClass 'show'
 		$('#imagewrapper').addClass 'firsttime'
 		$('#canvas').css 'display','none'
+		$('#help_moving').css 'display','none'
 		
 		# make a scaffold qset object
 		_qset = {}
@@ -82,6 +83,8 @@ Namespace('Labeling').Creator = do ->
 			Materia.CreatorCore.showMediaImporter()
 		$('#btnChooseImageStep1').click ->
 			Materia.CreatorCore.showMediaImporter()
+			$('#help_adding').css 'display','block'
+			true
 
 		$('#title').click ->
 			$('#titlebox').addClass 'show'
@@ -204,6 +207,9 @@ Namespace('Labeling').Creator = do ->
 	_addTerm = (e) ->
 		# draw a dot on the canvas for the question location
 		_makeTerm e.clientX-document.getElementById('frame').offsetLeft-document.getElementById('board').offsetLeft,e.clientY-50
+
+		$('#help_adding').css 'display','none'
+		$('#help_moving').css 'display','block'
 	
 	# generate a term div
 	_makeTerm = (x,y,text = '',labelX=null,labelY=null) ->
