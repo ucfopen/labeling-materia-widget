@@ -103,7 +103,8 @@ Namespace('Labeling').Creator = do ->
 			$('#backgroundcover').removeClass 'show'
 			$('#title').html ($('#titletxt').val() or 'My labeling widget')
 			$('#step1').css 'display','none'
-			$('.arrow').css 'display','block'
+			if _gettingStarted
+				$('.arrow').css 'display','block'
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
