@@ -67,9 +67,18 @@ Namespace('Labeling').Creator = do ->
 			_qset.options.backgroundTheme = 'themeCorkBoard'
 			_setBackground()
 		$('.backgroundtile.color').click ->
-			_qset.options.backgroundTheme = 'themeSolidColor'
-			_qset.options.backgroundColor = 11184810
+			if _qset.options.backgroundTheme isnt 'themeSolidColor'
+				_qset.options.backgroundTheme = 'themeSolidColor'
+				_qset.options.backgroundColor = 2565927
+				_setBackground()
 			$("#colorpicker").spectrum("show")
+			$('.sp-coloropt').click (e) ->
+				if e? and e.target?
+					color = e.target.style.backgroundColor.split(',')
+					color = parseInt(parseInt(color[0].substring(4)).toString(16) + parseInt(color[1]).toString(16) + parseInt(color[2]).toString(16), 16)
+					_qset.options.backgroundTheme = 'themeSolidColor'
+					_qset.options.backgroundColor = color
+					_setBackground()
 			false
 
 		$('#btnMoveResize').click ->
@@ -116,7 +125,6 @@ Namespace('Labeling').Creator = do ->
 		# update background
 		$('#colorpicker').spectrum({
 			move: _updateColorFromSelector
-			change: _updateColorFromSelector
 			cancelText: ''
 			chooseText: 'Done'
 		})
@@ -157,6 +165,7 @@ Namespace('Labeling').Creator = do ->
 				# convert to hex and zero pad the background, which is stored as an integer
 				background = '#' + ('000000' + _qset.options.backgroundColor.toString(16)).substr(-6)
 				$('.color').addClass 'show'
+				$('#curcolor').css('background',background)
 
 		$('#board').css('background',background)
 
