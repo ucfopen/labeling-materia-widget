@@ -13,7 +13,7 @@ $green: #5fac4b;
 
 html, body {
 	cursor: default;
-	background: #fff;
+	background: #222;
 	color: #fff;
 	padding: 0;
 	margin: 0;
@@ -79,7 +79,7 @@ html, body {
 	left: 195px;
 	top: 50px;
 	width: 605px;
-	height: 600px;
+	height: 550px;
 	z-index: 1000;
 }
 #boardcover {
@@ -89,7 +89,7 @@ html, body {
 	left: 0px;
 	right: 0px;
 	top: 0px;
-	bottom: 49px;
+	bottom: 0px;
 	display: none;
 }
 #imagewrapper {
@@ -295,7 +295,7 @@ h1 {
 	width: 50%;
 	margin-left: -400px;
 	display:block;
-	background: inherit;
+	background: #222;
 	z-index: 100;
 
 	&.right {
@@ -489,6 +489,9 @@ input {
 		border-left-color: #fffac2;
 		border-width: 13px;
 		margin-top: -21px;
+	}
+	&#help_adding {
+		margin-top: 150px;
 	}
 }
 

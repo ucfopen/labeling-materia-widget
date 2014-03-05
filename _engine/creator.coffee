@@ -38,6 +38,8 @@ Namespace('Labeling').Creator = do ->
 
 		# hide the default help text
 		$('#help_moving').css 'display','none'
+		$('#btnMoveResize').css 'display','none'
+		$('#btnChooseImage').css 'display','none'
 
 		_gettingStarted = true
 		
@@ -45,6 +47,7 @@ Namespace('Labeling').Creator = do ->
 		_qset = {}
 		_qset.options = {}
 		_qset.options.backgroundTheme = 'themeCorkBoard'
+		_qset.options.backgroundColor = 2565927
 
 		# set up the creator, shared between new and existing
 		_setupCreator()
@@ -69,7 +72,6 @@ Namespace('Labeling').Creator = do ->
 		$('.backgroundtile.color').click ->
 			if _qset.options.backgroundTheme isnt 'themeSolidColor'
 				_qset.options.backgroundTheme = 'themeSolidColor'
-				_qset.options.backgroundColor = 2565927
 				_setBackground()
 			$("#colorpicker").spectrum("show")
 			$('.sp-coloropt').click (e) ->
@@ -228,9 +230,14 @@ Namespace('Labeling').Creator = do ->
 		_makeTerm e.clientX-document.getElementById('frame').offsetLeft-document.getElementById('board').offsetLeft,e.clientY-50
 
 		$('#help_adding').css 'display','none'
-		$('#help_moving').css 'display','block'
 		$('#boardcover').css 'display','none'
 		$('#imagewrapper').removeClass 'faded'
+
+		setTimeout ->
+			$('#help_moving').css 'display','block'
+			$('#btnMoveResize').css 'display','block'
+			$('#btnChooseImage').css 'display','block'
+		,400
 	
 	# generate a term div
 	_makeTerm = (x,y,text = '',labelX=null,labelY=null) ->
@@ -317,7 +324,16 @@ Namespace('Labeling').Creator = do ->
 		# make the term movable
 		$(term).draggable({
 			drag: (event,ui) ->
+				if ui.position.left < 20
+					ui.position.left = 20
+				if ui.position.left > 460
+					ui.position.left = 460
+				if ui.position.top > 505
+					ui.position.top = 505
+				if ui.position.top < 20
+					ui.position.top = 20
 				_drawBoard()
+				return ui
 		})
 		# make the dot movable
 		$(dot).draggable({
@@ -468,7 +484,7 @@ Namespace('Labeling').Creator = do ->
 				iw.css('width', (_img.width * iw.height() / _img.height))
 
 			$('#imagewrapper').css('left', (600 / 2) - (iw.width() / 2))
-			$('#imagewrapper').css('top', (500 / 2) - (iw.height() / 2))
+			$('#imagewrapper').css('top', (550 / 2) - (iw.height() / 2))
 
 		if _gettingStarted
 			$('#help_adding').css 'display','block'
