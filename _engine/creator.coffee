@@ -119,17 +119,29 @@ Namespace('Labeling').Creator = do ->
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
-		# drag all sides of the image for resizing
-		$('#imagewrapper').draggable().resizable
-			aspectRatio: true
-			handles: 'n, e, s, w'
-
 		# update background
 		$('#colorpicker').spectrum({
 			move: _updateColorFromSelector
 			cancelText: ''
 			chooseText: 'Done'
 		})
+	
+	_makeDraggable = ->
+		# drag all sides of the image for resizing
+		$('#imagewrapper').draggable(
+			drag: (event,ui) ->
+				if ui.position.left < 20
+					ui.position.left = 20
+				if ui.position.left + ui.helper.context.offsetWidth > 590
+					ui.position.left = 590 - ui.helper.context.offsetWidth
+				if ui.position.top + ui.helper.context.offsetHeight > 540
+					ui.position.top = 540 - ui.helper.context.offsetHeight
+				if ui.position.top < 20
+					ui.position.top = 20
+				return ui
+		).resizable
+			aspectRatio: true
+			handles: 'n, e, s, w'
 
 	# sets resize mode on and off, and sets UI accordingly
 	_resizeMode = (isOn) ->
@@ -175,6 +187,7 @@ Namespace('Labeling').Creator = do ->
 		_qset = qset
 
 		_setupCreator()
+		_makeDraggable()
 
 		# get asset url from Materia API (baseUrl and all)
 		url = Materia.CreatorCore.getMediaUrl(_qset.options.image.id)
@@ -495,6 +508,8 @@ Namespace('Labeling').Creator = do ->
 			$('.arrow').css 'display','none'
 
 			_gettingStarted = false
+
+			_makeDraggable()
 		else
 			_resizeMode true
 		
