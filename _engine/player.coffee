@@ -43,7 +43,7 @@ Namespace('Labeling').Engine = do ->
 	_isPuzzleComplete		= false
 
 	# zIndex of the terms, incremented so that the dragged term is always on top
-	_zIndex					= 1000
+	_zIndex					= 11000
 
 	# getElementById and cache it, for the sake of performance
 	_g = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
@@ -254,6 +254,7 @@ Namespace('Labeling').Engine = do ->
 
 		# set current dragging term
 		_curterm = e.target
+		_curterm.style.zIndex = ++_zIndex
 
 		# disable easing while it drags
 		e.target.className = 'term'
