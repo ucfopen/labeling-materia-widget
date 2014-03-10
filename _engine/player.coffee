@@ -280,10 +280,17 @@ Namespace('Labeling').Engine = do ->
 			e.clientX = e.changedTouches[0].clientX
 			e.clientY = e.changedTouches[0].clientY
 
+		x = (e.clientX - 30)
+		x = 40 if x < 40
+		x = 670 if x > 670
+		y = (e.clientY - 90)
+		y = 0 if y < 0
+		y = 500 if y > 500
+
 		# move the current term
 		_curterm.style.transform =
 		_curterm.style.msTransform =
-		_curterm.style.webkitTransform = 'translate(' + (e.clientX - 30) + 'px,' + (e.clientY - 90) + 'px)'
+		_curterm.style.webkitTransform = 'translate(' + x + 'px,' + y + 'px)'
 		
 		# check proximity against available drop points
 		minDist = Number.MAX_VALUE
