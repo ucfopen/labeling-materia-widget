@@ -50,13 +50,13 @@ Namespace('Labeling').Engine = do ->
 
 	# Called by Materia.Engine when your widget Engine should start the user experience.
 	start = (instance, qset, version = '1') ->
-		document.oncontextmenu = ->	false
-		document.addEventListener 'mousedown', (e) ->
-			if e.button is 2 then false else true
-		window.onselectstart =
-		document.onselectstart = (e) ->
-			e.preventDefault() if e and e.preventDefault
-			false
+		#document.oncontextmenu = ->	false
+		#document.addEventListener 'mousedown', (e) ->
+		#	if e.button is 2 then false else true
+		#window.onselectstart =
+		#document.onselectstart = (e) ->
+		#	e.preventDefault() if e and e.preventDefault
+		#	false
 
 		_qset = qset
 
@@ -291,6 +291,8 @@ Namespace('Labeling').Engine = do ->
 		_curterm.style.transform =
 		_curterm.style.msTransform =
 		_curterm.style.webkitTransform = 'translate(' + x + 'px,' + y + 'px)'
+
+		_lastID = if _curMatch? and _curMatch.id? then _curMatch.id else 0
 		
 		# check proximity against available drop points
 		minDist = Number.MAX_VALUE
@@ -316,6 +318,15 @@ Namespace('Labeling').Engine = do ->
 			if not _curMatch
 				onlyUnfilled = false
 
+		if _curMatch? and _curMatch.id? and _curMatch.id != _lastID
+			ripple = _g('ripple')
+			ripple.style.transform =
+			ripple.style.msTransform =
+			ripple.style.webkitTransform = 'translate(' + (_curMatch.options.endPointX - _offsetX) + 'px,' + (_curMatch.options.endPointY - _offsetY) + 'px)'
+			ripple.className = ''
+			ripple.offsetWidth = ripple.offsetWidth
+			ripple.className = 'play'
+
 		if _curMatch and _labelTextsByQuestionId[_curMatch.id] isnt ''
 			fadeOutCurMatch = true
 
@@ -327,7 +338,7 @@ Namespace('Labeling').Engine = do ->
 			else
 				_g('term_' + question.id).style.opacity = 1
 
-		_drawBoard()
+		_drawBoard(e.clientX, e.clientY)
 
 		# don't scroll on iPad
 		e.preventDefault()
@@ -412,7 +423,7 @@ Namespace('Labeling').Engine = do ->
 		Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 2, color2)
 
 	# render the canvas frame
-	_drawBoard = ->
+	_drawBoard = (mouseX=0,mouseY=0) ->
 		# clear any lines outside of the canvas
 		_context.clearRect(0,0,1000,1000)
 
@@ -454,6 +465,8 @@ Namespace('Labeling').Engine = do ->
 				ghost.style.transform = 'translate(' + (question.options.labelBoxX + 210 + _offsetX) + 'px,' + (question.options.labelBoxY + _offsetY + 35) + 'px)'
 				ghost.style.opacity = 0.5
 				_g('ghost').className = 'term'
+
+				_drawStrokedLine(question.options.endPointX, question.options.endPointY, mouseX - 240, mouseY - 80, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)')
 
 			_drawDot(question.options.endPointX + _offsetX,question.options.endPointY + _offsetY, 9, 3, _context)
 
