@@ -5,7 +5,7 @@ It's a thing
 
 Widget	: Labeling
 Authors	: Jonathan Warner
-Updated	: 3/14
+Updated	: 4/14
 
 ###
 
@@ -101,7 +101,11 @@ Namespace('Labeling').Engine = do ->
 		_context = _canvas.getContext('2d')
 
 		# draw preview board for intro animation
-		_drawPreviewBoard()
+		if navigator.userAgent.indexOf("IE 9") == -1
+			$('#backgroundcover').addClass('show')
+			_drawPreviewBoard()
+		else
+			$('#previewbox').hide()
 
 		# load the image asset
 		# when done, render the board
