@@ -163,13 +163,13 @@ Namespace('Labeling').Engine = do ->
 		# the initial board has all dots
 		context = document.getElementById('previewimg0').getContext('2d')
 		for dot in dots
-			_drawDot(dot[0],dot[1],6,2,context)
+			_drawDot(dot[0],dot[1],6,2,context,'#000','#fff')
 
 		# each subsequent board has its dot and line
 		for i in [0..2]
 			context = document.getElementById('previewimg'+(i+1)).getContext('2d')
 			_drawStrokedLine(lines[i][0],lines[i][1],lines[i][2],lines[i][3],'#fff','#000',context)
-			_drawDot(dots[i][0],dots[i][1],6,2,context)
+			_drawDot(dots[i][0],dots[i][1],6,2,context,'#fff','#000')
 
 		$('#gotitbtn').click _hideAlert
 
@@ -408,13 +408,13 @@ Namespace('Labeling').Engine = do ->
 		e.preventDefault()
 	
 	# draw a dot on the specified canvas context
-	_drawDot = (x,y,radius,border,context) ->
+	_drawDot = (x,y,radius,border,context,borderColor,fillColor) ->
 		context.beginPath()
 		context.arc(x, y, radius, 2 * Math.PI, false)
-		context.fillStyle = '#fff'
+		context.fillStyle = fillColor
 		context.fill()
 		context.lineWidth = border
-		context.strokeStyle = '#000'
+		context.strokeStyle = borderColor
 		context.stroke()
 
 	# draw a stroked line (one big line, one smaller on top)
@@ -459,6 +459,9 @@ Namespace('Labeling').Engine = do ->
 			if _curMatch? and _curMatch.id == question.id
 				_drawStrokedLine(question.options.endPointX, question.options.endPointY, question.options.labelBoxX, question.options.labelBoxY, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)')
 
+				dotBorder = '#fff'
+				dotBackground = '#000'
+
 				# move the ghost label and make it semi-transparent
 				ghost.style.webkitTransform =
 				ghost.style.msTransform =
@@ -468,7 +471,7 @@ Namespace('Labeling').Engine = do ->
 
 				_drawStrokedLine(question.options.endPointX, question.options.endPointY, mouseX - 240, mouseY - 80, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)')
 
-			_drawDot(question.options.endPointX + _offsetX,question.options.endPointY + _offsetY, 9, 3, _context)
+			_drawDot(question.options.endPointX + _offsetX,question.options.endPointY + _offsetY, 9, 3, _context, dotBorder, dotBackground)
 
 	# show the "are you done?" warning dialog
 	_showAlert = (action) ->
