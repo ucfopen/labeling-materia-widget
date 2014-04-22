@@ -85,6 +85,12 @@ Namespace('Labeling').Creator = do ->
 
 		$('#btnMoveResize').click ->
 			_resizeMode true
+
+			if _qset.options.backgroundTheme == "themeGraphPaper"
+				$('.resizable').addClass('dark')
+			else
+				$('.resizable').removeClass('dark')
+
 			_lastImgDimensions =
 				width: $('#imagewrapper').width()
 				height: $('#imagewrapper').height()
@@ -107,13 +113,14 @@ Namespace('Labeling').Creator = do ->
 			true
 
 		$('#title').click ->
-			$('#titlebox').addClass 'show'
+			$('#titlechanger').addClass 'show'
 			$('#backgroundcover').addClass 'show'
-		$('#titlebtn').click ->
+			$('#titletxt').val($('#title').html()).focus()
+		window.setTitle = (title) ->
 			$('#titlebox').removeClass 'show'
+			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
-			$('#title').html ($('#titletxt').val() or 'My labeling widget')
-			$('#step1').css 'display','none'
+			$('#title').html (title or 'My labeling widget')
 			if _gettingStarted
 				$('.arrow').css 'display','block'
 

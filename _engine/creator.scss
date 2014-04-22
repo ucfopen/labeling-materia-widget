@@ -117,9 +117,12 @@ html, body {
 		height: 100%;
 	}
 	&.resizable {
-		border: dashed 2px #fff;
+		border: dashed 3px #fff;
 		box-shadow: 0px 0px 15px #000;
 		margin: -2px;
+		&.dark {
+			border: dashed 3px #2BB2DD;
+		}
 	}
 	#inputwrapper {
 		z-index: 9000;
@@ -373,43 +376,77 @@ input {
 }
 
 .box {
-	width: 350px;
+	width: 635px;
 	left: 50%;
-	top: 45%;
-	margin-left: -150px;
-	margin-top: -50px;
+	top: 50%;
+	margin-left: -317px;
+	margin-top: -210px;
 	padding: 15px;
 	position: absolute;
 	background: #fff;
 	border: solid 1px #777;
 	z-index: -1;
 	opacity: 0;
-	-webkit-transition: all 0.5s ease;
+	transition: all 0.5s ease;
+
+	text-align: left;
+	font-weight: 300;
+	font-size: 17px;
+
+	box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+	color: #333;
+
+	img {
+		float: right;
+		margin-left: 50px;
+		margin-top: 15px;
+		margin-right: 5px;
+	}
+
+	h1 {
+		font-size: 30px;
+		font-weight: 300;
+		color: #333;
+		margin: 5px 0px;
+	}
+	p {
+		margin: 24px 0px;
+	}
+	hr {
+		border: none;
+		border-bottom: solid 1px #eee;
+		margin: 40px 20px;
+	}
 
 	&.show {
 		z-index: 10000;
 		opacity: 1;
 	}
 
-	box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-	text-align: center;
-
-	color: #333;
-
 	input {
 		margin-top: 20px;
-		padding: 7px;
-		width: 110px;
+		padding: 12px;
+		width: 150px;
+		background: $green;
+		margin-left: 4px;
+		color: #fff;
+		border: none;
+		vertical-align: baseline;
+		font-size: 18px;
+		font-family: 'Lato';
+		font-weight: 300;
+		outline: none;
 
 		&[type=text] {
-			width: 90%;
-			margin: 10px;
+			width: 450px;
 			margin-top: 20px;
 			border: solid 1px #333;
-			font-family: 'Lato';
 			font-size: 16px;
 			color: #333;
 			background: #fff;
+			border: solid 2px #70bd34;
+			padding: 11px;
+			margin-left: 0px;
 		}
 	}
 }
