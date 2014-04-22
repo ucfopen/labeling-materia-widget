@@ -150,7 +150,7 @@ Namespace('Labeling').Creator = do ->
 				return ui
 		).resizable
 			aspectRatio: true
-			handles: 'n, e, s, w, ne'
+			handles: 'n, e, s, w, ne, nw, se, sw'
 
 	# sets resize mode on and off, and sets UI accordingly
 	_resizeMode = (isOn) ->
