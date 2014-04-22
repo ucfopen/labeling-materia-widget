@@ -137,6 +137,7 @@ Namespace('Labeling').Creator = do ->
 		# drag all sides of the image for resizing
 		$('#imagewrapper').draggable(
 			drag: (event,ui) ->
+				###
 				if ui.position.left < 20
 					ui.position.left = 20
 				if ui.position.left + ui.helper.context.offsetWidth > 590
@@ -145,10 +146,11 @@ Namespace('Labeling').Creator = do ->
 					ui.position.top = 540 - ui.helper.context.offsetHeight
 				if ui.position.top < 20
 					ui.position.top = 20
+				###
 				return ui
 		).resizable
 			aspectRatio: true
-			handles: 'n, e, s, w'
+			handles: 'n, e, s, w, ne'
 
 	# sets resize mode on and off, and sets UI accordingly
 	_resizeMode = (isOn) ->
@@ -294,11 +296,13 @@ Namespace('Labeling').Creator = do ->
 				else
 					y -= labelStartOffsetY
 
-			if (y < 100)
-				y += 100
+			if y < 150
+				y = 150
 
-			if x > 600
-				x -= 200
+			if x > 450
+				x = 450
+			if x < 100
+				x = 100
 		else
 			x = labelX
 			y = labelY
@@ -316,6 +320,7 @@ Namespace('Labeling').Creator = do ->
 		dot.style.left = dotx + 'px'
 		dot.style.top = doty + 'px'
 		dot.setAttribute 'data-termid', term.id
+		dot.id = "dot_" + term.id
 
 		$('#terms').append dot
 
@@ -379,6 +384,11 @@ Namespace('Labeling').Creator = do ->
 			e.target.blur()
 			e.stopPropagation() if e.stopPropagation?
 			false
+		if e.keyCode is 27 and e.target.innerHTML.length < 1
+			$(document.getElementById('dot_'+e.target.parentElement.id)).remove()
+			$(e.target.parentElement).remove()
+			_drawBoard()
+
 
 	# If the term is blank, put dummy text in it
 	_termBlurred = (e) ->
