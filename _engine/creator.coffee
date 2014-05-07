@@ -262,7 +262,7 @@ Namespace('Labeling').Creator = do ->
 		,400
 	
 	# generate a term div
-	_makeTerm = (x,y,text = '',labelX=null,labelY=null) ->
+	_makeTerm = (x,y,text = '[label title]',labelX=null,labelY=null) ->
 		dotx = x
 		doty = y
 
@@ -366,6 +366,7 @@ Namespace('Labeling').Creator = do ->
 		})
 		setTimeout ->
 			term.childNodes[0].focus()
+			document.execCommand 'selectAll',false,null
 		,10
 
 		_drawBoard()
