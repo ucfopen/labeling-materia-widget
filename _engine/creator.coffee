@@ -116,7 +116,7 @@ Namespace('Labeling').Creator = do ->
 			$('#titlechanger').addClass 'show'
 			$('#backgroundcover').addClass 'show'
 			$('#titletxt').val($('#title').html()).focus()
-		window.setTitle = (title) ->
+		window.setTitle = (title = document.getElementById("title").textContent) ->
 			$('#titlebox').removeClass 'show'
 			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
