@@ -151,9 +151,14 @@ div.term {
 	margin-top: 2px;
 	padding: 8px 15px;
 	z-index: 100;
+	cursor: pointer;
 
 	&.done {
 		background: #5fac4b;
+		color: #fff;
+	}
+	&:hover {
+		background: #5fbc4b;
 		color: #fff;
 	}
 }
@@ -220,6 +225,7 @@ div.term {
 
 input {
 	-webkit-appearance: none;
+	cursor: pointer;
 	&.green {
 		background: #5fac4b;
 		color: #fff;
