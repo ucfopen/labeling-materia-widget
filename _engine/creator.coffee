@@ -114,10 +114,9 @@ Namespace('Labeling').Creator = do ->
 			Materia.CreatorCore.showMediaImporter()
 			true
 
-		$('#title').click ->
-			$('#titlechanger').addClass 'show'
-			$('#backgroundcover').addClass 'show'
-			$('#titletxt').val($('#title').html()).focus()
+		$('#title').click _showMiniTitleEditor
+		$('#header .link').click _showMiniTitleEditor
+
 		window.setTitle = (title = document.getElementById("title").textContent) ->
 			$('#titlebox').removeClass 'show'
 			$('#titlechanger').removeClass 'show'
@@ -134,6 +133,11 @@ Namespace('Labeling').Creator = do ->
 			cancelText: ''
 			chooseText: 'Done'
 		})
+
+	_showMiniTitleEditor = ->
+		$('#titlechanger').addClass 'show'
+		$('#backgroundcover').addClass 'show'
+		$('#titletxt').val($('#title').html()).focus()
 	
 	_makeDraggable = ->
 		# drag all sides of the image for resizing
