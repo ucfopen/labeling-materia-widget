@@ -261,7 +261,7 @@ Namespace('Labeling').Engine = do ->
 		_curterm.style.zIndex = ++_zIndex
 
 		# disable easing while it drags
-		e.target.className = 'term'
+		e.target.className = 'term moving'
 
 		# if it's been placed, remove that association
 		if _curterm.getAttribute('data-placed')
