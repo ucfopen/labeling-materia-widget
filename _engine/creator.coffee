@@ -25,6 +25,8 @@ Namespace('Labeling').Creator = do ->
 	# track if the user is "getting started" or well on their way
 	_gettingStarted = false
 
+	_defaultLabel = '[label title]'
+
 	initNewWidget = (widget, baseUrl) ->
 		# prompt the user for a widget title
 		$('#titlebox').addClass 'show'
@@ -224,7 +226,7 @@ Namespace('Labeling').Creator = do ->
 		if questions[0]? and questions[0].items
 			questions = questions[0].items
 		for item in questions
-			_makeTerm(item.options.endPointX,item.options.endPointY,item.questions[0].text,item.options.labelBoxX,item.options.labelBoxY)
+			_makeTerm(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY)
 
 	# draw lines on the board
 	_drawBoard = ->
@@ -249,7 +251,7 @@ Namespace('Labeling').Creator = do ->
 	# Add term to the list, called by the click event
 	_addTerm = (e) ->
 		# draw a dot on the canvas for the question location
-		_makeTerm e.clientX-document.getElementById('frame').offsetLeft-document.getElementById('board').offsetLeft,e.clientY-50
+		_makeTerm e.clientX-document.getElementById('frame').offsetLeft-document.getElementById('board').offsetLeft, e.clientY-50
 
 		$('#help_adding').css 'display','none'
 		$('#boardcover').css 'display','none'
@@ -262,7 +264,7 @@ Namespace('Labeling').Creator = do ->
 		,400
 	
 	# generate a term div
-	_makeTerm = (x,y,text = '[label title]',labelX=null,labelY=null) ->
+	_makeTerm = (x, y, text = _defaultLabel, labelX=null, labelY=null) ->
 		dotx = x
 		doty = y
 
@@ -328,6 +330,8 @@ Namespace('Labeling').Creator = do ->
 		term.onclick = ->
 			term.childNodes[0].focus()
 			document.execCommand 'selectAll',false,null
+			if term.childNodes[0].innerHTML == _defaultLabel
+				term.childNodes[0].innerHTML = '';
 
 		# resize text on change
 		term.childNodes[0].onkeyup = _termKeyUp
@@ -394,7 +398,7 @@ Namespace('Labeling').Creator = do ->
 	# If the term is blank, put dummy text in it
 	_termBlurred = (e) ->
 		e = window.event if not e?
-		e.target.innerHTML = '(blank)' if e.target.innerHTML is ''
+		e.target.innerHTML = _defaultLabel if e.target.innerHTML is ''
 
 	# a dot has been dragged, lock it in place if its within 10px
 	_dotDragged = (event,ui) ->

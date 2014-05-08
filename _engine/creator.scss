@@ -342,6 +342,11 @@ input {
 	padding: 12px;
 	margin-bottom: 10px;
 	-webkit-appearance: none;
+	&[type=button]:hover, &[type=submit]:hover{
+		background: #78DD5E;
+		color: #000;
+		cursor: pointer;
+	}
 }
 
 #backgroundcover {
