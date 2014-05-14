@@ -5,7 +5,7 @@ It's a thing
 
 Widget	: Labeling, Creator
 Authors	: Jonathan Warner
-Updated	: 3/14
+Updated	: 5/14
 
 ###
 
@@ -42,6 +42,8 @@ Namespace('Labeling').Creator = do ->
 		$('#help_moving').css 'display','none'
 		$('#btnMoveResize').css 'display','none'
 		$('#btnChooseImage').css 'display','none'
+
+		$('#btnChooseImageStep1').css 'display','inline-block'
 
 		_gettingStarted = true
 		
