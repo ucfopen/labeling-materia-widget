@@ -232,7 +232,7 @@ Namespace('Labeling').Creator = do ->
 		if questions[0]? and questions[0].items
 			questions = questions[0].items
 		for item in questions
-			_makeTerm(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY)
+			_makeTerm(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id)
 
 	# draw lines on the board
 	_drawBoard = ->
@@ -270,7 +270,7 @@ Namespace('Labeling').Creator = do ->
 		,400
 	
 	# generate a term div
-	_makeTerm = (x, y, text = _defaultLabel, labelX=null, labelY=null) ->
+	_makeTerm = (x, y, text = _defaultLabel, labelX=null, labelY=null, id='') ->
 		dotx = x
 		doty = y
 
@@ -320,6 +320,7 @@ Namespace('Labeling').Creator = do ->
 		term.style.top = y + 'px'
 		term.setAttribute 'data-x', dotx
 		term.setAttribute 'data-y', doty
+		term.setAttribute 'data-id', id
 
 		$('#terms').append term
 
@@ -337,7 +338,7 @@ Namespace('Labeling').Creator = do ->
 			term.childNodes[0].focus()
 			document.execCommand 'selectAll',false,null
 			if term.childNodes[0].innerHTML == _defaultLabel
-				term.childNodes[0].innerHTML = '';
+				term.childNodes[0].innerHTML = ''
 
 		# resize text on change
 		term.childNodes[0].onkeyup = _termKeyUp
@@ -443,7 +444,7 @@ Namespace('Labeling').Creator = do ->
 	# place the questions in an arbitrary location to be moved
 	onQuestionImportComplete = (items) ->
 		for item in items
-			_makeTerm(150,300,item.questions[0].text)
+			_makeTerm(150,300,item.questions[0].text,null,null,item.id)
 
 	# generate the qset	
 	_buildSaveData = ->
@@ -474,7 +475,7 @@ Namespace('Labeling').Creator = do ->
 				text: dot.childNodes[0].innerHTML
 			item.questions = [question]
 			item.type = 'QA'
-			item.id = ''
+			item.id = dot.getAttribute('data-id') or ''
 			item.options =
 				labelBoxX: parseInt(dot.style.left.replace('px',''))
 				labelBoxY: parseInt(dot.style.top.replace('px',''))
