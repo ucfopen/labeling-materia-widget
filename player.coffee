@@ -473,7 +473,7 @@ Namespace('Labeling').Engine = do ->
 				ghost.style.opacity = 0.5
 				_g('ghost').className = 'term'
 
-				_drawStrokedLine(question.options.endPointX, question.options.endPointY, mouseX - 240, mouseY - 80, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)')
+				_drawStrokedLine(question.options.endPointX, question.options.endPointY, mouseX - _offsetX - 240, mouseY - _offsetY - 80, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)')
 
 			_drawDot(question.options.endPointX + _offsetX,question.options.endPointY + _offsetY, 9, 3, _context, dotBorder, dotBackground)
 
