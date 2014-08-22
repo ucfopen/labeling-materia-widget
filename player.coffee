@@ -115,6 +115,8 @@ Namespace('Labeling').Engine = do ->
 		_img.src = Materia.Engine.getImageAssetUrl (
 			if _qset.options.image then _qset.options.image.id else _qset.assets[0])
 
+		_questions = _shuffle _questions
+
 		# create term divs
 		for question in _questions
 			if not question.id
@@ -158,6 +160,21 @@ Namespace('Labeling').Engine = do ->
 
 		# once everything is drawn, set the height of the player
 		Materia.Engine.setHeight()
+	
+	# https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
+	_shuffle = (array) ->
+		counter = array.length
+
+		while counter > 0
+			index = Math.floor(Math.random() * counter)
+
+			counter--
+
+			temp = array[counter]
+			array[counter] = array[index]
+			array[index] = temp
+		
+		return array
 	
 	_drawPreviewBoard = ->
 		# the locations of the dots on the map
