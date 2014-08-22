@@ -189,7 +189,7 @@ Namespace('Labeling').Engine = do ->
 		# each subsequent board has its dot and line
 		for i in [0..2]
 			context = document.getElementById('previewimg'+(i+1)).getContext('2d')
-			_drawStrokedLine(lines[i][0],lines[i][1],lines[i][2],lines[i][3],'#fff','#000',context)
+			_drawStrokedLine(lines[i][0] - _offsetX,lines[i][1] - _offsetY,lines[i][2] - _offsetX,lines[i][3] - _offsetY,'#fff','#000',context)
 			_drawDot(dots[i][0],dots[i][1],6,2,context,'#fff','#000')
 
 		$('#gotitbtn').click _hideAlert
