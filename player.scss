@@ -178,7 +178,7 @@ div.term {
 	opacity: 0;
 	-webkit-transition: all 0.5s ease;
 	&.show {
-		z-index: 10000;
+		z-index: 18500;
 		opacity: 0.5;
 		-webkit-transition: opacity 0.5s ease;
 	}
@@ -199,7 +199,7 @@ div.term {
 	-webkit-transition: all 0.5s ease;
 
 	&.show {
-		z-index: 10000;
+		z-index: 19000;
 		opacity: 1;
 	}
 
@@ -404,7 +404,7 @@ div.arrow {
 
 	&.show {
 		opacity: 1;
-		z-index: 10000;
+		z-index: 19000;
 	}
 
 	.board {
