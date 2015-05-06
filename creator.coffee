@@ -5,7 +5,7 @@ It's a thing
 
 Widget	: Labeling, Creator
 Authors	: Jonathan Warner
-Updated	: 5/14
+Updated	: 5/15
 
 ###
 
@@ -46,7 +46,7 @@ Namespace('Labeling').Creator = do ->
 		$('#btnChooseImageStep1').css 'display','inline-block'
 
 		_gettingStarted = true
-		
+
 		# make a scaffold qset object
 		_qset = {}
 		_qset.options = {}
@@ -140,7 +140,7 @@ Namespace('Labeling').Creator = do ->
 		$('#titlechanger').addClass 'show'
 		$('#backgroundcover').addClass 'show'
 		$('#titletxt').val($('#title').html()).focus()
-	
+
 	_makeDraggable = ->
 		# drag all sides of the image for resizing
 		$('#imagewrapper').draggable(
@@ -224,7 +224,8 @@ Namespace('Labeling').Creator = do ->
 		$('#imagewrapper').css('top', (_qset.options.imageY))
 
 		# set the title from the qset
-		$('#title').val title
+		$('#title').html title
+		_title = title
 
 		# add qset terms to the list
 		# legacy support:
@@ -253,7 +254,7 @@ Namespace('Labeling').Creator = do ->
 			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff')
 			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000')
 
-	
+
 	# Add term to the list, called by the click event
 	_addTerm = (e) ->
 		# draw a dot on the canvas for the question location
@@ -268,7 +269,7 @@ Namespace('Labeling').Creator = do ->
 			$('#btnMoveResize').css 'display','block'
 			$('#btnChooseImage').css 'display','block'
 		,400
-	
+
 	# generate a term div
 	_makeTerm = (x, y, text = _defaultLabel, labelX=null, labelY=null, id='') ->
 		dotx = x
@@ -278,7 +279,7 @@ Namespace('Labeling').Creator = do ->
 		term.id = 'term_' + Math.random(); # fake id for linking with dot
 		term.innerHTML = "<div contenteditable='true'>"+text+"</div><div class='delete'></div>"
 		term.className = 'term'
-		
+
 		# if we're generating a generic one, decide on a position
 		if labelX is null or labelY is null
 			y = (y - 200)
@@ -288,7 +289,7 @@ Namespace('Labeling').Creator = do ->
 
 			labelStartOffsetX = 70
 			labelStartOffsetY = 50
-			
+
 			if (x < labelAreaHalfWidth)
 				x -= labelStartOffsetX
 
@@ -344,13 +345,13 @@ Namespace('Labeling').Creator = do ->
 		term.childNodes[0].onkeyup = _termKeyUp
 		# set initial font size
 		term.childNodes[0].onkeyup target: term.childNodes[0]
-		
+
 		# enter key press should stop editing
 		term.childNodes[0].onkeydown = _termKeyDown
 
 		# check if blank when the text is cleared
 		term.childNodes[0].onblur = _termBlurred
-		
+
 		# make delete button remove it from the list
 		term.childNodes[1].onclick = ->
 			term.parentElement.removeChild(term)
@@ -425,7 +426,7 @@ Namespace('Labeling').Creator = do ->
 		if minDist < 10
 			ui.position.left = $(minDistEle).position().left
 			ui.position.top = $(minDistEle).position().top
-		
+
 		term = document.getElementById event.target.getAttribute('data-termid')
 		term.setAttribute('data-x', ui.position.left)
 		term.setAttribute('data-y', ui.position.top)
@@ -532,7 +533,7 @@ Namespace('Labeling').Creator = do ->
 			$('#help_adding').css 'display','block'
 			$('#boardcover').css 'display','block'
 			$('#imagewrapper').addClass 'faded'
-			
+
 			# hide help tips
 			$('.arrow').css 'display','none'
 
@@ -541,9 +542,9 @@ Namespace('Labeling').Creator = do ->
 			_makeDraggable()
 		else
 			_resizeMode true
-		
+
 		true
-	
+
 	# Public members
 	initNewWidget            : initNewWidget
 	initExistingWidget       : initExistingWidget
