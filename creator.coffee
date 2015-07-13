@@ -338,8 +338,7 @@ Namespace('Labeling').Creator = do ->
 		term.onclick = ->
 			term.childNodes[0].focus()
 			document.execCommand 'selectAll',false,null
-			if term.childNodes[0].innerHTML == _defaultLabel
-				term.childNodes[0].innerHTML = ''
+			if term.childNodes[0].innerHTML == _defaultLabel then term.childNodes[0].innerHTML = ''
 
 		# resize text on change
 		term.childNodes[0].onkeyup = _termKeyUp
@@ -394,14 +393,11 @@ Namespace('Labeling').Creator = do ->
 	_termKeyDown = (e) ->
 		e = window.event if not e?
 		if e.keyCode is 13
-			e.target.blur()
-			e.stopPropagation() if e.stopPropagation?
-			false
+			return e.which != 13
 		if e.keyCode is 27 and e.target.innerHTML.length < 1
 			$(document.getElementById('dot_'+e.target.parentElement.id)).remove()
 			$(e.target.parentElement).remove()
 			_drawBoard()
-
 
 	# If the term is blank, put dummy text in it
 	_termBlurred = (e) ->
@@ -465,15 +461,16 @@ Namespace('Labeling').Creator = do ->
 		dots = $('.term')
 		for dot in dots
 			item = {}
+			label = dot.childNodes[0].innerHTML
 
 			answer =
-				text: dot.childNodes[0].innerHTML
+				text: label
 				value: 100
 				id: ''
 			item.answers = [answer]
 			item.assets = []
 			question =
-				text: dot.childNodes[0].innerHTML
+				text: label
 			item.questions = [question]
 			item.type = 'QA'
 			item.id = dot.getAttribute('data-id') or ''
