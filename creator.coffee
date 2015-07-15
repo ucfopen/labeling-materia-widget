@@ -399,12 +399,29 @@ Namespace('Labeling').Creator = do ->
 	# When typing on a term, resize the font accordingly
 	_termKeyDown = (e) ->
 		e = window.event if not e?
+
+		# Enter key
+		# block adding line returns
+		# consider Enter Key to mean 'done editing'
 		if e.keyCode is 13
-			return e.which != 13
-		if e.keyCode is 27 and e.target.innerHTML.length < 1
-			$(document.getElementById('dot_'+e.target.parentElement.id)).remove()
-			$(e.target.parentElement).remove()
-			_drawBoard()
+			# Defocus
+			e.target.blur()
+			window.getSelection().removeAllRanges() # needed for contenteditable blur
+			# put event in a sleeper hold
+			e.stopPropagation() if e.stopPropagation?
+			e.preventDefault()
+			return false
+
+		# Escape
+		if e.keyCode is 27
+			if e.target.innerHTML.length < 1
+				$(document.getElementById('dot_'+e.target.parentElement.id)).remove()
+				$(e.target.parentElement).remove()
+				_drawBoard()
+			else
+				# Defocus
+				e.target.blur()
+				window.getSelection().removeAllRanges() # needed for contenteditable blur
 
 	# If the term is blank, put dummy text in it
 	_termBlurred = (e) ->
