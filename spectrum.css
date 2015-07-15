@@ -374,18 +374,22 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
 }
 
 .sp-container button {
-  background: #5fac4b;
-  color: #fff;
-  font-size: 13px;
-  font-family: 'Lato';
-  font-weight: 100;
-  line-height: 1;
-  padding: 5px 4px;
-  text-align: center;
-  vertical-align: middle;
-  border: none;
-  width: 172px;
-  height: 38px;
+    background: #5fac4b;
+    color: #fff;
+    font-size: 13px;
+    font-family: 'Lato';
+    line-height: 1;
+    padding: 5px 4px;
+    text-align: center;
+    vertical-align: middle;
+    border: none;
+    width: 172px;
+    height: 38px;
+}
+.sp-container button:hover {
+    background: #78DD5E;
+    color: #000;
+    cursor: pointer;
 }
 .sp-cancel
 {
