@@ -23,6 +23,13 @@ html, body {
 	overflow: hidden;
 }
 
+input, textarea {
+	-moz-user-select: text;
+	-webkit-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
+}
+
 .backgroundtile {
 	display: inline-block;
 	width: 28px;
@@ -230,6 +237,13 @@ html, body {
 
 #terms {
 	z-index: 100;
+}
+
+.label-input {
+	-moz-user-select: text;
+	-webkit-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
 }
 
 div.term {
@@ -482,6 +496,13 @@ input {
 	z-index: 90001;
 	position: absolute;
 	top: 55px;
+	left: 12px;
+}
+
+#btnMoveResizeDone {
+	z-index: 90002;
+	position: absolute;
+	top: 105px;
 	left: 12px;
 }
 

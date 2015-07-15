@@ -70,13 +70,16 @@ Namespace('Labeling').Creator = do ->
 		$('.graph').click ->
 			_qset.options.backgroundTheme = 'themeGraphPaper'
 			_setBackground()
+
 		$('.cork').click  ->
 			_qset.options.backgroundTheme = 'themeCorkBoard'
 			_setBackground()
+
 		$('.backgroundtile.color').click ->
 			if _qset.options.backgroundTheme isnt 'themeSolidColor'
 				_qset.options.backgroundTheme = 'themeSolidColor'
 				_setBackground()
+
 			$("#colorpicker").spectrum("show")
 			$('.sp-coloropt').click (e) ->
 				if e? and e.target?
@@ -100,18 +103,20 @@ Namespace('Labeling').Creator = do ->
 				height: $('#imagewrapper').height()
 				left: $('#imagewrapper').position().left
 				top: $('#imagewrapper').position().top
-			$('#btnMoveResizeCancel').css 'display','block'
+
 		$('#btnMoveResizeCancel').click ->
 			_resizeMode false
 			$('#imagewrapper').width _lastImgDimensions.width
 			$('#imagewrapper').height _lastImgDimensions.height
 			$('#imagewrapper').css 'left', _lastImgDimensions.left + 'px'
 			$('#imagewrapper').css 'top', _lastImgDimensions.top + 'px'
+
 		$('#btnMoveResizeDone').click ->
 			_resizeMode false
 
 		$('#btnChooseImage').click ->
 			Materia.CreatorCore.showMediaImporter()
+
 		$('#btnChooseImageStep1').click ->
 			Materia.CreatorCore.showMediaImporter()
 			true
@@ -130,11 +135,10 @@ Namespace('Labeling').Creator = do ->
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
 		# update background
-		$('#colorpicker').spectrum({
+		$('#colorpicker').spectrum
 			move: _updateColorFromSelector
 			cancelText: ''
 			chooseText: 'Done'
-		})
 
 	_showMiniTitleEditor = ->
 		$('#titlechanger').addClass 'show'
@@ -169,12 +173,15 @@ Namespace('Labeling').Creator = do ->
 		if isOn
 			$('#imagewrapper').addClass 'resizable'
 			$('#controlcover').addClass 'show'
+			$('#btnMoveResizeCancel').css 'display', 'block'
+			$('#btnMoveResizeDone').css 'display','block'
 		else
 			$('#imagewrapper').removeClass 'resizable'
 			$('#controlcover').removeClass 'show'
 			$('#btnMoveResizeCancel').css 'display', 'none'
+			$('#btnMoveResizeDone').css 'display','none'
 
-	# set background color, called from the spectrum events	
+	# set background color, called from the spectrum events
 	_updateColorFromSelector = (color) ->
 		_qset.options.backgroundTheme = 'themeSolidColor'
 		_qset.options.backgroundColor = parseInt(color.toHex(),16)
@@ -277,7 +284,7 @@ Namespace('Labeling').Creator = do ->
 
 		term = document.createElement 'div'
 		term.id = 'term_' + Math.random(); # fake id for linking with dot
-		term.innerHTML = "<div contenteditable='true'>"+text+"</div><div class='delete'></div>"
+		term.innerHTML = "<div class='label-input' contenteditable='true'>"+text+"</div><div class='delete'></div>"
 		term.className = 'term'
 
 		# if we're generating a generic one, decide on a position
@@ -338,8 +345,7 @@ Namespace('Labeling').Creator = do ->
 		term.onclick = ->
 			term.childNodes[0].focus()
 			document.execCommand 'selectAll',false,null
-			if term.childNodes[0].innerHTML == _defaultLabel
-				term.childNodes[0].innerHTML = ''
+			if term.childNodes[0].innerHTML == _defaultLabel then term.childNodes[0].innerHTML = ''
 
 		# resize text on change
 		term.childNodes[0].onkeyup = _termKeyUp
@@ -393,15 +399,29 @@ Namespace('Labeling').Creator = do ->
 	# When typing on a term, resize the font accordingly
 	_termKeyDown = (e) ->
 		e = window.event if not e?
-		if e.keyCode is 13
-			e.target.blur()
-			e.stopPropagation() if e.stopPropagation?
-			false
-		if e.keyCode is 27 and e.target.innerHTML.length < 1
-			$(document.getElementById('dot_'+e.target.parentElement.id)).remove()
-			$(e.target.parentElement).remove()
-			_drawBoard()
 
+		# Enter key
+		# block adding line returns
+		# consider Enter Key to mean 'done editing'
+		if e.keyCode is 13
+			# Defocus
+			e.target.blur()
+			window.getSelection().removeAllRanges() # needed for contenteditable blur
+			# put event in a sleeper hold
+			e.stopPropagation() if e.stopPropagation?
+			e.preventDefault()
+			return false
+
+		# Escape
+		if e.keyCode is 27
+			if e.target.innerHTML.length < 1
+				$(document.getElementById('dot_'+e.target.parentElement.id)).remove()
+				$(e.target.parentElement).remove()
+				_drawBoard()
+			else
+				# Defocus
+				e.target.blur()
+				window.getSelection().removeAllRanges() # needed for contenteditable blur
 
 	# If the term is blank, put dummy text in it
 	_termBlurred = (e) ->
@@ -465,15 +485,16 @@ Namespace('Labeling').Creator = do ->
 		dots = $('.term')
 		for dot in dots
 			item = {}
+			label = dot.childNodes[0].innerHTML
 
 			answer =
-				text: dot.childNodes[0].innerHTML
+				text: label
 				value: 100
 				id: ''
 			item.answers = [answer]
 			item.assets = []
 			question =
-				text: dot.childNodes[0].innerHTML
+				text: label
 			item.questions = [question]
 			item.type = 'QA'
 			item.id = dot.getAttribute('data-id') or ''
