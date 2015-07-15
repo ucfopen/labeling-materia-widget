@@ -70,13 +70,16 @@ Namespace('Labeling').Creator = do ->
 		$('.graph').click ->
 			_qset.options.backgroundTheme = 'themeGraphPaper'
 			_setBackground()
+
 		$('.cork').click  ->
 			_qset.options.backgroundTheme = 'themeCorkBoard'
 			_setBackground()
+
 		$('.backgroundtile.color').click ->
 			if _qset.options.backgroundTheme isnt 'themeSolidColor'
 				_qset.options.backgroundTheme = 'themeSolidColor'
 				_setBackground()
+
 			$("#colorpicker").spectrum("show")
 			$('.sp-coloropt').click (e) ->
 				if e? and e.target?
@@ -100,18 +103,20 @@ Namespace('Labeling').Creator = do ->
 				height: $('#imagewrapper').height()
 				left: $('#imagewrapper').position().left
 				top: $('#imagewrapper').position().top
-			$('#btnMoveResizeCancel').css 'display','block'
+
 		$('#btnMoveResizeCancel').click ->
 			_resizeMode false
 			$('#imagewrapper').width _lastImgDimensions.width
 			$('#imagewrapper').height _lastImgDimensions.height
 			$('#imagewrapper').css 'left', _lastImgDimensions.left + 'px'
 			$('#imagewrapper').css 'top', _lastImgDimensions.top + 'px'
+
 		$('#btnMoveResizeDone').click ->
 			_resizeMode false
 
 		$('#btnChooseImage').click ->
 			Materia.CreatorCore.showMediaImporter()
+
 		$('#btnChooseImageStep1').click ->
 			Materia.CreatorCore.showMediaImporter()
 			true
@@ -130,11 +135,10 @@ Namespace('Labeling').Creator = do ->
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
 		# update background
-		$('#colorpicker').spectrum({
+		$('#colorpicker').spectrum
 			move: _updateColorFromSelector
 			cancelText: ''
 			chooseText: 'Done'
-		})
 
 	_showMiniTitleEditor = ->
 		$('#titlechanger').addClass 'show'
@@ -169,12 +173,15 @@ Namespace('Labeling').Creator = do ->
 		if isOn
 			$('#imagewrapper').addClass 'resizable'
 			$('#controlcover').addClass 'show'
+			$('#btnMoveResizeCancel').css 'display', 'block'
+			$('#btnMoveResizeDone').css 'display','block'
 		else
 			$('#imagewrapper').removeClass 'resizable'
 			$('#controlcover').removeClass 'show'
 			$('#btnMoveResizeCancel').css 'display', 'none'
+			$('#btnMoveResizeDone').css 'display','none'
 
-	# set background color, called from the spectrum events	
+	# set background color, called from the spectrum events
 	_updateColorFromSelector = (color) ->
 		_qset.options.backgroundTheme = 'themeSolidColor'
 		_qset.options.backgroundColor = parseInt(color.toHex(),16)

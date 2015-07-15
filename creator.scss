@@ -493,6 +493,13 @@ input {
 	left: 12px;
 }
 
+#btnMoveResizeDone {
+	z-index: 90002;
+	position: absolute;
+	top: 105px;
+	left: 12px;
+}
+
 .helpbox {
 	position: relative;
 	background: #fffac2;
