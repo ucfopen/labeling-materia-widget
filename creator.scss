@@ -24,7 +24,10 @@ html, body {
 }
 
 input, textarea {
-    user-select: text;
+	-moz-user-select: text;
+	-webkit-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
 }
 
 .backgroundtile {
@@ -236,8 +239,11 @@ input, textarea {
 	z-index: 100;
 }
 
-.term * {
-	user-select: text !important;
+.label-input {
+	-moz-user-select: text;
+	-webkit-user-select: text;
+	-ms-user-select: text;
+	user-select: text;
 }
 
 div.term {
@@ -490,6 +496,13 @@ input {
 	z-index: 90001;
 	position: absolute;
 	top: 55px;
+	left: 12px;
+}
+
+#btnMoveResizeDone {
+	z-index: 90002;
+	position: absolute;
+	top: 105px;
 	left: 12px;
 }
 
