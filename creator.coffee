@@ -38,10 +38,8 @@ Namespace('Labeling').Creator = do ->
 		# hide the canvas so we can interact with it
 		$('#canvas').css 'display','none'
 
-		# hide the default help text
-		$('#help_moving').css 'display','none'
-		$('#btnMoveResize').css 'display','none'
-		$('#btnChooseImage').css 'display','none'
+		$('#btnMoveResize').attr 'disabled', true
+		$('#btnChooseImage').attr 'disabled', true
 
 		$('#btnChooseImageStep1').css 'display','inline-block'
 
@@ -117,8 +115,10 @@ Namespace('Labeling').Creator = do ->
 		$('#btnChooseImage').click ->
 			Materia.CreatorCore.showMediaImporter()
 
-		$('#btnChooseImageStep1').click ->
+		$('#btn-enter-title').click ->
 			Materia.CreatorCore.showMediaImporter()
+			$('#btnMoveResize').attr 'disabled', false
+			$('#btnChooseImage').attr 'disabled', false
 			true
 
 		$('#title').click _showMiniTitleEditor
@@ -129,8 +129,6 @@ Namespace('Labeling').Creator = do ->
 			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
 			$('#title').html (title or 'My labeling widget')
-			if _gettingStarted
-				$('.arrow').css 'display','block'
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
