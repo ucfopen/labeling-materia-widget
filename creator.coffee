@@ -41,8 +41,6 @@ Namespace('Labeling').Creator = do ->
 		$('#btnMoveResize').attr 'disabled', true
 		$('#btnChooseImage').attr 'disabled', true
 
-		$('#btnChooseImageStep1').css 'display','inline-block'
-
 		_gettingStarted = true
 
 		# make a scaffold qset object
@@ -117,8 +115,6 @@ Namespace('Labeling').Creator = do ->
 
 		$('#btn-enter-title').click ->
 			Materia.CreatorCore.showMediaImporter()
-			$('#btnMoveResize').attr 'disabled', false
-			$('#btnChooseImage').attr 'disabled', false
 			true
 
 		$('#title').click _showMiniTitleEditor
@@ -526,8 +522,9 @@ Namespace('Labeling').Creator = do ->
 	# called from Materia creator page
 	# loads and sets appropriate data for loading image
 	onMediaImportComplete = (media) ->
-		$('#btnChooseImageStep1').css 'display','none'
 		$('#canvas').css 'display','block'
+		$('#btnMoveResize').attr 'disabled', false
+		$('#btnChooseImage').attr 'disabled', false
 		$('#imagewrapper').removeClass 'firsttime'
 
 		url = Materia.CreatorCore.getMediaUrl(media[0].id)
@@ -548,19 +545,13 @@ Namespace('Labeling').Creator = do ->
 			$('#imagewrapper').css('left', (600 / 2) - (iw.width() / 2))
 			$('#imagewrapper').css('top', (550 / 2) - (iw.height() / 2))
 
-		if _gettingStarted
-			$('#help_adding').css 'display','block'
-			$('#boardcover').css 'display','block'
-			$('#imagewrapper').addClass 'faded'
 
-			# hide help tips
-			$('.arrow').css 'display','none'
+		$('#boardcover').css 'display','block'
+		$('#imagewrapper').addClass 'faded'
 
-			_gettingStarted = false
+		_makeDraggable()
 
-			_makeDraggable()
-		else
-			_resizeMode true
+		_resizeMode true
 
 		true
 
