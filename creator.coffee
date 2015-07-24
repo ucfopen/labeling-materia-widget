@@ -38,9 +38,6 @@ Namespace('Labeling').Creator = do ->
 		# hide the canvas so we can interact with it
 		$('#canvas').css 'display','none'
 
-		$('#btnMoveResize').attr 'disabled', true
-		$('#btnChooseImage').attr 'disabled', true
-
 		_gettingStarted = true
 
 		# make a scaffold qset object
@@ -255,7 +252,6 @@ Namespace('Labeling').Creator = do ->
 			# and outer stroke
 			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff')
 			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000')
-
 
 	# Add term to the list, called by the click event
 	_addTerm = (e) ->
@@ -524,8 +520,6 @@ Namespace('Labeling').Creator = do ->
 	# loads and sets appropriate data for loading image
 	onMediaImportComplete = (media) ->
 		$('#canvas').css 'display','block'
-		$('#btnMoveResize').attr 'disabled', false
-		$('#btnChooseImage').attr 'disabled', false
 		$('#imagewrapper').removeClass 'firsttime'
 
 		url = Materia.CreatorCore.getMediaUrl(media[0].id)
