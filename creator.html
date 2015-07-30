@@ -42,15 +42,6 @@
 				</div>
 			</div>
 
-			<div class='arrow'>
-				<svg version="1.1" id="svg2" xmlns:cc="http://web.resource.org/cc/" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" width="300px" height="250px" viewBox="-10 0 82 38" enable-background="new 0 0 82 38" xml:space="preserve">
-				<g id="layer1">
-				<path id="path4348" fill="#9c52a4" stroke="#fff" d="M36.458,12.375l19.32,11.604L36.284,34.942l-0.042-5.667l-43.648-0.066
-				V18.426l43.857,0.023L36.458,12.375z"></path>
-				<text x="-2" y="25" style='fill:#fff;font-size:3.5px'>Click to add your image</text></g>
-				</svg>
-			</div>
-
 			<div id='controls'>
 				<input type='button' value='Choose a different image' data-intro='Choose an image' id='btnChooseImage'>
 				<input type='button' value='Move &amp; resize image' id='btnMoveResize'>
@@ -75,7 +66,7 @@
 				</div>
 			</div>
 
-			<div id='backgroundcover' onclick='setTitle()'></div>
+			<div id='backgroundcover'></div>
 			<div id='controlcover'></div>
 			<input type='button' value='Cancel Move &amp; Resize' id='btnMoveResizeCancel' style='display:none'>
 			<input type='button' value='Save Changes' id='btnMoveResizeDone' style='display:none'>
@@ -83,10 +74,10 @@
 			<div id="board" class="screen board">
 				<div id='boardcover'></div>
 				<div id='imagewrapper'>
-					<img id='image' src=''>
+					<div id="chooseimage">Click "Choose a different image" to select your first image</div>
+					<img id='image' alt='' src='../'>
 					<div id='inputwrapper'>
 						<div id='resizecontrols' style='display:none'></div>
-						<input type='button' value='Choose image to label' id='btnChooseImageStep1' style='display: none'>
 					</div>
 				</div>
 				<canvas id='canvas' width=1000 height=1000></canvas>
@@ -111,7 +102,7 @@
 				<b>Start by giving your Labeling widget a title</b><br>
 				<form onsubmit='setTitle(titletxt.value);return false;'>
 					<input type='text' name='titletxt' placeholder='My Labeling widget' autofocus='1'>
-					<input type='submit' value='Get Started'>
+					<input type='submit' value='Get Started' id='btn-enter-title'>
 				</form>
 			</div>
 		</div>
