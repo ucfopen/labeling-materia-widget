@@ -28,22 +28,14 @@ Namespace('Labeling').Creator = do ->
 	_defaultLabel = '[label title]'
 
 	initNewWidget = (widget, baseUrl) ->
+		$('#image').hide()
+		$('#chooseimage').show()
 		# prompt the user for a widget title
 		$('#titlebox').addClass 'show'
 		$('#backgroundcover').addClass 'show'
 
-		# the image will have a sheen to it to indicate it should be clicked
-		$('#imagewrapper').addClass 'firsttime'
-
 		# hide the canvas so we can interact with it
 		$('#canvas').css 'display','none'
-
-		# hide the default help text
-		$('#help_moving').css 'display','none'
-		$('#btnMoveResize').css 'display','none'
-		$('#btnChooseImage').css 'display','none'
-
-		$('#btnChooseImageStep1').css 'display','inline-block'
 
 		_gettingStarted = true
 
@@ -117,7 +109,7 @@ Namespace('Labeling').Creator = do ->
 		$('#btnChooseImage').click ->
 			Materia.CreatorCore.showMediaImporter()
 
-		$('#btnChooseImageStep1').click ->
+		$('#btn-enter-title').click ->
 			Materia.CreatorCore.showMediaImporter()
 			true
 
@@ -129,8 +121,7 @@ Namespace('Labeling').Creator = do ->
 			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
 			$('#title').html (title or 'My labeling widget')
-			if _gettingStarted
-				$('.arrow').css 'display','block'
+			Materia.CreatorCore.showMediaImporter()
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
@@ -260,7 +251,6 @@ Namespace('Labeling').Creator = do ->
 			# and outer stroke
 			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff')
 			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000')
-
 
 	# Add term to the list, called by the click event
 	_addTerm = (e) ->
@@ -528,11 +518,11 @@ Namespace('Labeling').Creator = do ->
 	# called from Materia creator page
 	# loads and sets appropriate data for loading image
 	onMediaImportComplete = (media) ->
-		$('#btnChooseImageStep1').css 'display','none'
 		$('#canvas').css 'display','block'
-		$('#imagewrapper').removeClass 'firsttime'
 
 		url = Materia.CreatorCore.getMediaUrl(media[0].id)
+		$('#chooseimage').hide()
+		$('#image').show()
 		$('#image').attr 'src', url
 		$('#image').attr 'data-imgid', media[0].id
 		_img.src = url
@@ -550,19 +540,13 @@ Namespace('Labeling').Creator = do ->
 			$('#imagewrapper').css('left', (600 / 2) - (iw.width() / 2))
 			$('#imagewrapper').css('top', (550 / 2) - (iw.height() / 2))
 
-		if _gettingStarted
-			$('#help_adding').css 'display','block'
-			$('#boardcover').css 'display','block'
-			$('#imagewrapper').addClass 'faded'
 
-			# hide help tips
-			$('.arrow').css 'display','none'
+		$('#boardcover').css 'display','block'
+		$('#imagewrapper').addClass 'faded'
 
-			_gettingStarted = false
+		_makeDraggable()
 
-			_makeDraggable()
-		else
-			_resizeMode true
+		_resizeMode true
 
 		true
 

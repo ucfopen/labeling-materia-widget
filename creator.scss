@@ -110,16 +110,18 @@ input, textarea {
 	left: 80px;
 	top: 115px;
 
-
-	&.firsttime {
-		background: #ddd;
-		border: solid 3px #fff;
-	}
 	&.faded {
 		opacity: 0.8;
 	}
-	#image {
+	#chooseimage {
 		position: absolute;
+		font-size: 18px;
+		text-align: center;
+		font-family: Lato;
+		color: #ffffff;
+		line-height: 300px;
+	}
+	#image {
 		top: 0px;
 		left: 0px;
 		width: 100%;
@@ -339,21 +341,6 @@ h1 {
 		right: 0px;
 		margin-right: -400px;
 	}
-}
-.arrow {
-	position: absolute;
-	z-index: 5000;
-	top: 175px;
-	left: 150px;
-	animation: sway 2s infinite;
-	height: 200px;
-	width: 200px;
-	display: none;
-}
-@keyframes sway {
-	0% { margin-left: -10px; }
-	50% { margin-left: 10px; }
-	100% { margin-left: -10px; }
 }
 
 * {
