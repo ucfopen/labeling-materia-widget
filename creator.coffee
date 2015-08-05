@@ -28,12 +28,11 @@ Namespace('Labeling').Creator = do ->
 	_defaultLabel = '[label title]'
 
 	initNewWidget = (widget, baseUrl) ->
+		$('#image').hide()
+		$('#chooseimage').show()
 		# prompt the user for a widget title
 		$('#titlebox').addClass 'show'
 		$('#backgroundcover').addClass 'show'
-
-		# the image will have a sheen to it to indicate it should be clicked
-		$('#imagewrapper').addClass 'firsttime'
 
 		# hide the canvas so we can interact with it
 		$('#canvas').css 'display','none'
@@ -520,9 +519,10 @@ Namespace('Labeling').Creator = do ->
 	# loads and sets appropriate data for loading image
 	onMediaImportComplete = (media) ->
 		$('#canvas').css 'display','block'
-		$('#imagewrapper').removeClass 'firsttime'
 
 		url = Materia.CreatorCore.getMediaUrl(media[0].id)
+		$('#chooseimage').hide()
+		$('#image').show()
 		$('#image').attr 'src', url
 		$('#image').attr 'data-imgid', media[0].id
 		_img.src = url
