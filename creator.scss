@@ -340,21 +340,6 @@ h1 {
 		margin-right: -400px;
 	}
 }
-.arrow {
-	position: absolute;
-	z-index: 5000;
-	top: 175px;
-	left: 150px;
-	animation: sway 2s infinite;
-	height: 200px;
-	width: 200px;
-	display: none;
-}
-@keyframes sway {
-	0% { margin-left: -10px; }
-	50% { margin-left: 10px; }
-	100% { margin-left: -10px; }
-}
 
 * {
 	-webkit-appearance: none;
