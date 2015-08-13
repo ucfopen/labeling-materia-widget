@@ -127,6 +127,7 @@ div.term {
 	color: #000;
 	word-break: break-all;
 	text-align: center;
+	white-space: pre;
 
 	&.placed {
 		background: #f7ecce;
