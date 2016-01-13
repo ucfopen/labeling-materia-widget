@@ -246,8 +246,10 @@ input, textarea {
 	-webkit-user-select: text;
 	-ms-user-select: text;
 	user-select: text;
-
-	white-space: pre;
+	
+	/*white-space: pre;*/
+	
+	white-space: pre-wrap;
 }
 
 div.term {
@@ -268,6 +270,8 @@ div.term {
 	opacity: 1;
 	margin: -10px;
 	word-break: break-all;
+
+	white-space: pre-wrap;
 
 	padding: 8px 0px;
 
