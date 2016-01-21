@@ -10,7 +10,7 @@ html {
 }
 
 $green: #5fac4b;
-$inputmaxheight: 200px;
+$inputmaxheight: 100px;
 
 html, body {
 	cursor: default;
@@ -273,7 +273,6 @@ div.term {
 	box-shadow: 3px 3px 18px #000;
 	opacity: 1;
 	margin: -10px;
-	word-break: break-all;
 
 	white-space: pre-wrap;
 
