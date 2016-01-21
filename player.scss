@@ -128,7 +128,13 @@ div.term {
 	word-break: break-all;
 	word-wrap: break-word;
 	text-align: center;
+
 	white-space: pre-wrap;
+
+	max-height: 200px;
+
+	overflow-x: hidden;
+	overflow-y: auto;
 
 	&.placed {
 		background: #f7ecce;
