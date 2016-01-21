@@ -246,9 +246,9 @@ input, textarea {
 	-webkit-user-select: text;
 	-ms-user-select: text;
 	user-select: text;
-	
+
 	/*white-space: pre;*/
-	
+
 	white-space: pre-wrap;
 }
 
@@ -284,7 +284,7 @@ div.term {
 	border: none;
 
 	cursor: pointer;
-	
+
 	.delete:before {
 		content: '\00D7';
 	}
