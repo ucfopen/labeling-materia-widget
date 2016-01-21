@@ -21,7 +21,7 @@ html, body {
 	font-family: 'Lato', serif;
 
 	overflow: hidden;
-	
+
 	// This is an IE thing, it prevents panning the page
 	touch-action: none;
 }
@@ -128,7 +128,7 @@ div.term {
 	word-break: break-all;
 	word-wrap: break-word;
 	text-align: center;
-	white-space: pre;
+	white-space: pre-wrap;
 
 	&.placed {
 		background: #f7ecce;
