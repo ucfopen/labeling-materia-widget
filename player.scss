@@ -125,13 +125,11 @@ div.term {
 	font-size: 14px;
 	font-family: 'Roboto Slab';
 	color: #000;
-	word-break: break-all;
-	word-wrap: break-word;
 	text-align: center;
 
 	white-space: pre-wrap;
 
-	max-height: 200px;
+	max-height: 100px;
 
 	overflow-x: hidden;
 	overflow-y: auto;
