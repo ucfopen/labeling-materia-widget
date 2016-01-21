@@ -10,6 +10,7 @@ html {
 }
 
 $green: #5fac4b;
+$inputmaxheight: 200px;
 
 html, body {
 	cursor: default;
@@ -247,9 +248,12 @@ input, textarea {
 	-ms-user-select: text;
 	user-select: text;
 
-	/*white-space: pre;*/
-
 	white-space: pre-wrap;
+
+	max-height: $inputmaxheight;
+
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 div.term {
@@ -272,6 +276,8 @@ div.term {
 	word-break: break-all;
 
 	white-space: pre-wrap;
+
+	max-height: ($inputmaxheight+20);
 
 	padding: 8px 0px;
 
