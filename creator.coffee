@@ -348,6 +348,9 @@ Namespace('Labeling').Creator = do ->
 		# check if blank when the text is cleared
 		term.childNodes[0].onblur = _termBlurred
 
+		# clean up pasted content to make sure we don't accidentally get invisible html garbage
+		term.childNodes[0].onpaste = _termPaste
+
 		# make delete button remove it from the list
 		term.childNodes[1].onclick = ->
 			term.parentElement.removeChild(term)
@@ -417,6 +420,13 @@ Namespace('Labeling').Creator = do ->
 	_termBlurred = (e) ->
 		e = window.event if not e?
 		e.target.innerHTML = _defaultLabel if e.target.innerHTML is ''
+
+	# Convert anything on the clipboard into pure text before pasting it into the label
+	_termPaste = (e) ->
+		e = window.event if not e?
+		e.preventDefault()
+		if e.target.innerHTML is _defaultLabel then e.target.innerHTML = e.clipboardData.getData 'text/plain'
+		else e.target.innerHTML += e.clipboardData.getData 'text/plain'
 
 	# a dot has been dragged, lock it in place if its within 10px
 	_dotDragged = (event,ui) ->
