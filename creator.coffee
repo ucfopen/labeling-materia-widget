@@ -425,8 +425,14 @@ Namespace('Labeling').Creator = do ->
 	_termPaste = (e) ->
 		e = window.event if not e?
 		e.preventDefault()
-		if e.target.innerHTML is _defaultLabel then e.target.innerHTML = e.clipboardData.getData 'text/plain'
-		else e.target.innerHTML += e.clipboardData.getData 'text/plain'
+		if e.clipboardData?
+			clipboardData = e.clipboardData
+			clipboardArgument = 'text/plain'
+		else
+			clipboardData = window.clipboardData
+			clipboardArgument = 'Text'
+		if e.target.innerHTML is _defaultLabel then e.target.innerHTML = clipboardData.getData clipboardArgument
+		else e.target.innerHTML += clipboardData.getData clipboardArgument
 
 	# a dot has been dragged, lock it in place if its within 10px
 	_dotDragged = (event,ui) ->
