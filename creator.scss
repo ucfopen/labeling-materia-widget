@@ -248,6 +248,8 @@ input, textarea {
 	-ms-user-select: text;
 	user-select: text;
 
+	word-wrap: break-word;
+
 	white-space: pre-wrap;
 
 	max-height: $inputmaxheight;
