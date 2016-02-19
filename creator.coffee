@@ -423,16 +423,27 @@ Namespace('Labeling').Creator = do ->
 
 	# Convert anything on the clipboard into pure text before pasting it into the label
 	_termPaste = (e) ->
-		e = window.event if not e?
+		e = window.event unless e?
 		e.preventDefault()
+
+		# contenteditable divs will insert an empty <br/> when they're empty, this checks for and removes them on paste
+		if e.target.tagName is 'BR'
+			input = e.target.parentElement
+			e.target.parentElement.removeChild e.target
+		else
+			input = e.target
+		# ie11 has different arguments for clipboardData and makes it a method of window instead of the paste event
 		if e.clipboardData?
 			clipboardData = e.clipboardData
 			clipboardArgument = 'text/plain'
 		else
 			clipboardData = window.clipboardData
 			clipboardArgument = 'Text'
-		if e.target.innerHTML is _defaultLabel then e.target.innerHTML = clipboardData.getData clipboardArgument
-		else e.target.innerHTML += clipboardData.getData clipboardArgument
+
+		range = window.getSelection().getRangeAt 0
+		range.deleteContents()
+		text = input.textContent
+		input.textContent = text.substr(0, range.startOffset) + clipboardData.getData(clipboardArgument) + text.substr(range.startOffset)
 
 	# a dot has been dragged, lock it in place if its within 10px
 	_dotDragged = (event,ui) ->
