@@ -440,10 +440,22 @@ Namespace('Labeling').Creator = do ->
 			clipboardData = window.clipboardData
 			clipboardArgument = 'Text'
 
-		range = window.getSelection().getRangeAt 0
-		range.deleteContents()
-		text = input.textContent
-		input.textContent = text.substr(0, range.startOffset) + clipboardData.getData(clipboardArgument) + text.substr(range.startOffset)
+		sel = window.getSelection()
+		if sel.rangeCount
+			range = sel.getRangeAt 0
+			range.deleteContents()
+
+			newText = clipboardData.getData clipboardArgument
+			newNode = document.createTextNode newText
+			range.insertNode newNode
+
+			newRange = document.createRange()
+			newRange.selectNodeContents newNode
+			newRange.collapse false
+
+			sel.removeAllRanges()
+			sel.addRange newRange
+
 
 	# a dot has been dragged, lock it in place if its within 10px
 	_dotDragged = (event,ui) ->
