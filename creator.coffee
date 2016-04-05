@@ -121,7 +121,6 @@ Namespace('Labeling').Creator = do ->
 			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
 			$('#title').html (title or 'My labeling widget')
-			Materia.CreatorCore.showMediaImporter()
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
