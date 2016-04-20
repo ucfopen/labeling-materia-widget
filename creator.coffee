@@ -255,7 +255,7 @@ Namespace('Labeling').Creator = do ->
 	# Add term to the list, called by the click event
 	_addTerm = (e) ->
 		# draw a dot on the canvas for the question location
-		_makeTerm e.clientX-document.getElementById('frame').offsetLeft-document.getElementById('board').offsetLeft, e.clientY-50
+		_makeTerm e.pageX-document.getElementById('frame').offsetLeft-document.getElementById('board').offsetLeft, e.pageY-50
 
 		$('#help_adding').css 'display','none'
 		$('#boardcover').css 'display','none'
