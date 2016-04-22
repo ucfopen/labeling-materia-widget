@@ -347,6 +347,9 @@ Namespace('Labeling').Creator = do ->
 		# check if blank when the text is cleared
 		term.childNodes[0].onblur = _termBlurred
 
+		# clean up pasted content to make sure we don't accidentally get invisible html garbage
+		term.childNodes[0].onpaste = _termPaste
+
 		# make delete button remove it from the list
 		term.childNodes[1].onclick = ->
 			term.parentElement.removeChild(term)
@@ -416,6 +419,42 @@ Namespace('Labeling').Creator = do ->
 	_termBlurred = (e) ->
 		e = window.event if not e?
 		e.target.innerHTML = _defaultLabel if e.target.innerHTML is ''
+
+	# Convert anything on the clipboard into pure text before pasting it into the label
+	_termPaste = (e) ->
+		e = window.event unless e?
+		e.preventDefault()
+
+		# contenteditable divs will insert an empty <br/> when they're empty, this checks for and removes them on paste
+		if e.target.tagName is 'BR'
+			input = e.target.parentElement
+			e.target.parentElement.removeChild e.target
+		else
+			input = e.target
+		# ie11 has different arguments for clipboardData and makes it a method of window instead of the paste event
+		if e.clipboardData?
+			clipboardData = e.clipboardData
+			clipboardArgument = 'text/plain'
+		else
+			clipboardData = window.clipboardData
+			clipboardArgument = 'Text'
+
+		sel = window.getSelection()
+		if sel.rangeCount
+			range = sel.getRangeAt 0
+			range.deleteContents()
+
+			newText = clipboardData.getData clipboardArgument
+			newNode = document.createTextNode newText
+			range.insertNode newNode
+
+			newRange = document.createRange()
+			newRange.selectNodeContents newNode
+			newRange.collapse false
+
+			sel.removeAllRanges()
+			sel.addRange newRange
+
 
 	# a dot has been dragged, lock it in place if its within 10px
 	_dotDragged = (event,ui) ->
