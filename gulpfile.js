@@ -676,8 +676,6 @@ var fullExport = function(callback)
 {
 	var widgetPackagePostFix = Date.now();
 
-	console.log(__dirname.slice(0, -widget.length));
-
 	var totalCommand = "cd " + __dirname.slice(0, -widget.length) +
 	" && find " + configs.materia_docker_location + "/app/fuel/app/tmp/widget_packages -name '" + widget + "*.wigt' -delete" +
 	" && cd " + configs.materia_docker_location +
