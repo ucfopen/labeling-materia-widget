@@ -159,10 +159,12 @@
           }
         }
       ],
-      "options": {
-        "image": {
+      "options":
+      {
+        "image":
+        {
           "materiaType": "asset",
-          "id": "<%MEDIA=\"assets/1.png\"%>"
+          "id": "<%MEDIA='assets/1.png'%>"
         },
         "imageScale": 0.56255813953488,
         "imageX": 20.35,
