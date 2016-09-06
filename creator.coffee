@@ -584,8 +584,6 @@ Namespace('Labeling').Creator = do ->
 
 		_makeDraggable()
 
-		_resizeMode true
-
 		true
 
 	# Public members
