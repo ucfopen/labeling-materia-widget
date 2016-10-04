@@ -579,8 +579,6 @@ Namespace('Labeling').Creator = do ->
 			$('#imagewrapper').css('top', (550 / 2) - (iw.height() / 2))
 
 
-		$('#boardcover').css 'display','block'
-		$('#imagewrapper').addClass 'faded'
 
 		_makeDraggable()
 
