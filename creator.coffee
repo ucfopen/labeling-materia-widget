@@ -82,6 +82,10 @@ Namespace('Labeling').Creator = do ->
 					_setBackground()
 			false
 
+		$('#opaque-toggle').change ->
+			console.log "Yeah"
+			dots = document.find('.dot')
+
 		$('#btnMoveResize').click ->
 			_resizeMode true
 
@@ -139,16 +143,6 @@ Namespace('Labeling').Creator = do ->
 		# drag all sides of the image for resizing
 		$('#imagewrapper').draggable(
 			drag: (event,ui) ->
-				###
-				if ui.position.left < 20
-					ui.position.left = 20
-				if ui.position.left + ui.helper.context.offsetWidth > 590
-					ui.position.left = 590 - ui.helper.context.offsetWidth
-				if ui.position.top + ui.helper.context.offsetHeight > 540
-					ui.position.top = 540 - ui.helper.context.offsetHeight
-				if ui.position.top < 20
-					ui.position.top = 20
-				###
 				return ui
 		).resizable
 			aspectRatio: true
