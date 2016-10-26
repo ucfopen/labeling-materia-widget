@@ -337,6 +337,14 @@ div.dot {
 		cursor: move;
 		border: solid 3px #27c0ff;
 	}
+
+	&.frosted {
+		opacity: 0.5;
+		background: #fff;
+	}
+	&.transparent {
+		opacity: 0;
+	}
 }
 
 h1 {
