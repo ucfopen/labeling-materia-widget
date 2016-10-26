@@ -556,6 +556,12 @@ Namespace('Labeling').Creator = do ->
 		if items.length < 1
 			_okToSave = false
 
+		_anchorOpacityValue = 1.0
+		if _anchorOpacity.indexOf('frosted') > -1
+			_anchorOpacityValue = 0.5
+		else if _anchorOpacity.indexOf('transparent') > -1
+			_anchorOpacityValue = 0.0
+
 		_qset.options =
 			backgroundTheme: _qset.options.backgroundTheme
 			backgroundColor: _qset.options.backgroundColor
@@ -565,6 +571,7 @@ Namespace('Labeling').Creator = do ->
 				materiaType: "asset"
 			imageX: $('#imagewrapper').position().left
 			imageY: $('#imagewrapper').position().top
+			opacity: _anchorOpacityValue
 
 		_qset.version = "2"
 
