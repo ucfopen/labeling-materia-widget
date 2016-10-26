@@ -26,6 +26,9 @@ Namespace('Labeling').Engine = do ->
 	# the current dragging term
 	_curterm				= null
 
+	# anchor tag opacity
+	_anchorOpacityValue = 1.0
+
 	# the current match the term is in proximity of
 	_curMatch				= null
 
@@ -68,6 +71,10 @@ Namespace('Labeling').Engine = do ->
 		if _qset.options.version is 2
 			_offsetX = -195
 			_offsetY = -45
+
+		if _qset.options.opacity
+			_anchorOpacityValue = _qset.options.opacity
+		else _anchorOpacityValue = 1.0
 
 		# set background
 		switch _qset.options.backgroundTheme
@@ -470,18 +477,18 @@ Namespace('Labeling').Engine = do ->
 			# but only if the label is not replacing one that already exists
 			if _labelTextsByQuestionId[question.id] and not (_curMatch and _labelTextsByQuestionId[_curMatch.id] and question.id == _curMatch.id)
 				_drawStrokedLine(question.options.endPointX, question.options.endPointY, question.options.labelBoxX, question.options.labelBoxY, '#fff', '#000')
-				dotBorder = '#fff'
-				dotBackground = '#000'
+				dotBorder = 'rgba(255,255,255,' + _anchorOpacityValue + ')'
+				dotBackground = 'rgba(0,0,0,' + _anchorOpacityValue + ')'
 			else
-				dotBorder = '#000'
-				dotBackground = '#fff'
+				dotBorder = 'rgba(0,0,0,' + _anchorOpacityValue + ')'
+				dotBackground = 'rgba(255,255,255,' + _anchorOpacityValue + ')'
 
 			# if the question has a match dragged near it, draw a ghost line
 			if _curMatch? and _curMatch.id == question.id
 				_drawStrokedLine(question.options.endPointX, question.options.endPointY, question.options.labelBoxX, question.options.labelBoxY, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)')
 
-				dotBorder = '#fff'
-				dotBackground = '#000'
+				dotBorder = 'rgba(255,255,255,' + _anchorOpacityValue + ')'
+				dotBackground = 'rgba(0,0,0,' + _anchorOpacityValue + ')'
 
 				# move the ghost label and make it semi-transparent
 				ghost.style.webkitTransform =
