@@ -83,8 +83,25 @@ Namespace('Labeling').Creator = do ->
 			false
 
 		$('#opaque-toggle').change ->
-			console.log "Yeah"
 			dots = $(document).find('.dot')
+			i = 0
+			while i < dots.length
+				$(dots[i]).removeClass('frosted transparent')
+				i++
+
+		$('#frosted-toggle').change ->
+			dots = $(document).find('.dot')
+			i = 0
+			while i < dots.length
+				$(dots[i]).removeClass('transparent').addClass('frosted')
+				i++
+
+		$('#transparent-toggle').change ->
+			dots = $(document).find('.dot')
+			i = 0
+			while i < dots.length
+				$(dots[i]).removeClass('frosted').addClass('transparent')
+				i++
 
 		$('#btnMoveResize').click ->
 			_resizeMode true
