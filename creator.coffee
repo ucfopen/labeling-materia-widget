@@ -84,7 +84,7 @@ Namespace('Labeling').Creator = do ->
 
 		$('#opaque-toggle').change ->
 			console.log "Yeah"
-			dots = document.find('.dot')
+			dots = $(document).find('.dot')
 
 		$('#btnMoveResize').click ->
 			_resizeMode true
