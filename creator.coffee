@@ -19,6 +19,9 @@ Namespace('Labeling').Creator = do ->
 	# offset for legacy support
 	_offsetX = _offsetY = 0
 
+	#Anchor tag opacity class modifier
+	_anchorOpacity = ' '
+
 	# store image dimensions in case the user cancels the resize
 	_lastImgDimensions = {}
 
@@ -83,6 +86,7 @@ Namespace('Labeling').Creator = do ->
 			false
 
 		$('#opaque-toggle').change ->
+			_anchorOpacity = ' '
 			dots = $(document).find('.dot')
 			i = 0
 			while i < dots.length
@@ -90,6 +94,7 @@ Namespace('Labeling').Creator = do ->
 				i++
 
 		$('#frosted-toggle').change ->
+			_anchorOpacity = ' frosted'
 			dots = $(document).find('.dot')
 			i = 0
 			while i < dots.length
@@ -97,6 +102,7 @@ Namespace('Labeling').Creator = do ->
 				i++
 
 		$('#transparent-toggle').change ->
+			_anchorOpacity = ' transparent'
 			dots = $(document).find('.dot')
 			i = 0
 			while i < dots.length
@@ -333,7 +339,7 @@ Namespace('Labeling').Creator = do ->
 		$('#terms').append term
 
 		dot = document.createElement 'div'
-		dot.className = 'dot'
+		dot.className = 'dot' + _anchorOpacity
 		dot.style.left = dotx + 'px'
 		dot.style.top = doty + 'px'
 		dot.setAttribute 'data-termid', term.id
