@@ -130,8 +130,10 @@ Namespace('Labeling').Engine = do ->
 			if not question.id
 				question.id = 'q'+Math.random()
 
+			question.mask = 'm'+Math.random()
+
 			term = document.createElement 'div'
-			term.id = 'term_' + question.id
+			term.id = 'term_' + question.mask
 			term.className = 'term'
 			term.innerHTML = question.questions[0].text
 			term.addEventListener('mousedown', _mouseDownEvent, false)
@@ -219,7 +221,7 @@ Namespace('Labeling').Engine = do ->
 
 		# move all the terms to their correct location
 		for question in _questions
-			node = _g('term_'+question.id)
+			node = _g('term_'+ question.mask)
 
 			# if it's not placed, put it in the left list
 			if !node.getAttribute('data-placed')
@@ -360,12 +362,12 @@ Namespace('Labeling').Engine = do ->
 			fadeOutCurMatch = true
 
 		for question in _questions
-			node = _g('term_'+question.id)
+			node = _g('term_' + question.mask)
 			if fadeOutCurMatch and node.getAttribute('data-placed') == _curMatch.id
-				_g('term_' + question.id).style.opacity = 0.5
+				_g('term_' + question.mask).style.opacity = 0.5
 				_curterm.style.zIndex = ++_zIndex
 			else
-				_g('term_' + question.id).style.opacity = 1
+				_g('term_' + question.mask).style.opacity = 1
 
 		_drawBoard(e.clientX, e.clientY)
 
@@ -390,7 +392,7 @@ Namespace('Labeling').Engine = do ->
 			if _labelTextsByQuestionId[_curMatch.id]
 				# find the node and put it back in the terms list
 				for question in _questions
-					node = _g('term_'+question.id)
+					node = _g('term_' + question.mask)
 					if node.getAttribute('data-placed') == _curMatch.id
 						node.className = 'term ease'
 						node.setAttribute('data-placed','')
