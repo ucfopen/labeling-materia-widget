@@ -26,6 +26,9 @@ Namespace('Labeling').Engine = do ->
 	# the current dragging term
 	_curterm				= null
 
+	# anchor tag opacity
+	_anchorOpacityValue = 1.0
+
 	# the current match the term is in proximity of
 	_curMatch				= null
 
@@ -68,6 +71,11 @@ Namespace('Labeling').Engine = do ->
 		if _qset.options.version is 2
 			_offsetX = -195
 			_offsetY = -45
+
+		if _qset.options.opacity != null and _qset.options.opacity != undefined
+			_anchorOpacityValue = _qset.options.opacity
+		else
+			_anchorOpacityValue = 1.0
 
 		# set background
 		switch _qset.options.backgroundTheme
@@ -122,8 +130,10 @@ Namespace('Labeling').Engine = do ->
 			if not question.id
 				question.id = 'q'+Math.random()
 
+			question.mask = 'm'+Math.random()
+
 			term = document.createElement 'div'
-			term.id = 'term_' + question.id
+			term.id = 'term_' + question.mask
 			term.className = 'term'
 			term.innerHTML = question.questions[0].text
 			term.addEventListener('mousedown', _mouseDownEvent, false)
@@ -184,13 +194,13 @@ Namespace('Labeling').Engine = do ->
 		# the initial board has all dots
 		context = document.getElementById('previewimg0').getContext('2d')
 		for dot in dots
-			_drawDot(dot[0],dot[1],6,2,context,'#000','#fff')
+			_drawDot(dot[0],dot[1],6,2,context,'rgba(0,0,0,' + _anchorOpacityValue + ')','rgba(255,255,255,' + _anchorOpacityValue + ')')
 
 		# each subsequent board has its dot and line
 		for i in [0..2]
 			context = document.getElementById('previewimg'+(i+1)).getContext('2d')
 			_drawStrokedLine(lines[i][0] - _offsetX,lines[i][1] - _offsetY,lines[i][2] - _offsetX,lines[i][3] - _offsetY,'#fff','#000',context)
-			_drawDot(dots[i][0],dots[i][1],6,2,context,'#fff','#000')
+			_drawDot(dots[i][0],dots[i][1],6,2,context,'rgba(255,255,255,' + _anchorOpacityValue + ')','rgba(0,0,0,' + _anchorOpacityValue + ')')
 
 		$('#gotitbtn').click _hideAlert
 
@@ -211,7 +221,7 @@ Namespace('Labeling').Engine = do ->
 
 		# move all the terms to their correct location
 		for question in _questions
-			node = _g('term_'+question.id)
+			node = _g('term_'+ question.mask)
 
 			# if it's not placed, put it in the left list
 			if !node.getAttribute('data-placed')
@@ -352,12 +362,12 @@ Namespace('Labeling').Engine = do ->
 			fadeOutCurMatch = true
 
 		for question in _questions
-			node = _g('term_'+question.id)
+			node = _g('term_' + question.mask)
 			if fadeOutCurMatch and node.getAttribute('data-placed') == _curMatch.id
-				_g('term_' + question.id).style.opacity = 0.5
+				_g('term_' + question.mask).style.opacity = 0.5
 				_curterm.style.zIndex = ++_zIndex
 			else
-				_g('term_' + question.id).style.opacity = 1
+				_g('term_' + question.mask).style.opacity = 1
 
 		_drawBoard(e.clientX, e.clientY)
 
@@ -382,7 +392,7 @@ Namespace('Labeling').Engine = do ->
 			if _labelTextsByQuestionId[_curMatch.id]
 				# find the node and put it back in the terms list
 				for question in _questions
-					node = _g('term_'+question.id)
+					node = _g('term_' + question.mask)
 					if node.getAttribute('data-placed') == _curMatch.id
 						node.className = 'term ease'
 						node.setAttribute('data-placed','')
@@ -470,18 +480,18 @@ Namespace('Labeling').Engine = do ->
 			# but only if the label is not replacing one that already exists
 			if _labelTextsByQuestionId[question.id] and not (_curMatch and _labelTextsByQuestionId[_curMatch.id] and question.id == _curMatch.id)
 				_drawStrokedLine(question.options.endPointX, question.options.endPointY, question.options.labelBoxX, question.options.labelBoxY, '#fff', '#000')
-				dotBorder = '#fff'
-				dotBackground = '#000'
+				dotBorder = 'rgba(255,255,255,' + _anchorOpacityValue + ')'
+				dotBackground = 'rgba(0,0,0,' + _anchorOpacityValue + ')'
 			else
-				dotBorder = '#000'
-				dotBackground = '#fff'
+				dotBorder = 'rgba(0,0,0,' + _anchorOpacityValue + ')'
+				dotBackground = 'rgba(255,255,255,' + _anchorOpacityValue + ')'
 
 			# if the question has a match dragged near it, draw a ghost line
 			if _curMatch? and _curMatch.id == question.id
 				_drawStrokedLine(question.options.endPointX, question.options.endPointY, question.options.labelBoxX, question.options.labelBoxY, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)')
 
-				dotBorder = '#fff'
-				dotBackground = '#000'
+				dotBorder = 'rgba(255,255,255,' + _anchorOpacityValue + ')'
+				dotBackground = 'rgba(0,0,0,' + _anchorOpacityValue + ')'
 
 				# move the ghost label and make it semi-transparent
 				ghost.style.webkitTransform =
