@@ -72,9 +72,10 @@ Namespace('Labeling').Engine = do ->
 			_offsetX = -195
 			_offsetY = -45
 
-		if _qset.options.opacity
+		if _qset.options.opacity != null and _qset.options.opacity != undefined
 			_anchorOpacityValue = _qset.options.opacity
-		else _anchorOpacityValue = 1.0
+		else
+			_anchorOpacityValue = 1.0
 
 		# set background
 		switch _qset.options.backgroundTheme
@@ -191,13 +192,13 @@ Namespace('Labeling').Engine = do ->
 		# the initial board has all dots
 		context = document.getElementById('previewimg0').getContext('2d')
 		for dot in dots
-			_drawDot(dot[0],dot[1],6,2,context,'#000','#fff')
+			_drawDot(dot[0],dot[1],6,2,context,'rgba(0,0,0,' + _anchorOpacityValue + ')','rgba(255,255,255,' + _anchorOpacityValue + ')')
 
 		# each subsequent board has its dot and line
 		for i in [0..2]
 			context = document.getElementById('previewimg'+(i+1)).getContext('2d')
 			_drawStrokedLine(lines[i][0] - _offsetX,lines[i][1] - _offsetY,lines[i][2] - _offsetX,lines[i][3] - _offsetY,'#fff','#000',context)
-			_drawDot(dots[i][0],dots[i][1],6,2,context,'#fff','#000')
+			_drawDot(dots[i][0],dots[i][1],6,2,context,'rgba(255,255,255,' + _anchorOpacityValue + ')','rgba(0,0,0,' + _anchorOpacityValue + ')')
 
 		$('#gotitbtn').click _hideAlert
 
