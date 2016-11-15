@@ -89,6 +89,8 @@ Namespace('Labeling').Engine = do ->
 
 		# set background and header title
 		$('#board').css('background',background)
+		if instance.name is undefined or null
+			instance.name = "Widget Title Goes Here"
 		$('#title').html instance.name
 		$('#title').css 'font-size', ((20 - instance.name.length / 30) + 'px')
 
