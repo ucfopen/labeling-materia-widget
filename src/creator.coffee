@@ -143,10 +143,15 @@ Namespace('Labeling').Creator = do ->
 		$('#title').click _showMiniTitleEditor
 		$('#header .link').click _showMiniTitleEditor
 
-		window.setTitle = (title = document.getElementById("title").textContent) ->
+		window.setTitle = (title = document.getElementById("title").textContent.replace(/</g, '').replace(/>/g, '')) ->
 			$('#titlebox').removeClass 'show'
 			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
+			PRESANITIZE_CHARACTERS =
+				'>': '',
+				'<': ''
+			for k, v of PRESANITIZE_CHARACTERS
+				title = title.replace new RegExp(k, 'g'), v
 			$('#title').html (title or 'My labeling widget')
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
