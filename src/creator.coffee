@@ -19,6 +19,9 @@ Namespace('Labeling').Creator = do ->
 	# offset for legacy support
 	_offsetX = _offsetY = 0
 
+	#Anchor tag opacity class modifier
+	_anchorOpacity = ' '
+
 	# store image dimensions in case the user cancels the resize
 	_lastImgDimensions = {}
 
@@ -82,6 +85,30 @@ Namespace('Labeling').Creator = do ->
 					_setBackground()
 			false
 
+		$('#opaque-toggle').change ->
+			_anchorOpacity = ' '
+			dots = $(document).find('.dot')
+			i = 0
+			while i < dots.length
+				$(dots[i]).removeClass('frosted transparent')
+				i++
+
+		$('#frosted-toggle').change ->
+			_anchorOpacity = ' frosted'
+			dots = $(document).find('.dot')
+			i = 0
+			while i < dots.length
+				$(dots[i]).removeClass('transparent').addClass('frosted')
+				i++
+
+		$('#transparent-toggle').change ->
+			_anchorOpacity = ' transparent'
+			dots = $(document).find('.dot')
+			i = 0
+			while i < dots.length
+				$(dots[i]).removeClass('frosted').addClass('transparent')
+				i++
+
 		$('#btnMoveResize').click ->
 			_resizeMode true
 
@@ -139,16 +166,6 @@ Namespace('Labeling').Creator = do ->
 		# drag all sides of the image for resizing
 		$('#imagewrapper').draggable(
 			drag: (event,ui) ->
-				###
-				if ui.position.left < 20
-					ui.position.left = 20
-				if ui.position.left + ui.helper.context.offsetWidth > 590
-					ui.position.left = 590 - ui.helper.context.offsetWidth
-				if ui.position.top + ui.helper.context.offsetHeight > 540
-					ui.position.top = 540 - ui.helper.context.offsetHeight
-				if ui.position.top < 20
-					ui.position.top = 20
-				###
 				return ui
 		).resizable
 			aspectRatio: true
@@ -322,7 +339,7 @@ Namespace('Labeling').Creator = do ->
 		$('#terms').append term
 
 		dot = document.createElement 'div'
-		dot.className = 'dot'
+		dot.className = 'dot' + _anchorOpacity
 		dot.style.left = dotx + 'px'
 		dot.style.top = doty + 'px'
 		dot.setAttribute 'data-termid', term.id
@@ -539,6 +556,12 @@ Namespace('Labeling').Creator = do ->
 		if items.length < 1
 			_okToSave = false
 
+		_anchorOpacityValue = 1.0
+		if _anchorOpacity.indexOf('frosted') > -1
+			_anchorOpacityValue = 0.5
+		else if _anchorOpacity.indexOf('transparent') > -1
+			_anchorOpacityValue = 0.0
+
 		_qset.options =
 			backgroundTheme: _qset.options.backgroundTheme
 			backgroundColor: _qset.options.backgroundColor
@@ -548,6 +571,7 @@ Namespace('Labeling').Creator = do ->
 				materiaType: "asset"
 			imageX: $('#imagewrapper').position().left
 			imageY: $('#imagewrapper').position().top
+			opacity: _anchorOpacityValue
 
 		_qset.version = "2"
 
