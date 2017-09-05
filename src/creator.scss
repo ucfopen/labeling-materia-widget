@@ -273,27 +273,16 @@ div.term {
 	width: 150px;
 	min-height: 20px;
 	display: inline-block;
-	padding: 5px 0px;
 	color: #000;
-	background: #fafafa;
 	position: absolute;
 	text-align: center;
 	left: 20px;
 	z-index: 9999;
-	border-radius: 5px;
-	border: solid 1px #aaa;
-	box-shadow: 3px 3px 18px #000;
 	opacity: 1;
 	margin: -10px;
-
 	white-space: pre-wrap;
-
 	max-height: ($inputmaxheight+20);
-
-	padding: 8px 0px;
-
-	background: #fafafa;
-
+	padding: 8px 5px;
 	border-radius: 5px;
 	border: solid 1px rgba(0,0,0,0.2);
 	background: #f7ecce;
