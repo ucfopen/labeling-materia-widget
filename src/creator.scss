@@ -510,7 +510,50 @@ h1 {
 			margin-left: 0px;
 		}
 	}
+
+	li {
+		list-style-type: none;
+
+		p {
+			display: inline-block;
+			width: 300px;
+			border-bottom: 1px solid #ccc;
+			margin: 10px;
+			margin-left: 90px;
+			word-wrap: break-word;
+			text-align: center;
+		}
+	}
+
+	.removeFakeout {
+		margin-top: 2px;
+		padding: 4px 6px;
+		width: 30px;
+		background: red;
+		margin-left: 4px;
+		color: #fff;
+		border: none;
+		vertical-align: baseline;
+		font-size: 18px;
+		font-family: 'Lato';
+		font-weight: 300;
+		outline: none;
+	}
+
+	#closeFakeout {
+		float: right;
+	}
 }
+
+#fakeoutList {
+	max-height: 450px;
+	overflow-y: scroll;
+}
+
+#fakeoutDialog {
+	max-height: 200px;
+}
+
 
 #btnMoveResizeCancel {
 	background: #fff;

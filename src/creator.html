@@ -45,6 +45,7 @@
 			<div id='controls'>
 				<input type='button' value='Choose a different image' data-intro='Choose an image' id='btnChooseImage'>
 				<input type='button' value='Move &amp; resize image' id='btnMoveResize'>
+				<input type='button' value='Add Fakeout Options' id='btnAddFakeout'>
 				<div class='helpbox' id='help_adding' style='display:none'>
 					<b>Adding labels:</b><br>
 					Click anywhere<br>on the image<br>
@@ -122,6 +123,30 @@
 					<input type='submit' value='Get Started' id='btn-enter-title'>
 				</form>
 			</div>
+
+			<div id='fakeoutList' class='box fade'>
+				<b>Add extra "fakeout" options</b>
+				<form onsubmit='setFakeout();return false;'>
+					<ul>
+					</ul>
+					<input type='button' id='addFakeout' value='Add Fakeout'>
+					<input type='submit' id='closeFakeout' name='closeFakeout' value='Done'>
+				</form>
+			</div>
+
+			<div id='fakeoutDialog' class='box fade'>
+				<b>Add extra "fakeout" options</b>
+				<form onsubmit='addFakeout();return false;'>
+					<ul>
+						<li>
+							<input type='text' id="newFakeoutBox" placeholder='Unused Option' autofocus='1'>
+						</li>
+					</ul>
+					<input type='button' id='closeFakeoutDialog' value='Cancel'>
+					<input type='submit' id='addFakeoutDialog' name='closeFakeout' value='Add' onclick='addFakeout();return false;'>
+				</form>
+			</div>
+
 		</div>
 		<!-- INITIALIZE -->
 		<script type="text/javascript">
