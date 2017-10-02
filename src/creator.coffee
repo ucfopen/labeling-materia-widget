@@ -151,9 +151,11 @@ Namespace('Labeling').Creator = do ->
 
 		$('#addFakeout').click ->
 			$('#fakeoutDialog').addClass 'show'
+			$('#fakeoutList').removeClass 'show'
 
 		$('#closeFakeoutDialog').click ->
 			$('#fakeoutDialog').removeClass 'show'
+			$('#fakeoutList').addClass 'show'
 
 		$('#title').click _showMiniTitleEditor
 		$('#header .link').click _showMiniTitleEditor
@@ -174,6 +176,7 @@ Namespace('Labeling').Creator = do ->
 			e.closest('li').remove()
 
 		window.addFakeout = ->
+			$('#fakeoutList').addClass 'show'
 			$('#fakeoutDialog').removeClass 'show'
 			# if there's something in the box, we'll keep it
 			if $('#newFakeoutBox').val().length
