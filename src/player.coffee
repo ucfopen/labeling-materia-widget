@@ -279,8 +279,9 @@ Namespace('Labeling').Engine = do ->
 			_curPage--
 			_arrangeList()
 		else
+			termsLeft = $('div[id^="term_"].term:not(.placed)').length
 			# no more terms, we're done!
-			if not found and _curPage is 0
+			if termsLeft <= _fakeoutCount
 				$('#donearrow').css 'opacity', '1'
 				$('#checkBtn').addClass 'done'
 				_isPuzzleComplete = true
