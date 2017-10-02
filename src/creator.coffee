@@ -435,40 +435,21 @@ Namespace('Labeling').Creator = do ->
 		_drawBoard()
 
 	_addFakeout = (text) ->
-			fakeout = document.createElement 'p'
-			fakeout.innerHTML = text
-			fakeout.class = 'fakeoutItem'
+		fakeout = document.createElement 'p'
+		fakeout.innerHTML = text
+		fakeout.class = 'fakeoutItem'
 
-			removeButton = document.createElement 'input'
-			removeButton.type = 'button'
-			removeButton.classList.add 'removeFakeout'
-			removeButton.value = '-'
-			removeButton.setAttribute 'onclick', 'removeFakeout(this);return false;'
-
-			fakeoutWrapper = document.createElement 'li'
-			fakeoutWrapper.append fakeout
-			fakeoutWrapper.append removeButton
-
-			$('#fakeoutList ul').append fakeoutWrapper
-
-	_makeFakeout = (text = _defaultLabel)->
-		fakeout = document.createElement 'input'
-		fakeout.type = 'text'
-		fakeout.placeholder = 'Unused Option'
-		fakeout.value = text
-		fakeout.autofocus = '1'
-
-		removeButton = document.createElement 'input'
+		removeButton = document.createElement 'div'
 		removeButton.type = 'button'
 		removeButton.classList.add 'removeFakeout'
-		removeButton.value = '-'
+		removeButton.innerHTML = '-'
 		removeButton.setAttribute 'onclick', 'removeFakeout(this);return false;'
 
 		fakeoutWrapper = document.createElement 'li'
 		fakeoutWrapper.append fakeout
 		fakeoutWrapper.append removeButton
 
-		$('#fakeoutList ul').append(fakeoutWrapper)
+		$('#fakeoutList ul').append fakeoutWrapper
 
 	# When typing on a term, resize the font accordingly
 	_termKeyUp = (e) ->

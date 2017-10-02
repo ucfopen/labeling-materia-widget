@@ -292,7 +292,6 @@ Namespace('Labeling').Engine = do ->
 
 	# when a term is mouse downed
 	_mouseDownEvent = (e) ->
-		console.log(_labelTextsByQuestionId)
 		e = window.event if not e?
 
 		# show ghost term (but keep the opacity at 0)
@@ -521,7 +520,7 @@ Namespace('Labeling').Engine = do ->
 				ghost.style.opacity = 0.5
 				_g('ghost').className = 'term'
 
-				_drawStrokedLine(question.options.endPointX, question.options.endPointY, mouseX - _offsetX - 240, mouseY - _offsetY - 80, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)')
+				_drawStrokedLine(question.options.endPointX, question.options.endPointY, mouseX - _offsetX - 240, mouseY - _offsetY - 55, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)')
 
 			_drawDot(question.options.endPointX + _offsetX,question.options.endPointY + _offsetY, 9, 3, _context, dotBorder, dotBackground)
 
@@ -553,13 +552,15 @@ Namespace('Labeling').Engine = do ->
 	# submit every question and the placed answer to Materia for scoring
 	_submitAnswersToMateria = ->
 		skipTexts = {}
-		console.log(_labelTextsByQuestionId)
+		# first, send the ones that are matched to a label
 		for label in Object.keys(_labelTextsByQuestionId)
 			if skipTexts[_labelTextsByQuestionId[label]]?
 				skipTexts[_labelTextsByQuestionId[label]]++
 			else
 				skipTexts[_labelTextsByQuestionId[label]] = 1
 			Materia.Score.submitQuestionForScoring label, _labelTextsByQuestionId[label]
+
+		# then do the rest that haven't been matched
 		for question in _questions
 			answer = question.answers[0].text
 			if not skipTexts[answer]? or not skipTexts[answer]

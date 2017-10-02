@@ -511,43 +511,57 @@ h1 {
 		}
 	}
 
-	li {
-		list-style-type: none;
+	ul {
+		overflow-y: scroll;
+		max-height: 400px;
 
-		p {
-			display: inline-block;
-			width: 300px;
-			border-bottom: 1px solid #ccc;
-			margin: 10px;
-			margin-left: 90px;
-			word-wrap: break-word;
-			text-align: center;
+		li {
+			list-style-type: none;
+
+			p {
+				display: inline-block;
+				width: 300px;
+				border-bottom: 1px solid #ccc;
+				margin: 10px;
+				margin-left: 90px;
+				word-wrap: break-word;
+				text-align: center;
+			}
+
+			.removeFakeout {
+				display: inline;
+				padding: 2px 8px;
+				width: 30px;
+				background-color: red;
+				margin-left: 4px;
+				color: #fff;
+				border: none;
+				vertical-align: baseline;
+				font-size: 18px;
+				font-family: 'Lato';
+				font-weight: 300;
+				outline: none;
+
+				&:hover {
+					background-color: #ff4444
+				}
 		}
 	}
 
-	.removeFakeout {
-		margin-top: 2px;
-		padding: 4px 6px;
-		width: 30px;
-		background: red;
-		margin-left: 4px;
-		color: #fff;
-		border: none;
-		vertical-align: baseline;
-		font-size: 18px;
-		font-family: 'Lato';
-		font-weight: 300;
-		outline: none;
 	}
 
-	#closeFakeout {
+	#closeFakeout, #addFakeoutDialog {
 		float: right;
 	}
 }
 
 #fakeoutList {
-	max-height: 450px;
-	overflow-y: scroll;
+	max-height: 500px;
+	margin-top: -260px;
+
+	input {
+		margin-top: 0;
+	}
 }
 
 #fakeoutDialog {
