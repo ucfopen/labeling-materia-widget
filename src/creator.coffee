@@ -152,6 +152,10 @@ Namespace('Labeling').Creator = do ->
 		$('#addFakeout').click ->
 			$('#fakeoutDialog').addClass 'show'
 			$('#fakeoutList').removeClass 'show'
+			$('#newFakeoutBox').val ''
+			$('#saveFakeout').attr 'onclick', 'saveFakeout();return false;'
+			$('#fakeoutDialog span').html "<b>Add extra fakeout option</b>"
+
 
 		$('#closeFakeoutDialog').click ->
 			$('#fakeoutDialog').removeClass 'show'
@@ -175,12 +179,22 @@ Namespace('Labeling').Creator = do ->
 		window.removeFakeout = (e)->
 			e.closest('li').remove()
 
-		window.addFakeout = ->
+		window.editFakeout = (e) ->
+			$('#fakeoutDialog').addClass 'show'
+			$('#fakeoutList').removeClass 'show'
+			$('#newFakeoutBox').val e.previousSibling.innerHTML
+			index = $('#fakeoutList li').index(e.closest('li'))
+			console.log("index on edit press " + index)
+			$('#saveFakeout').attr 'onclick', 'saveFakeout(' + index + ');return false;'
+			$('#fakeoutDialog span').html "<b>Edit fakeout option</b>"
+
+		window.saveFakeout = (index=-1) ->
+			console.log("in savefakeout with index = " + index)
 			$('#fakeoutList').addClass 'show'
 			$('#fakeoutDialog').removeClass 'show'
 			# if there's something in the box, we'll keep it
 			if $('#newFakeoutBox').val().length
-				_addFakeout($('#newFakeoutBox').val())
+				_addFakeout($('#newFakeoutBox').val(), index)
 			$('#newFakeoutBox').val('')
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
@@ -434,7 +448,11 @@ Namespace('Labeling').Creator = do ->
 
 		_drawBoard()
 
-	_addFakeout = (text) ->
+	_addFakeout = (text, index = -1) ->
+		console.log("adding fakeout with index: " + index)
+		if index != -1
+			$('#fakeoutList ul li:nth-child(' + (index + 1) + ') p').html text
+			return
 		fakeout = document.createElement 'p'
 		fakeout.innerHTML = text
 		fakeout.class = 'fakeoutItem'
@@ -442,6 +460,7 @@ Namespace('Labeling').Creator = do ->
 		editButton = document.createElement 'div'
 		editButton.innerHTML = 'edit'
 		editButton.classList.add 'editFakeout'
+		editButton.setAttribute 'onclick', 'editFakeout(this);return false;'
 
 		removeButton = document.createElement 'div'
 		removeButton.classList.add 'removeFakeout'

@@ -127,25 +127,22 @@
 			<div id='fakeoutList' class='box fade'>
 				<b>Extra "fakeout" options</b><br>
 				These options will be available in the left pannel when playing, but they won't have a point associated with them.
-				<form onsubmit='setFakeout();return false;'>
-					<ul>
-					</ul>
-					<input type='button' id='addFakeout' value='Add Fakeout'>
-					<input type='submit' id='closeFakeout' name='closeFakeout' value='Done'>
-				</form>
+				<ul>
+				</ul>
+				<input type='button' id='addFakeout' value='Add Fakeout'>
+				<input type='submit' id='closeFakeout' name='closeFakeout' value='Done'>
 			</div>
 
 			<div id='fakeoutDialog' class='box fade'>
-				<b>Add extra "fakeout" option</b>
-				<form onsubmit='addFakeout();return false;'>
-					<ul>
-						<li>
-							<input type='text' id="newFakeoutBox" placeholder='Unused Option' autofocus='1'>
-						</li>
-					</ul>
-					<input type='button' id='closeFakeoutDialog' value='Cancel'>
-					<input type='submit' id='addFakeoutDialog' value='Add' onclick='addFakeout();return false;'>
+				<span><b>Add extra fakeout option</b></span>
+				<form onsubmit='saveFakeout(-1);return false;'>
+					<div>
+						<input type='text' id="newFakeoutBox" placeholder='Unused Option' autofocus='1'>
+					</div>
 				</form>
+				<input type='button' id='closeFakeoutDialog' value='Cancel'>
+				<input type='submit' id='saveFakeout' value='Save' onclick='saveFakeout(-1);return false;'>
+
 			</div>
 
 		</div>

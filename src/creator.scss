@@ -533,7 +533,7 @@ h1 {
 				display: inline;
 				padding: 2px 8px;
 				width: 30px;
-				background-color: darken(lightcoral, 20%);
+				background-color: darken(lightcoral, 25%);
 				margin-left: 4px;
 				color: #fff;
 				border: none;
@@ -544,7 +544,7 @@ h1 {
 				outline: none;
 
 				&:hover {
-					background-color: lightcoral;
+					background-color: darken(lightcoral, 10%);
 				}
 			}
 
@@ -552,7 +552,7 @@ h1 {
 				display: inline;
 				padding: 2px 8px;
 				width: 30px;
-				background-color: darken(lightblue, 20%);
+				background-color: darken(lightblue, 25%);
 				margin-left: 4px;
 				color: #fff;
 				border: none;
@@ -564,13 +564,15 @@ h1 {
 
 				&:hover {
 					background-color: lightblue;
+					color: black;
 				}
 			}
 		}
 	}
 
-	#closeFakeout, #addFakeoutDialog {
+	#closeFakeout, #saveFakeout {
 		float: right;
+		margin-right: 4px;
 	}
 }
 
@@ -588,8 +590,13 @@ h1 {
 #fakeoutDialog {
 	max-height: 200px;
 	width: 450px;
-	margin-top: -260px;
+	margin-top: -160px;
 	margin-left: -225px;
+
+	div > input {
+		width: 416px;
+		margin-left: 4px;
+	}
 }
 
 
