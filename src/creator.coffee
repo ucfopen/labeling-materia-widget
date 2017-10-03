@@ -156,7 +156,6 @@ Namespace('Labeling').Creator = do ->
 			$('#saveFakeout').attr 'onclick', 'saveFakeout();return false;'
 			$('#fakeoutDialog span').html "<b>Add extra fakeout option</b>"
 
-
 		$('#closeFakeoutDialog').click ->
 			$('#fakeoutDialog').removeClass 'show'
 			$('#fakeoutList').addClass 'show'
@@ -165,7 +164,6 @@ Namespace('Labeling').Creator = do ->
 		$('#header .link').click _showMiniTitleEditor
 
 		window.setTitle = (title = document.getElementById("title").textContent) ->
-			title = title.replace(/</g, '').replace(/>/g, '')
 			$('#titlebox').removeClass 'show'
 			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
@@ -184,12 +182,10 @@ Namespace('Labeling').Creator = do ->
 			$('#fakeoutList').removeClass 'show'
 			$('#newFakeoutBox').val e.previousSibling.innerHTML
 			index = $('#fakeoutList li').index(e.closest('li'))
-			console.log("index on edit press " + index)
 			$('#saveFakeout').attr 'onclick', 'saveFakeout(' + index + ');return false;'
 			$('#fakeoutDialog span').html "<b>Edit fakeout option</b>"
 
 		window.saveFakeout = (index=-1) ->
-			console.log("in savefakeout with index = " + index)
 			$('#fakeoutList').addClass 'show'
 			$('#fakeoutDialog').removeClass 'show'
 			# if there's something in the box, we'll keep it
@@ -449,7 +445,6 @@ Namespace('Labeling').Creator = do ->
 		_drawBoard()
 
 	_addFakeout = (text, index = -1) ->
-		console.log("adding fakeout with index: " + index)
 		if index != -1
 			$('#fakeoutList ul li:nth-child(' + (index + 1) + ') p').html text
 			return
