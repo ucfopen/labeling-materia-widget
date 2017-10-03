@@ -141,7 +141,7 @@ Namespace('Labeling').Creator = do ->
 			true
 
 		# show the list of fakeouts and options
-		$('#btnAddFakeout').click ->
+		$('#btnViewFakeout').click ->
 			$('#fakeoutList').addClass 'show'
 			$('#backgroundcover').addClass 'show'
 
@@ -439,14 +439,18 @@ Namespace('Labeling').Creator = do ->
 		fakeout.innerHTML = text
 		fakeout.class = 'fakeoutItem'
 
+		editButton = document.createElement 'div'
+		editButton.innerHTML = 'edit'
+		editButton.classList.add 'editFakeout'
+
 		removeButton = document.createElement 'div'
-		removeButton.type = 'button'
 		removeButton.classList.add 'removeFakeout'
 		removeButton.innerHTML = '-'
 		removeButton.setAttribute 'onclick', 'removeFakeout(this);return false;'
 
 		fakeoutWrapper = document.createElement 'li'
 		fakeoutWrapper.append fakeout
+		fakeoutWrapper.append editButton
 		fakeoutWrapper.append removeButton
 
 		$('#fakeoutList ul').append fakeoutWrapper

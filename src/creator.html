@@ -45,7 +45,7 @@
 			<div id='controls'>
 				<input type='button' value='Choose a different image' data-intro='Choose an image' id='btnChooseImage'>
 				<input type='button' value='Move &amp; resize image' id='btnMoveResize'>
-				<input type='button' value='Add Fakeout Options' id='btnAddFakeout'>
+				<input type='button' value='View Fakeout Options' id='btnViewFakeout'>
 				<div class='helpbox' id='help_adding' style='display:none'>
 					<b>Adding labels:</b><br>
 					Click anywhere<br>on the image<br>
@@ -125,7 +125,8 @@
 			</div>
 
 			<div id='fakeoutList' class='box fade'>
-				<b>Add extra "fakeout" options</b>
+				<b>Extra "fakeout" options</b><br>
+				These options will be available in the left pannel when playing, but they won't have a point associated with them.
 				<form onsubmit='setFakeout();return false;'>
 					<ul>
 					</ul>
@@ -135,7 +136,7 @@
 			</div>
 
 			<div id='fakeoutDialog' class='box fade'>
-				<b>Add extra "fakeout" options</b>
+				<b>Add extra "fakeout" option</b>
 				<form onsubmit='addFakeout();return false;'>
 					<ul>
 						<li>

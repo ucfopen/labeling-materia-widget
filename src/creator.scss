@@ -512,18 +512,19 @@ h1 {
 	}
 
 	ul {
-		overflow-y: scroll;
-		max-height: 400px;
+		max-height: 355px;
+		overflow-y: auto;
+		padding-left: 15px;
 
 		li {
 			list-style-type: none;
+			margin-left: 0px;
 
 			p {
 				display: inline-block;
 				width: 300px;
 				border-bottom: 1px solid #ccc;
 				margin: 10px;
-				margin-left: 90px;
 				word-wrap: break-word;
 				text-align: center;
 			}
@@ -532,7 +533,7 @@ h1 {
 				display: inline;
 				padding: 2px 8px;
 				width: 30px;
-				background-color: red;
+				background-color: darken(lightcoral, 20%);
 				margin-left: 4px;
 				color: #fff;
 				border: none;
@@ -543,11 +544,29 @@ h1 {
 				outline: none;
 
 				&:hover {
-					background-color: #ff4444
+					background-color: lightcoral;
 				}
-		}
-	}
+			}
 
+			.editFakeout {
+				display: inline;
+				padding: 2px 8px;
+				width: 30px;
+				background-color: darken(lightblue, 20%);
+				margin-left: 4px;
+				color: #fff;
+				border: none;
+				vertical-align: baseline;
+				font-size: 18px;
+				font-family: 'Lato';
+				font-weight: 300;
+				outline: none;
+
+				&:hover {
+					background-color: lightblue;
+				}
+			}
+		}
 	}
 
 	#closeFakeout, #addFakeoutDialog {
@@ -557,7 +576,9 @@ h1 {
 
 #fakeoutList {
 	max-height: 500px;
+	width: 450px;
 	margin-top: -260px;
+	margin-left: -225px;
 
 	input {
 		margin-top: 0;
@@ -566,6 +587,9 @@ h1 {
 
 #fakeoutDialog {
 	max-height: 200px;
+	width: 450px;
+	margin-top: -260px;
+	margin-left: -225px;
 }
 
 
