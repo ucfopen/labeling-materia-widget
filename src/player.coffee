@@ -556,7 +556,7 @@ Namespace('Labeling').Engine = do ->
 		# first, send the ones that are matched to a label
 		for label in Object.keys(_labelTextsByQuestionId)
 			# if you click and don't move a label, it'll create a null (string) reference
-			if label == 'null'
+			if label == 'null' or label == ''
 				continue
 			if skipTexts[_labelTextsByQuestionId[label]]?
 				skipTexts[_labelTextsByQuestionId[label]]++
