@@ -330,8 +330,9 @@ Namespace('Labeling').Engine = do ->
 		x = 40 if x < 40
 		x = 670 if x > 670
 		y = (e.clientY - 90)
-		y = 0 if y < 0
-		y = 500 if y > 500
+		y = -20 if y < -20
+		y = 480 if y > 480
+		console.log(y)
 
 		# move the current term
 		_curterm.style.transform =
