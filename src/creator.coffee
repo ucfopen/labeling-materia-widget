@@ -145,7 +145,7 @@ Namespace('Labeling').Creator = do ->
 			$('#fakeoutList').addClass 'show'
 			$('#backgroundcover').addClass 'show'
 
-		$('#closeFakeout').click ->
+		$('#doneFakeout, #fakeoutListClose').click ->
 			$('#fakeoutList').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
 
