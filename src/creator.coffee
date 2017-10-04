@@ -169,10 +169,6 @@ Namespace('Labeling').Creator = do ->
 			$('#backgroundcover').removeClass 'show'
 			$('#title').html (title or 'My labeling widget')
 
-		window.setFakeout = ->
-			$('#fakeoutList').removeClass 'show'
-			$('#backgroundcover').removeClass 'show'
-
 		# remove a the list item containing the given fakeout
 		window.removeFakeout = (e)->
 			e.closest('li').remove()
