@@ -541,7 +541,7 @@ h1 {
 				font-family: 'Lato';
 				font-weight: 300;
 				outline: none;
-
+				cursor: pointer;
 				&:hover {
 					background-color: darken(lightcoral, 10%);
 				}
@@ -550,7 +550,7 @@ h1 {
 			.editFakeout {
 				display: inline;
 				padding: 2px 8px;
-				width: 30px;
+				width: 50px;
 				background-color: darken(lightblue, 25%);
 				margin-left: 4px;
 				color: #fff;
@@ -560,7 +560,7 @@ h1 {
 				font-family: 'Lato';
 				font-weight: 300;
 				outline: none;
-
+				cursor: pointer;
 				&:hover {
 					background-color: lightblue;
 					color: black;

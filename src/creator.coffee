@@ -448,12 +448,12 @@ Namespace('Labeling').Creator = do ->
 		fakeout.innerHTML = text
 		fakeout.class = 'fakeoutItem'
 
-		editButton = document.createElement 'div'
+		editButton = document.createElement 'button'
 		editButton.innerHTML = 'edit'
 		editButton.classList.add 'editFakeout'
 		editButton.setAttribute 'onclick', 'editFakeout(this);return false;'
 
-		removeButton = document.createElement 'div'
+		removeButton = document.createElement 'button'
 		removeButton.classList.add 'removeFakeout'
 		removeButton.innerHTML = '-'
 		removeButton.setAttribute 'onclick', 'removeFakeout(this);return false;'
