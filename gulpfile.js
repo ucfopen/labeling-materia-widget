@@ -19,7 +19,13 @@ var sass = require('gulp-sass');
 var uglify = require('gulp-uglify');
 var zip = require('gulp-zip');
 
-var configs = require('../../backend/config.json');
+var configs
+try{
+	configs = require('../../backend/config.json');
+} catch(e){
+	configs = {}
+}
+
 
 var widget = sanitize("labeling");
 // When compiling this may be entered as an argument.
