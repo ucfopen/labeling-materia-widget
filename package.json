@@ -1,23 +1,16 @@
 {
-  "name": "Labeling",
+  "name": "@ucfopen/labeling",
   "materia": {
     "cleanName": "labeling"
   },
-  "version": "0.1.0",
-  "private": true,
-  "main": "app.js",
-  "dependencies": {
-    "materia-widget-development-kit": "git+ssh://git@clu.cdl.ucf.edu:materia/materia-widget-development-kit.git#v1.0.7"
-  },
+  "version": "1.0.0",
   "scripts": {
     "start": "webpack-dev-server",
-    "build": "webpack",
-    "build-prod": "webpack -p"
+    "build-dev": "webpack",
+    "build": "webpack -p"
   },
-  "author": "University of Central Florida, Center for Distributed Learning",
-  "main": "webpack.config.js",
-  "repository": {
-    "type": "git",
-    "url": "git@clu.cdl.ucf.edu:materia/labeling.git"
-  }
+  "devDependencies": {
+    "materia-widget-development-kit": "v1.2.2"
+  },
+  "license": "AGPL-3.0"
 }
