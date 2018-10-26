@@ -1,21 +1,10 @@
-###
-
-Materia
-It's a thing
-
-Widget	: Labeling
-Authors	: Jonathan Warner
-Updated	: 4/14
-
-###
-
 Namespace('Labeling').Engine = do ->
 	_qset                   = null
 	_questions				= null
 
 	# cache element lookups
 	_domCache				= {}
-	
+
 	# the image asset
 	_img					= null
 
@@ -172,7 +161,7 @@ Namespace('Labeling').Engine = do ->
 
 		# once everything is drawn, set the height of the player
 		Materia.Engine.setHeight()
-	
+
 	# https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 	_shuffle = (array) ->
 		counter = array.length
@@ -185,9 +174,9 @@ Namespace('Labeling').Engine = do ->
 			temp = array[counter]
 			array[counter] = array[index]
 			array[index] = temp
-		
+
 		return array
-	
+
 	_drawPreviewBoard = ->
 		# the locations of the dots on the map
 		dots = [ [160,80], [200,110], [130,120] ]
@@ -281,7 +270,7 @@ Namespace('Labeling').Engine = do ->
 	# when a term is mouse downed
 	_mouseDownEvent = (e) ->
 		e = window.event if not e?
-		
+
 		# show ghost term (but keep the opacity at 0)
 		_g('ghost').style.display = 'inline-block'
 
@@ -326,7 +315,7 @@ Namespace('Labeling').Engine = do ->
 		_curterm.style.webkitTransform = 'translate(' + x + 'px,' + y + 'px)'
 
 		_lastID = if _curMatch? and _curMatch.id? then _curMatch.id else 0
-		
+
 		# check proximity against available drop points
 		minDist = Number.MAX_VALUE
 		_curMatch = null
@@ -384,12 +373,12 @@ Namespace('Labeling').Engine = do ->
 
 		# apply easing (for snap back animation)
 		_curterm.className = 'term ease'
-		
+
 		# if it's matched with a dot
 		if _curMatch?
 			# used after reset
 			matched = true
-			
+
 			# if the label spot already has something there
 			if _labelTextsByQuestionId[_curMatch.id]
 				# find the node and put it back in the terms list
@@ -399,7 +388,7 @@ Namespace('Labeling').Engine = do ->
 						node.className = 'term ease'
 						node.setAttribute('data-placed','')
 						break
-				
+
 			# if it has been placed before, reset the place it was placed
 			if _curterm.getAttribute('data-placed')
 				_labelTextsByQuestionId[_curterm.getAttribute('data-placed')] = ''
@@ -429,7 +418,7 @@ Namespace('Labeling').Engine = do ->
 
 		# render changes
 		_drawBoard()
-		
+
 		if matched
 			# keep ghost on screen
 			_g('ghost').style.opacity = 0.5
@@ -439,7 +428,7 @@ Namespace('Labeling').Engine = do ->
 
 		# prevent iPad/etc from scrolling
 		e.preventDefault()
-	
+
 	# draw a dot on the specified canvas context
 	_drawDot = (x,y,radius,border,context,borderColor,fillColor) ->
 		context.beginPath()
