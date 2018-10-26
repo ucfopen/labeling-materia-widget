@@ -10,7 +10,7 @@
     "build": "webpack -p"
   },
   "devDependencies": {
-    "materia-widget-development-kit": "v1.2.2"
+    "materia-widget-development-kit":"2.0.0"
   },
   "license": "AGPL-3.0"
 }
