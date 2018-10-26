@@ -3,14 +3,14 @@
   "materia": {
     "cleanName": "labeling"
   },
-  "version": "1.0.0",
+  "version": "1.0.1",
   "scripts": {
     "start": "webpack-dev-server",
     "build-dev": "webpack",
     "build": "webpack -p"
   },
   "devDependencies": {
-    "materia-widget-development-kit":"2.0.0"
+    "materia-widget-development-kit": "2.0.0"
   },
   "license": "AGPL-3.0"
 }
