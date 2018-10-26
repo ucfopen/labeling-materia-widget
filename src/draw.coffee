@@ -1,14 +1,3 @@
-###
-
-Materia
-It's a thing
-
-Widget	: Labeling
-Authors	: Jonathan Warner
-Updated	: 12/13
-
-###
-
 Namespace('Labeling').Draw = do ->
 	# draw a stylized line connecting to a term, with curvature
 	# shared between player and creator, since it MUST be consistent
