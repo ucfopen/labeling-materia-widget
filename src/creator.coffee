@@ -280,7 +280,7 @@ Namespace('Labeling').Creator = do ->
 
 		term = document.createElement 'div'
 		term.id = 'term_' + Math.random(); # fake id for linking with dot
-		term.innerHTML = "<div class='label-input' contenteditable='true'>"+text+"</div><div class='delete'></div>"
+		term.innerHTML = "<div class='label-input' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>"+text+"</div><div class='delete'></div>"
 		term.className = 'term'
 
 		# if we're generating a generic one, decide on a position
