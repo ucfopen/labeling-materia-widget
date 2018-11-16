@@ -424,7 +424,7 @@ See http://bgrins.github.io/spectrum/themes/ for instructions.
     display:block;
     position:absolute;
     top:0;left:0;bottom:0;right:0;
-	background: url(assets/gradient.jpg);
+	background: url(./assets/gradient.jpg);
 }
 
 .sp-palette .sp-thumb-inner

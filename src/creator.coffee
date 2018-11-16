@@ -1,14 +1,3 @@
-###
-
-Materia
-It's a thing
-
-Widget	: Labeling, Creator
-Authors	: Jonathan Warner
-Updated	: 5/15
-
-###
-
 Namespace('Labeling').Creator = do ->
 	# variables for local use
 	_title = _qset = null
@@ -144,6 +133,7 @@ Namespace('Labeling').Creator = do ->
 		$('#header .link').click _showMiniTitleEditor
 
 		window.setTitle = (title = document.getElementById("title").textContent) ->
+			title = title.replace(/</g, '').replace(/>/g, '');
 			$('#titlebox').removeClass 'show'
 			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
@@ -512,7 +502,7 @@ Namespace('Labeling').Creator = do ->
 		for item in items
 			_makeTerm(150,300,item.questions[0].text,null,null,item.id)
 
-	# generate the qset	
+	# generate the qset
 	_buildSaveData = ->
 		if not _qset? then _qset = {}
 		if not _qset.options? then _qset.options = {}
