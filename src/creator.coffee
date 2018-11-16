@@ -133,6 +133,7 @@ Namespace('Labeling').Creator = do ->
 		$('#header .link').click _showMiniTitleEditor
 
 		window.setTitle = (title = document.getElementById("title").textContent) ->
+			title = title.replace(/</g, '').replace(/>/g, '');
 			$('#titlebox').removeClass 'show'
 			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
