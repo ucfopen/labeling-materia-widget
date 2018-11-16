@@ -112,7 +112,7 @@ div.term {
 	position: fixed;
 	z-index: 1;
 	left: -28px;
-	padding: 8px 0px;
+	padding: 8px 5px;
 
 	background: #fafafa;
 
@@ -125,10 +125,16 @@ div.term {
 	font-size: 14px;
 	font-family: 'Roboto Slab';
 	color: #000;
-	word-break: break-all;
-	word-wrap: break-word;
 	text-align: center;
+
+	word-wrap: break-word;
+
 	white-space: pre-wrap;
+
+	max-height: 100px;
+
+	overflow-x: hidden;
+	overflow-y: auto;
 
 	&.placed {
 		background: #f7ecce;
