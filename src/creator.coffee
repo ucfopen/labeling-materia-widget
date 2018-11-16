@@ -1,14 +1,3 @@
-###
-
-Materia
-It's a thing
-
-Widget	: Labeling, Creator
-Authors	: Jonathan Warner
-Updated	: 5/15
-
-###
-
 Namespace('Labeling').Creator = do ->
 	# variables for local use
 	_title = _qset = null
@@ -18,6 +7,9 @@ Namespace('Labeling').Creator = do ->
 
 	# offset for legacy support
 	_offsetX = _offsetY = 0
+
+	#Anchor tag opacity class modifier
+	_anchorOpacity = ' '
 
 	# store image dimensions in case the user cancels the resize
 	_lastImgDimensions = {}
@@ -82,6 +74,30 @@ Namespace('Labeling').Creator = do ->
 					_setBackground()
 			false
 
+		$('#opaque-toggle').change ->
+			_anchorOpacity = ' '
+			dots = $(document).find('.dot')
+			i = 0
+			while i < dots.length
+				$(dots[i]).removeClass('frosted transparent')
+				i++
+
+		$('#frosted-toggle').change ->
+			_anchorOpacity = ' frosted'
+			dots = $(document).find('.dot')
+			i = 0
+			while i < dots.length
+				$(dots[i]).removeClass('transparent').addClass('frosted')
+				i++
+
+		$('#transparent-toggle').change ->
+			_anchorOpacity = ' transparent'
+			dots = $(document).find('.dot')
+			i = 0
+			while i < dots.length
+				$(dots[i]).removeClass('frosted').addClass('transparent')
+				i++
+
 		$('#btnMoveResize').click ->
 			_resizeMode true
 
@@ -117,11 +133,11 @@ Namespace('Labeling').Creator = do ->
 		$('#header .link').click _showMiniTitleEditor
 
 		window.setTitle = (title = document.getElementById("title").textContent) ->
+			title = title.replace(/</g, '').replace(/>/g, '');
 			$('#titlebox').removeClass 'show'
 			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
 			$('#title').html (title or 'My labeling widget')
-			Materia.CreatorCore.showMediaImporter()
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
@@ -140,16 +156,6 @@ Namespace('Labeling').Creator = do ->
 		# drag all sides of the image for resizing
 		$('#imagewrapper').draggable(
 			drag: (event,ui) ->
-				###
-				if ui.position.left < 20
-					ui.position.left = 20
-				if ui.position.left + ui.helper.context.offsetWidth > 590
-					ui.position.left = 590 - ui.helper.context.offsetWidth
-				if ui.position.top + ui.helper.context.offsetHeight > 540
-					ui.position.top = 540 - ui.helper.context.offsetHeight
-				if ui.position.top < 20
-					ui.position.top = 20
-				###
 				return ui
 		).resizable
 			aspectRatio: true
@@ -255,7 +261,7 @@ Namespace('Labeling').Creator = do ->
 	# Add term to the list, called by the click event
 	_addTerm = (e) ->
 		# draw a dot on the canvas for the question location
-		_makeTerm e.clientX-document.getElementById('frame').offsetLeft-document.getElementById('board').offsetLeft, e.clientY-50
+		_makeTerm e.pageX-document.getElementById('frame').offsetLeft-document.getElementById('board').offsetLeft, e.pageY-50
 
 		$('#help_adding').css 'display','none'
 		$('#boardcover').css 'display','none'
@@ -323,7 +329,7 @@ Namespace('Labeling').Creator = do ->
 		$('#terms').append term
 
 		dot = document.createElement 'div'
-		dot.className = 'dot'
+		dot.className = 'dot' + _anchorOpacity
 		dot.style.left = dotx + 'px'
 		dot.style.top = doty + 'px'
 		dot.setAttribute 'data-termid', term.id
@@ -347,6 +353,9 @@ Namespace('Labeling').Creator = do ->
 
 		# check if blank when the text is cleared
 		term.childNodes[0].onblur = _termBlurred
+
+		# clean up pasted content to make sure we don't accidentally get invisible html garbage
+		term.childNodes[0].onpaste = _termPaste
 
 		# make delete button remove it from the list
 		term.childNodes[1].onclick = ->
@@ -418,6 +427,42 @@ Namespace('Labeling').Creator = do ->
 		e = window.event if not e?
 		e.target.innerHTML = _defaultLabel if e.target.innerHTML is ''
 
+	# Convert anything on the clipboard into pure text before pasting it into the label
+	_termPaste = (e) ->
+		e = window.event unless e?
+		e.preventDefault()
+
+		# contenteditable divs will insert an empty <br/> when they're empty, this checks for and removes them on paste
+		if e.target.tagName is 'BR'
+			input = e.target.parentElement
+			e.target.parentElement.removeChild e.target
+		else
+			input = e.target
+		# ie11 has different arguments for clipboardData and makes it a method of window instead of the paste event
+		if e.clipboardData?
+			clipboardData = e.clipboardData
+			clipboardArgument = 'text/plain'
+		else
+			clipboardData = window.clipboardData
+			clipboardArgument = 'Text'
+
+		sel = window.getSelection()
+		if sel.rangeCount
+			range = sel.getRangeAt 0
+			range.deleteContents()
+
+			newText = clipboardData.getData clipboardArgument
+			newNode = document.createTextNode newText
+			range.insertNode newNode
+
+			newRange = document.createRange()
+			newRange.selectNodeContents newNode
+			newRange.collapse false
+
+			sel.removeAllRanges()
+			sel.addRange newRange
+
+
 	# a dot has been dragged, lock it in place if its within 10px
 	_dotDragged = (event,ui) ->
 		minDist = 9999
@@ -457,7 +502,7 @@ Namespace('Labeling').Creator = do ->
 		for item in items
 			_makeTerm(150,300,item.questions[0].text,null,null,item.id)
 
-	# generate the qset	
+	# generate the qset
 	_buildSaveData = ->
 		if not _qset? then _qset = {}
 		if not _qset.options? then _qset.options = {}
@@ -501,6 +546,12 @@ Namespace('Labeling').Creator = do ->
 		if items.length < 1
 			_okToSave = false
 
+		_anchorOpacityValue = 1.0
+		if _anchorOpacity.indexOf('frosted') > -1
+			_anchorOpacityValue = 0.5
+		else if _anchorOpacity.indexOf('transparent') > -1
+			_anchorOpacityValue = 0.0
+
 		_qset.options =
 			backgroundTheme: _qset.options.backgroundTheme
 			backgroundColor: _qset.options.backgroundColor
@@ -510,6 +561,7 @@ Namespace('Labeling').Creator = do ->
 				materiaType: "asset"
 			imageX: $('#imagewrapper').position().left
 			imageY: $('#imagewrapper').position().top
+			opacity: _anchorOpacityValue
 
 		_qset.version = "2"
 
@@ -541,12 +593,8 @@ Namespace('Labeling').Creator = do ->
 			$('#imagewrapper').css('top', (550 / 2) - (iw.height() / 2))
 
 
-		$('#boardcover').css 'display','block'
-		$('#imagewrapper').addClass 'faded'
 
 		_makeDraggable()
-
-		_resizeMode true
 
 		true
 
