@@ -1,0 +1,20 @@
+{
+  "name": "@ucfopen/labeling",
+  "materia": {
+    "cleanName": "labeling"
+  },
+  "version": "1.0.1",
+  "scripts": {
+    "start": "webpack-dev-server",
+    "build": "webpack -p",
+    "build-dev": "webpack",
+    "test": "echo 'tests not implemented'",
+    "test-ci": "echo 'tests not implemented'"
+  },
+  "dependencies": {
+    "materia-widget-development-kit": "^2.0.0"
+  },
+  "license": "AGPL-3.0",
+  "description": "Students select items from a bank and use them to label associated parts of an image. Designed for use in Materia.",
+  "author": "University of Central Florida, Center for Distributed Learning"
+}
