@@ -1,56 +1,45 @@
-###
-
-Materia
-It's a thing
-
-Widget	: Labeling
-Authors	: Jonathan Warner
-Updated	: 4/14
-
-###
-
 Namespace('Labeling').Engine = do ->
-	_qset					= null
-	_questions				= null
+	_qset = null
+	_questions = null
 
 	# count the number of fakeout options
 	_fakeoutCount			= 0
 	_fakeoutID				= null
 
 	# cache element lookups
-	_domCache				= {}
+	_domCache = {}
 
 	# the image asset
-	_img					= null
+	_img = null
 
 	# reference to canvas drawing board
-	_canvas					= null
-	_context				= null
+	_canvas = null
+	_context = null
 
 	# the current dragging term
-	_curterm				= null
+	_curterm = null
 
 	# anchor tag opacity
 	_anchorOpacityValue = 1.0
 
 	# the current match the term is in proximity of
-	_curMatch				= null
+	_curMatch = null
 
 	# the current 'page', i.e. the scrolling on the terms
-	_curPage				= 0
+	_curPage = 0
 
 	# the text arranged by question id
 	_labelTextsByQuestionId = {}
 
 	# legacy support; older qsets are relative to window
-	_offsetX				= 0
-	_offsetY				= 0
+	_offsetX = 0
+	_offsetY = 0
 
 	# state of the puzzle completion
-	_isPuzzleComplete		= false
+	_isPuzzleComplete = false
 
 	# zIndex of the terms, incremented so that the dragged term is always on top
-	_zIndex					= 11000
+	_zIndex = 11000
 
 	# getElementById and cache it, for the sake of performance
 	_g = (id) -> _domCache[id] || (_domCache[id] = document.getElementById(id))
@@ -92,34 +81,34 @@ Namespace('Labeling').Engine = do ->
 				background = '#' + ('000000' + _qset.options.backgroundColor.toString(16)).substr(-6)
 
 		# set background and header title
-		$('#board').css('background',background)
+		_g('board').style.background = background
 		if instance.name is undefined or null
 			instance.name = "Widget Title Goes Here"
-		$('#title').html instance.name
-		$('#title').css 'font-size', ((20 - instance.name.length / 30) + 'px')
+		_g('title').innerHTML = instance.name
+		_g('title').style['font-size'] = ((20 - instance.name.length / 30) + 'px')
 
 		# set events
-		$('#nextbtn').mousedown ->
+		_g('nextbtn').addEventListener 'mousedown', ->
 			_curPage++
 			_arrangeList()
-		$('#prevbtn').mousedown ->
+		_g('prevbtn').addEventListener 'mousedown', ->
 			_curPage--
 			_arrangeList()
-		$('#checkBtn').click ->
+		_g('checkBtn').addEventListener 'click', ->
 			_submitAnswers()
-		$('#cancelbtn').click _hideAlert
-		$('#backgroundcover').click _hideAlert
+		_g('cancelbtn').addEventListener 'click', _hideAlert
+		_g('backgroundcover').addEventListener 'click', _hideAlert
 
 		# get canvas context
-		_canvas = document.getElementById('image')
+		_canvas = _g('image')
 		_context = _canvas.getContext('2d')
 
 		# draw preview board for intro animation
 		if navigator.userAgent.indexOf("IE 9") == -1
-			$('#backgroundcover').addClass('show')
+			_g('backgroundcover').classList.add 'show'
 			_drawPreviewBoard()
 		else
-			$('#previewbox').hide()
+			_g('previewbox').style.display = 'none'
 
 		# load the image asset
 		# when done, render the board
@@ -157,11 +146,11 @@ Namespace('Labeling').Engine = do ->
 			question.options.labelBoxY = parseInt(question.options.labelBoxY)
 
 			# update the fakeout count (fakeout elements are set to have a -1 for their points)
-			if (question.options.endPointX == -1)
+			if question.options.endPointX == -1
 				_fakeoutCount++
 				_fakeoutID = question.id
 
-			$('#termlist').append term
+			_g('termlist').appendChild term
 
 		if _fakeoutCount
 			$('#fakeoutCount').html("There are " + _fakeoutCount + " extra terms.")
@@ -169,9 +158,9 @@ Namespace('Labeling').Engine = do ->
 		# defer such that it is run once the labels are ready in the DOM
 		setTimeout ->
 			_arrangeList()
-			for node in $('.term')
-				node.className += ' ease'
-		,0
+			for node in document.getElementsByClassName('term')
+				node.classList.add 'ease'
+		, 0
 
 		# attach document listeners
 		document.addEventListener('touchend', _mouseUpEvent, false)
@@ -206,17 +195,17 @@ Namespace('Labeling').Engine = do ->
 		lines = [ [166,78,100,20], [200,110,150,90], [130,120,80,140] ]
 
 		# the initial board has all dots
-		context = document.getElementById('previewimg0').getContext('2d')
+		context = _g('previewimg0').getContext('2d')
 		for dot in dots
 			_drawDot(dot[0],dot[1],6,2,context,'rgba(0,0,0,' + _anchorOpacityValue + ')','rgba(255,255,255,' + _anchorOpacityValue + ')')
 
 		# each subsequent board has its dot and line
 		for i in [0..2]
-			context = document.getElementById('previewimg'+(i+1)).getContext('2d')
+			context = _g('previewimg'+(i+1)).getContext('2d')
 			_drawStrokedLine(lines[i][0] - _offsetX,lines[i][1] - _offsetY,lines[i][2] - _offsetX,lines[i][3] - _offsetY,'#fff','#000',context)
 			_drawDot(dots[i][0],dots[i][1],6,2,context,'rgba(255,255,255,' + _anchorOpacityValue + ')','rgba(0,0,0,' + _anchorOpacityValue + ')')
 
-		$('#gotitbtn').click _hideAlert
+		_g('gotitbtn').addEventListener 'click', _hideAlert
 
 	# arrange the items in the left list
 	_arrangeList = ->
@@ -257,22 +246,22 @@ Namespace('Labeling').Engine = do ->
 					found = true
 
 				maxY = y
-				y += $(node).height() + 25
+				y += node.getBoundingClientRect().height + 10
 
 		# hide buttons if they should not be visible
-		$('#nextbtn').css 'opacity', if maxY >= MAX_HEIGHT then 1 else 0
-		$('#prevbtn').css 'opacity', if offScreen then 1 else 0
-		$('#prevbtn').css 'z-index', if offScreen then '9999' else '0'
+		_g('nextbtn').style.opacity = if maxY >= MAX_HEIGHT then 1 else 0
+		_g('prevbtn').style.opacity = if offScreen then 1 else 0
+		_g('prevbtn').style['z-index'] = if offScreen then '9999' else '0'
 
 		# these covers provide padding to the terms during tweening
 		if maxY >= MAX_HEIGHT
-			$('#blockbottom').removeClass 'hide'
+			_g('blockbottom').classList.remove 'hide'
 		else
-			$('#blockbottom').addClass 'hide'
+			_g('blockbottom').classList.add 'hide'
 		if offScreen
-			$('#blocktop').removeClass 'hide'
+			_g('blocktop').classList.remove 'hide'
 		else
-			$('#blocktop').addClass 'hide'
+			_g('blocktop').classList.add 'hide'
 
 		# if nothing was found, the page is empty and we should go back automagically
 		if not found and _curPage > 0
@@ -282,13 +271,13 @@ Namespace('Labeling').Engine = do ->
 			termsLeft = $('div[id^="term_"].term:not(.placed)').length
 			# no more terms, we're done!
 			if termsLeft <= _fakeoutCount
-				$('#donearrow').css 'opacity', '1'
-				$('#checkBtn').addClass 'done'
+				_g('donearrow').style.opacity = '1'
+				_g('checkBtn').classList.add 'done'
 				_isPuzzleComplete = true
 			# jk, reset the state
 			else
-				$('#donearrow').css 'opacity', '0'
-				$('#checkBtn').removeClass 'done'
+				_g('donearrow').style.opacity = '0'
+				_g('checkBtn').classList.remove 'done'
 				_isPuzzleComplete = false
 
 	# when a term is mouse downed
@@ -526,27 +515,26 @@ Namespace('Labeling').Engine = do ->
 			_drawDot(question.options.endPointX + _offsetX,question.options.endPointY + _offsetY, 9, 3, _context, dotBorder, dotBackground)
 
 	# show the "are you done?" warning dialog
-	_showAlert = (action) ->
-		$('#alertbox').addClass 'show'
-		$('#backgroundcover').addClass 'show'
+	_showAlert = ->
+		_g('alertbox').classList.add 'show'
+		_g('backgroundcover').classList.add 'show'
+		_g('confirmbtn').removeEventListener 'click', _submitButtonConfirm
+		_g('confirmbtn').addEventListener 'click', _submitButtonConfirm
 
-		$('#confirmbtn').unbind('click').click ->
-			_hideAlert()
-			action()
+	_submitButtonConfirm = ->
+		_hideAlert()
+		_submitAnswersToMateria()
 
 	# hide the warning dialog
 	_hideAlert = ->
-		$('#alertbox').removeClass 'show'
-		$('#backgroundcover').removeClass 'show'
-		$('#previewbox').removeClass 'show'
-		setTimeout ->
-			$('#previewbox').remove()
-		,1000
+		_g('alertbox').classList.remove 'show'
+		_g('backgroundcover').classList.remove 'show'
+		_g('previewbox').classList.remove 'show'
 
-	# submit questions to Materia. Ask first if they aren't done
+	# submit questions to Materia. Ask first if they aren't done$
 	_submitAnswers = ->
 		if not _isPuzzleComplete
-			_showAlert _submitAnswersToMateria
+			_showAlert()
 		else
 			_submitAnswersToMateria()
 

@@ -1,14 +1,3 @@
-###
-
-Materia
-It's a thing
-
-Widget	: Labeling, Creator
-Authors	: Jonathan Warner
-Updated	: 5/15
-
-###
-
 Namespace('Labeling').Creator = do ->
 	# variables for local use
 	_title = _qset = null
@@ -333,8 +322,9 @@ Namespace('Labeling').Creator = do ->
 
 		term = document.createElement 'div'
 		term.id = 'term_' + Math.random(); # fake id for linking with dot
+
 		onfocus = "\"document.execCommand('selectAll', false, null)\""
-		term.innerHTML = "<div class='label-input' contenteditable='true' onfocus=" + onfocus + ">"+text+"</div><div class='delete'></div>"
+		term.innerHTML = "<div class='label-input' contenteditable='true' onfocus=" + onfocus + " onkeypress='return (this.innerText.length <= 400)'>"+text+"</div><div class='delete'></div>"
 		term.className = 'term'
 
 		# if we're generating a generic one, decide on a position
@@ -695,12 +685,8 @@ Namespace('Labeling').Creator = do ->
 			$('#imagewrapper').css('top', (550 / 2) - (iw.height() / 2))
 
 
-		$('#boardcover').css 'display','block'
-		$('#imagewrapper').addClass 'faded'
 
 		_makeDraggable()
-
-		_resizeMode true
 
 		true
 

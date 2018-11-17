@@ -1,3 +1,5 @@
+@import './spectrum.custom';
+
 /* Standardize padding in all browsers */
 html,
 body,
@@ -12,6 +14,7 @@ html {
 }
 
 $green: #5fac4b;
+$inputmaxheight: 100px;
 
 html,
 body {
@@ -257,9 +260,14 @@ textarea {
 	-ms-user-select: text;
 	user-select: text;
 
-	/*white-space: pre;*/
+	word-wrap: break-word;
 
 	white-space: pre-wrap;
+
+	max-height: $inputmaxheight;
+
+	overflow-x: hidden;
+	overflow-y: auto;
 }
 
 div.term {
@@ -267,26 +275,16 @@ div.term {
 	width: 150px;
 	min-height: 20px;
 	display: inline-block;
-	padding: 5px 0px;
 	color: #000;
-	background: #fafafa;
 	position: absolute;
 	text-align: center;
 	left: 20px;
 	z-index: 9999;
-	border-radius: 5px;
-	border: solid 1px #aaa;
-	box-shadow: 3px 3px 18px #000;
 	opacity: 1;
 	margin: -10px;
-	word-break: break-all;
-
 	white-space: pre-wrap;
-
-	padding: 8px 0px;
-
-	background: #fafafa;
-
+	max-height: ($inputmaxheight+20);
+	padding: 8px 5px;
 	border-radius: 5px;
 	border: solid 1px rgba(0,0,0,0.2);
 	background: #f7ecce;
@@ -716,4 +714,3 @@ h1 {
 	margin-left: 4px;
 	cursor: pointer;
 }
-
