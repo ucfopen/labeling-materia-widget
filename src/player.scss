@@ -72,7 +72,7 @@ html, body {
 
 #termlist {
 	position: absolute;
-	top: 50px;
+	top: 70px;
 	bottom: 0px;
 	padding: 5px;
 	h1 {
@@ -104,6 +104,19 @@ html, body {
 		}
 		z-index: 2;
 	}
+
+
+}
+
+#fakeoutCount {
+	z-index: 99;
+	position: absolute;
+	top: 50px;
+	bottom: 0px;
+	height: 15px;
+	width: 200px;
+	padding-top: 5px;
+	text-align: center;
 }
 
 div.term {
