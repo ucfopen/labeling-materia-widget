@@ -1,0 +1,28 @@
+language: node_js
+node_js:
+  - '6'
+cache:
+  yarn: true
+  directories:
+    - node_modules
+before_install:
+  - npm config set spin false
+  - npm install -g npm@^5
+script:
+  - yarn test-ci
+  - yarn build
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: "JWa206tI4rnH0NIg95t1h6n95D2Ww3fc/7XXvT3Mby3iFoPdSnD/AipHmpiYs4MwCY2OFv0DRMeVB3cS8J7W0PJKul0kMNqa2Vt3uWv4Nu+o2SicYmLDORdWPNuOAyt7bEvrjximBtuLflfe+kKt0MKfTOV1xV2hL2Dv3yoLZgX/qQg1woCd/3YK63x0r5WuCJA82f7SsWUXRTsGJQB9FnXihnLIjL+lNHnpJflRqshqepm46WBOVejh6xz0486dsJkhkU2XZp/QY68lcRKMl9sENqGh2ZB6jqXXbrqthmW4EHREw6iqvz4R5qdpqyG7EXYB/0XvsXOD3KCWe/UTxThg3YwQDuw/yYvWZ05H5/HZOEtLt8kE5zCvFLqqa8Y9/U9qL3M3x65DJkUDLONsFkQvi564LDAKHU5bOe6qZ21sw3FHXJx/N632o80nlAALRiUdlzq+Tlmekuk2/RgjEOhj2UhQINUcNR6xXwg8Qh2RkfuQy9osLthYLCEvsiupYyh++9g5hiPg+iKk7JFwJphiq/tUWNUiKX3h5paQQLkp9N9k8rhRhSHMPBV2Q8iiKpUdjUd97T+pVPjjaMkaAZtOObFd1ePmAutmvkLxAoixeH8+dVb7AFDWZm8l5c8CHy/Za/N5OGkSx0TtckfGrg4qK/B3ryso4GIFErhiXwk="
+  file:
+    - build/_output/labeling.wigt
+    - build/_output/labeling-build-info.yml
+  on:
+    tags: true
+    repo: ucfopen/labeling-materia-widget
+notifications:
+  slack:
+    secure: "DzeChS/jwvcxUJDhRDZkb+GcwpUEcEsXLQfwt95nxtbaIF03rojkkfdbjHqZP4/PLUDIcLvJ/AQpz8P1A7oZUX5qOMYPOWYfvo+7KvuPWDfv3dFGN+AHC/TiwDxRcCigAwGtemf80KeFJASxLmWBpS41amz3MTz5rxy1Sq+mgYXbzd2weBjY9mulVPWlgCN/Lh1n5DYnuewPcLa2SuJNfHrEa97kPLByUHhwGP5zi738Shq2vNmXdU3Astto5GANQLYfGhIEya1vZ017ZfCB8ZBtIN2bQuIAcPmDdPb5NDMhOKux68sKSuxlEveaNfidl9ttq4tBcnkt55pCg+jGFE7/Al/o+OQ9anE2GDIDobd23yuycMuPdpDK1Bu+NVR4TJyseH83VYSdKIy0YQfD4kD9UJ4hB1kBcEG2SebQiWGqmrj0D7/DbJh9w8gnie9k2DMsR/yKyryy9LKcCE6+cogYlUiXtwfCdfzqfE1JsXvwYUiCYGe9z3xph96zrOzRgl1ihrr8XplHUyKvW8IGo60bnjAudUg/Hqq9dNVTZVpPvNqsGPSee9/t6fmQArH4353zxHsE/hM6RELWG89gIaSv9b1mMd31IGBWqddnH/WyzGp+bGer74Qog2N8hBBtcC1hM9RSAi76T5sMw4PGO2b3DQjxXswDXXQeJ1Gqllk="
+
