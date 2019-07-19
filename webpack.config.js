@@ -1,22 +1,53 @@
+const fs = require('fs')
 const path = require('path')
-const srcPath = path.join(__dirname, 'src') + path.sep
 const widgetWebpack = require('materia-widget-development-kit/webpack-widget')
-const entries = widgetWebpack.getDefaultEntries()
+const copy = widgetWebpack.getDefaultCopyList()
 
-entries['player.js'] = [
-	srcPath+'player.coffee',
-	srcPath+'draw.coffee'
-]
+const outputPath = path.join(process.cwd(), 'build')
 
-entries['creator.js'] = [
-	srcPath+'creator.coffee',
-	srcPath+'draw.coffee',
-	srcPath+'spectrum.custom.js'
-]
+const customCopy = copy.concat([
+	{
+		from: path.join(__dirname, 'src', '_guides', 'assets'),
+		to: path.join(outputPath, 'guides', 'assets'),
+		toType: 'dir'
+	},
+])
 
-// options for the build
-let options = {
+const entries = {
+	'creator.js': [
+		path.join(__dirname, 'src', 'spectrum.custom.js'),
+		path.join(__dirname, 'src', 'draw.coffee'),
+		path.join(__dirname, 'src', 'creator.coffee')
+	],
+	'player.js': [
+		path.join(__dirname, 'src', 'draw.coffee'),
+		path.join(__dirname, 'src', 'player.coffee')
+	],
+	'creator.css': [
+		path.join(__dirname, 'src', 'creator.html'),
+		path.join(__dirname, 'src', 'creator.scss')
+	],
+	'player.css': [
+		path.join(__dirname, 'src', 'player.html'),
+		path.join(__dirname, 'src', 'player.scss')
+	],
+	'guides/guideStyles.css': [
+		path.join(__dirname, 'src', '_guides', 'guideStyles.scss'),
+	],
+	'guides/player.temp.html': [
+		path.join(__dirname, 'src', '_guides', 'player.md')
+	],
+	'guides/creator.temp.html': [
+		path.join(__dirname, 'src', '_guides', 'creator.md')
+	]
+}
+
+const options = {
+	copyList: customCopy,
 	entries: entries
 }
 
-module.exports = widgetWebpack.getLegacyWidgetBuildConfig(options)
+let buildConfig = widgetWebpack.getLegacyWidgetBuildConfig(options)
+module.exports = buildConfig
+
+// module.exports = widgetWebpack.getLegacyWidgetBuildConfig(options)
