@@ -1,12 +1,8 @@
 const fs = require('fs')
 const path = require('path')
-const HtmlWebpackPlugin = require('html-webpack-plugin')
-const marked = require('meta-marked')
 const widgetWebpack = require('materia-widget-development-kit/webpack-widget')
-const rules = widgetWebpack.getDefaultRules()
 const copy = widgetWebpack.getDefaultCopyList()
 
-const srcPath = path.join(__dirname, 'src') + path.sep
 const outputPath = path.join(process.cwd(), 'build')
 
 const customCopy = copy.concat([
