@@ -11,28 +11,42 @@ const outputPath = path.join(process.cwd(), 'build')
 
 const customCopy = copy.concat([
 	{
-		from: `${srcPath}/_helper-docs/assets`,
-		to: `${outputPath}/guides/assets`,
+		from: path.join(__dirname, 'src', '_guides', 'assets'),
+		to: path.join(outputPath, 'guides', 'assets'),
 		toType: 'dir'
-	}
+	},
 ])
 
 const entries = widgetWebpack.getDefaultEntries()
 
-entries['player.js'] = [
-	srcPath + 'player.coffee',
-	srcPath + 'draw.coffee'
-]
-
-entries['creator.js'] = [
-	srcPath + 'creator.coffee',
-	srcPath + 'draw.coffee',
-	srcPath + 'spectrum.custom.js'
-]
-
-entries['guides/guideStyles.css'] = [
-	srcPath + '_helper-docs/guideStyles.scss'
-]
+const entries = {
+	'creator.js': [
+		path.join(__dirname, 'src', 'spectrum.custom.js'),
+		path.join(__dirname, 'src', 'draw.coffee'),
+		path.join(__dirname, 'src', 'creator.coffee')
+	],
+	'player.js': [
+		path.join(__dirname, 'src', 'draw.coffee'),
+		path.join(__dirname, 'src', 'player.coffee')
+	],
+	'creator.css': [
+		path.join(__dirname, 'src', 'creator.html'),
+		path.join(__dirname, 'src', 'creator.scss')
+	],
+	'player.css': [
+		path.join(__dirname, 'src', 'player.html'),
+		path.join(__dirname, 'src', 'player.scss')
+	],
+	'guides/guideStyles.css': [
+		path.join(__dirname, 'src', '_guides', 'guideStyles.scss'),
+	],
+	'guides/player.temp.html': [
+		path.join(__dirname, 'src', '_guides', 'player.md')
+	],
+	'guides/creator.temp.html': [
+		path.join(__dirname, 'src', '_guides', 'creator.md')
+	]
+}
 
 const options = {
 	copyList: customCopy,
@@ -40,11 +54,11 @@ const options = {
 }
 
 const generateHelperPlugin = name => {
-	const file = fs.readFileSync(path.join(__dirname, 'src', '_helper-docs', name+'.md'), 'utf8')
+	const file = fs.readFileSync(path.join(__dirname, 'src', '_guides', name+'.md'), 'utf8')
 	const content = marked(file)
 
 	return new HtmlWebpackPlugin({
-		template: path.join(__dirname, 'src', '_helper-docs', 'helperTemplate'),
+		template: path.join(__dirname, 'src', '_guides', 'helperTemplate'),
 		filename: path.join(outputPath, 'guides', name+'.html'),
 		title: name.charAt(0).toUpperCase() + name.slice(1),
 		chunks: ['guides'],
