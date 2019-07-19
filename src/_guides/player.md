@@ -2,16 +2,15 @@
 
 Labeling is a quiz tool which requires students to correctly identify certain parts of an image by placing labels on their matches within the image.
 
-![labeling screen](assets/widget_guides_labeling.jpg "labeling screen")
+![labeling screen](assets/play_widget_labeling.jpg "labeling screen")
 
 ## Overview ##
 
 1. Title of the widget
-2. Term list
-3. Labels
-4. Image to be labeled
-5. Points
-6. Done button
+2. Labels
+3. Term list
+4. Label anchor point
+5. Background image
 
 ## Details ##
 
@@ -21,4 +20,4 @@ Drag labels from the **Term List** onto the corresponding points on the image. L
 
 ### Submitting ###
 
-When you've labeled all the points click **Done** to submit your answered and review how you did.
+When all labels from the term list have been placed on the image, click **Submit Answers** to submit your answers and review your score.
