@@ -2,7 +2,7 @@
 
 Labeling is a quiz tool which requires students to correctly identify certain parts of an image by placing labels on their matches within the image.
 
-![labeling screen](assets/play_widget_labeling.jpg "labeling screen")
+![labeling screen](assets/play_widget_labeling.png "labeling screen")
 
 ## Overview ##
 
