@@ -17,8 +17,6 @@ const customCopy = copy.concat([
 	},
 ])
 
-const entries = widgetWebpack.getDefaultEntries()
-
 const entries = {
 	'creator.js': [
 		path.join(__dirname, 'src', 'spectrum.custom.js'),
@@ -53,24 +51,7 @@ const options = {
 	entries: entries
 }
 
-const generateHelperPlugin = name => {
-	const file = fs.readFileSync(path.join(__dirname, 'src', '_guides', name+'.md'), 'utf8')
-	const content = marked(file)
-
-	return new HtmlWebpackPlugin({
-		template: path.join(__dirname, 'src', '_guides', 'helperTemplate'),
-		filename: path.join(outputPath, 'guides', name+'.html'),
-		title: name.charAt(0).toUpperCase() + name.slice(1),
-		chunks: ['guides'],
-		content: content.html
-	})
-}
-
 let buildConfig = widgetWebpack.getLegacyWidgetBuildConfig(options)
-
-buildConfig.plugins.unshift(generateHelperPlugin('creator'))
-buildConfig.plugins.unshift(generateHelperPlugin('player'))
-
 module.exports = buildConfig
 
 // module.exports = widgetWebpack.getLegacyWidgetBuildConfig(options)
