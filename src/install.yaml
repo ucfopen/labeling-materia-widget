@@ -1,7 +1,6 @@
 ---
 general:
   name: Labeling
-  group: Materia
   height: 601
   width: 800
   in_catalog: Yes
