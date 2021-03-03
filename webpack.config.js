@@ -16,12 +16,12 @@ const customCopy = copy.concat([
 const entries = {
 	'creator.js': [
 		path.join(__dirname, 'src', 'spectrum.custom.js'),
-		path.join(__dirname, 'src', 'draw.coffee'),
-		path.join(__dirname, 'src', 'creator.coffee')
+		path.join(__dirname, 'src', 'draw.js'),
+		path.join(__dirname, 'src', 'creator.js')
 	],
 	'player.js': [
-		path.join(__dirname, 'src', 'draw.coffee'),
-		path.join(__dirname, 'src', 'player.coffee')
+		path.join(__dirname, 'src', 'draw.js'),
+		path.join(__dirname, 'src', 'player.js')
 	],
 	'creator.css': [
 		path.join(__dirname, 'src', 'creator.html'),
