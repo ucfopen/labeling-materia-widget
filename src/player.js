@@ -7,6 +7,8 @@
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
 Namespace('Labeling').Engine = (function () {
+
+	// ORIGINAL CODE FOR PLAYER
 	let _qset = null;
 	let _questions = null;
 
@@ -606,6 +608,52 @@ Namespace('Labeling').Engine = (function () {
 		return Materia.Engine.end();
 	};
 
+	// ------------------------------------------------------------------------------------------------------------------------
+
+	// ALPHA VERSION CODE FOR ADDING 3D TO PLAYER
+	const scene = new THREE.Scene();
+	scene.background = new THREE.Color(0xcccccc);
+
+	const camera = new THREE.PerspectiveCamera(
+		45,
+		window.innerWidth / window.innerHeight,
+		0.1,
+		2000
+	);
+	camera.position.set(0, 0, 5);
+
+	const renderer = new THREE.WebGLRenderer({ antialias: true });
+	renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setSize(window.innerWidth, window.innerHeight);
+	// document.body.appendChild(renderer.domElement);
+
+	const canvas = document.querySelector('#board');
+	// canvas.appendChild(renderer.domElement);
+	// console.log('Canvas containing data: ' + canvas);
+
+
+	window.addEventListener('resize', function () {
+		camera.aspect = window.innerWidth / window.innerWidth;
+		camera.updateProjectionMatrix();
+		renderer.setSize(window.innerWidth, window.innerHeight);
+	}, false);
+
+	const geometry = new THREE.BoxGeometry(2, 2, 2);
+	const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 }); ``
+	const cube = new THREE.Mesh(geometry, material);
+	scene.add(cube);
+
+	const animate = function () {
+		requestAnimationFrame(animate);
+		cube.rotation.x += 0.1;
+		cube.rotation.y += 0.1;
+
+		renderer.render(scene, camera);
+	}
+
+	animate();
+
+	//------------------------------------------------------------------------------------------------------------------------
 	//public
 	return {
 		manualResize: true,
