@@ -20,8 +20,10 @@ const entries = {
 		path.join(__dirname, 'src', 'creator.js')
 	],
 	'player.js': [
+		path.join(__dirname, 'src/three', 'three.min.js'),
 		path.join(__dirname, 'src', 'draw.js'),
-		path.join(__dirname, 'src', 'player.js')
+		path.join(__dirname, 'src', 'player.js'),
+		path.join(__dirname, 'src', 'player.html')
 	],
 	'creator.css': [
 		path.join(__dirname, 'src', 'creator.html'),
