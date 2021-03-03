@@ -14,10 +14,12 @@ Namespace('Labeling').Creator = do ->
 	# store image dimensions in case the user cancels the resize
 	_lastImgDimensions = {}
 
-	# track if the user is "getting started" or well on their way
+	# track if the user is "get`ting started" or well on their way
 	_gettingStarted = false
 
 	_defaultLabel = '[label title]'
+
+	_curvature = 50;
 
 	initNewWidget = (widget, baseUrl) ->
 		$('#image').hide()
@@ -255,8 +257,8 @@ Namespace('Labeling').Creator = do ->
 
 			# drawLine handles the curves and such; run it for inner
 			# and outer stroke
-			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff')
-			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000')
+			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff', _curvature)
+			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000', _curvature)
 
 	# Add term to the list, called by the click event
 	_addTerm = (e) ->

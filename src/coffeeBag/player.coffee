@@ -441,8 +441,8 @@ Namespace('Labeling').Engine = do ->
 
 	# draw a stroked line (one big line, one smaller on top)
 	_drawStrokedLine = (x1,y1,x2,y2,color1,color2,context = _context) ->
-		Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 6, color1)
-		Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 2, color2)
+		Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 6, color1, 50)
+		Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 2, color2, 50)
 
 	# render the canvas frame
 	_drawBoard = (mouseX=0,mouseY=0) ->
