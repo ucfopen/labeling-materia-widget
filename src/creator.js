@@ -6,7 +6,6 @@
  * DS207: Consider shorter variations of null checks
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-
 Namespace('Labeling').Creator = (function () {
 	// variables for local use
 	let _context, _img, _offsetY, _qset;
@@ -28,8 +27,6 @@ Namespace('Labeling').Creator = (function () {
 	let _gettingStarted = false;
 
 	const _defaultLabel = '[label title]';
-
-	const _curvature = 50;
 
 	const initNewWidget = function (widget, baseUrl) {
 		$('#image').hide();
@@ -314,8 +311,8 @@ Namespace('Labeling').Creator = (function () {
 
 				// drawLine handles the curves and such; run it for inner
 				// and outer stroke
-				Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff', _curvature);
-				result.push(Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000', _curvature));
+				Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff');
+				result.push(Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000'));
 			}
 			return result;
 		})();

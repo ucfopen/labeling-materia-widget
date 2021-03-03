@@ -3,13 +3,11 @@
  * DS102: Remove unnecessary code created because of implicit returns
  * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
  */
-
-Namespace('Labeling').Draw = ((() =>
-// draw a stylized line connecting to a term, with curvature
+Namespace('Labeling').Draw = ((() => // draw a stylized line connecting to a term, with curvature
 // shared between player and creator, since it MUST be consistent
 // between the two
 ({
-    drawLine(ctx, x1, y1, x2, y2, width, color, curvature) {
+    drawLine(ctx, x1, y1, x2, y2, width, color) {
         ctx.beginPath();
 
         // move lines
@@ -43,18 +41,12 @@ Namespace('Labeling').Draw = ((() =>
             }
         }
 
-        // Creates a curve Line
-        ctx.quadraticCurveTo(
-            x2 + labelOffsetX + lineCurveOffsetX + curvature,
-            y2 + lineCurveOffsetY + curvature,
-            x2 + labelOffsetX + lineResultX,
-            y2 + labelOffsetY
-        );
-
-
+        ctx.lineTo(x2 + labelOffsetX + lineCurveOffsetX, y2 + lineCurveOffsetY);
+        ctx.lineTo(x2 + labelOffsetX + lineResultX, y2 + labelOffsetY);
         ctx.lineWidth = width;
         ctx.strokeStyle = color;
         ctx.lineCap = 'round';
         return ctx.stroke();
     }
 })))();
+
