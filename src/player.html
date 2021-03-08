@@ -14,32 +14,34 @@
 
 		<!-- MAIN PLAYER SCRIPT -->
 		<script src="player.js"></script>
-
 	</head>
 	<body>
-		<!-- THREE 3D SCRIPT -->
-		<script src="three/three.min.js"></script>
 		<div id='header'>
 			<div class='logo'></div>
 			<h1 id='title'></h1>
 			<button id='checkBtn'>Submit Answers</button>
 		</div>
+
 		<div id='termlist'>
 			<div id='prevbtn' class='arrow icon-arrow-up2'></div>
 			<div id='nextbtn' class='arrow icon-arrow-down2'></div>
 			<div class='block bottom' id='blockbottom'></div>
 			<div class='block top' id='blocktop'></div>
 		</div>
+
 		<div id="board" class="screen board">
 			<canvas id='image' width=800 height=800></canvas>
 			<div id='ripple'></div>
 		</div>
+
 		<div id='backgroundcover' class='fade'></div>
+
 		<div id='alertbox' class='box fade'>
 			<span id='alertcaption'>You haven't placed all the labels yet.</span><br>
 			<input id='cancelbtn' type='button' value='Let me finish'>
 			<input id='confirmbtn' class='green' type='button' value='Submit Anyway'>
 		</div>
+
 		<div class='box preview show' id='previewbox'>
 			How to play
 			<div class='board'>
@@ -57,16 +59,19 @@
 					<img src='assets/cursor.svg'>
 				</div>
 			</div>
+
 			<span>Drag labels to their corresponding destinations.</span><br>
 			<input class='green' type='button' id='gotitbtn' value='Got it!'>
 		</div>
+
 		<div id='ghost' class='term' style='opacity:0'>&nbsp;</div>
 		<div id='donearrow'><b>Click to finish</b></div>
 
+		<script type="text/JAVASCRIPT" src="draw3D.js"></script>
 		<!-- INITIALIZE -->
 		<script>
 			Materia.Engine.start(Labeling.Engine);
 		</script>
-		<canvas id='canvas'></canvas>
+
 	</body>
 </html>
