@@ -497,6 +497,10 @@ div.arrow {
 	}
 }
 
+#3D {
+	position: fixed;
+}
+
 @keyframes cursor {
 	0% {
 		transform: translate(120px,125px);

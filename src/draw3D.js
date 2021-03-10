@@ -2,11 +2,10 @@
 
 // I HAVE TO FIGURE OUT HOW TO MAKE THIS FILE WAIT UNTIL PLAYER.JS FINISHES LOADING.
 // window.onload = init;
-console.log('Where am I => ' + document.getElementById('#player_mwdk'));
-// -----------------------------------------------------------------------------
+console.log('Beginning of draw3D.js');
 
 const scene = new THREE.Scene();
-scene.background = new THREE.Color(0xcccccc);
+// scene.background = new THREE.Color(0xcccccc);
 
 const camera = new THREE.PerspectiveCamera(
 	75,
@@ -16,34 +15,38 @@ const camera = new THREE.PerspectiveCamera(
 );
 camera.position.set(0, 0, 10);
 
-const renderer = new THREE.WebGLRenderer({ antialias: true });
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setClearColor(0x000000, 0);
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth / 2, window.innerHeight / 2);
-document.body.appendChild(renderer.domElement);
+renderer.setSize(window.innerWidth, window.innerHeight);
 
-window.addEventListener('resize', function () {
-	camera.aspect = window.innerWidth / window.innerWidth;
-	camera.updateProjectionMatrix();
-	renderer.setSize(window.innerWidth, window.innerHeight);
-}, false);
+const canvas =
+	document.getElementById('board').appendChild(renderer.domElement);
 
-// const controls = new THREE.OrbitControls(camera, renderer.domElement);
+canvas.setAttribute('id', '3D');
 
-const geometry = new THREE.BoxGeometry(2, 4, 8);
+// window.addEventListener('resize', function () {
+// 	camera.aspect = window.innerWidth / window.innerWidth;
+// 	camera.updateProjectionMatrix();
+// 	renderer.setSize(window.innerWidth, window.innerHeight);
+// }, false);
+
+const geometry = new THREE.BoxGeometry(1, 1, 15);
 const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
 const cube = new THREE.Mesh(geometry, material);
 cube.castShadow = true;
 cube.receiveShadow = false;
-cube.position.set(0, 0, 0);
+cube.position.set(-2, 0, 0);
 scene.add(cube);
 
 const animate = function () {
 	requestAnimationFrame(animate);
-	cube.rotation.x += 0.1;
-	cube.rotation.y += 0.1;
+	cube.rotation.x += 0.01;
+	cube.rotation.y += 0.01;
 
 	renderer.render(scene, camera);
 }
 
 animate();
 
+console.log('Ending of draw3D.js');
