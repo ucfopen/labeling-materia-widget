@@ -37,6 +37,10 @@ html, body {
 		position: absolute;
 		top: 0px;
 		left: 0px;
+		z-index: -1;
+	}
+	#3D {
+		// position: fixed;
 	}
 }
 
@@ -495,10 +499,6 @@ div.arrow {
 	span {
 		font-size: 13px;
 	}
-}
-
-#3D {
-	position: fixed;
 }
 
 @keyframes cursor {
