@@ -64,11 +64,13 @@ function dynamicLighting() {
 let rectangleX = 0.5;
 let rectangleY = 3;
 let rectangleZ = 1;
+
 // BoxGeometry(x, y, z)
 // BoxGeometry(length, width, height)
-const geometryRectangle = new THREE.BoxGeometry(rectangleX, rectangleY, rectangleZ);
-const materialBox = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false });
-const rectangle = new THREE.Mesh(geometryRectangle, materialBox);
+const rectangle = new THREE.Mesh(
+	new THREE.BoxGeometry(rectangleX, rectangleY, rectangleZ),
+	new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false }),
+);
 rectangle.castShadow = true;
 rectangle.receiveShadow = true;
 rectangle.position.set(0, 0, 0);
@@ -78,25 +80,28 @@ rectangle.rotation.y += Math.cos(45);
 scene.add(rectangle);
 
 // CylinderGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments)
-const geometryCylinder = new THREE.CylinderGeometry(.3, .3, 4, 16, 16);
-const materialCylinder = new THREE.MeshLambertMaterial({ color: 0x00cccc, wireframe: false });
-const cylinder = new THREE.Mesh(geometryCylinder, materialCylinder);
+const cylinder = new THREE.Mesh(
+	new THREE.CylinderGeometry(.3, .3, 4, 16, 16),
+	new THREE.MeshLambertMaterial({ color: 0x00cccc, wireframe: false })
+);
 cylinder.castShadow = true;
 cylinder.receiveShadow = true;
 cylinder.position.set(0, 4.5, 0);
 cylinder.rotation.x += 0;
 
-scene.add(cylinder);
-
 // ConeGeometry(radius, height, radialSegments, heightSegments)
-const geometryCone = new THREE.ConeGeometry(.8, 1.5, 4);
-const materialCone = new THREE.MeshLambertMaterial({ color: 0x00cccc, wireframe: false });
-const cone = new THREE.Mesh(geometryCone, materialCone);
+const cone = new THREE.Mesh(
+	new THREE.ConeGeometry(.8, 1.5, 4),
+	new THREE.MeshLambertMaterial({ color: 0x00cccc, wireframe: false }),
+);
 cone.castShadow = true;
 cone.receiveShadow = true;
 cone.position.set(0, 7, 0);
-scene.add(cone);
 
+const arrow = new THREE.Group();
+arrow.add(cone);
+arrow.add(cylinder);
+scene.add(arrow);
 // const object = new THREE.Mesh(geometryRectangle, new THREE.MeshBasicMaterial(0x000000));
 // const box = new THREE.BoxHelper(object, 0x000000);
 // scene.add(box);
