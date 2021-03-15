@@ -26,38 +26,80 @@ const canvas =
 	document.getElementById('board').appendChild(renderer.domElement);
 canvas.setAttribute('id', '3D');
 
+// Point light
+const numberOfLights = 5
+const lights = [numberOfLights];
+
+for (index = 0; index <= numberOfLights; index++) {
+	lights[index] = new THREE.PointLight(0xffffff, 1.2, 100);
+	lights[index].castShadow = true;
+}
+
+for (index = 0; index <= numberOfLights; index++) {
+	scene.add(lights[index]);
+}
+
+// Top 3 lights
+lights[0].position.set(8, 8, 0);
+lights[1].position.set(-5, 8, -8);
+lights[2].position.set(-5, 8, 8);
+
+// // Bottom 3 lights
+// lights[3].position.set(8, -8, 0);
+// lights[4].position.set(-5, -8, -8);
+// lights[5].position.set(-5, -8, 8);
+
+// dynamic moving lighting
+function dynamicLighting() {
+	var time = Date.now() * 0.0005;
+	lights[0].position.x = Math.sin(time * 0.7) * 30;
+	lights[0].position.y = Math.cos(time * 0.5) * 40;
+	lights[0].position.z = Math.cos(time * 0.3) * 30;
+
+	lights[1].position.x = Math.cos(time * 0.3) * 30;
+	lights[1].position.y = Math.sin(time * 0.5) * 40;
+	lights[1].position.z = Math.sin(time * 0.7) * 30;
+}
+
+let rectangleX = 0.5;
+let rectangleY = 3;
+let rectangleZ = 1;
 // BoxGeometry(x, y, z)
 // BoxGeometry(length, width, height)
-const geometryRectangle = new THREE.BoxGeometry(0.5, 0.5, 4);
-const materialBox = new THREE.MeshBasicMaterial({ color: 0x000ccc, wireframe: false });
-const cube = new THREE.Mesh(geometryRectangle, materialBox);
-cube.castShadow = true;
-cube.receiveShadow = false;
-cube.position.set(0, 0, 0);
-cube.rotation.x += 0;
-cube.rotation.y += 0;
-cube.rotation.z += 5;
-// scene.add(cube);
+const geometryRectangle = new THREE.BoxGeometry(rectangleX, rectangleY, rectangleZ);
+const materialBox = new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false });
+const rectangle = new THREE.Mesh(geometryRectangle, materialBox);
+rectangle.castShadow = true;
+rectangle.receiveShadow = true;
+rectangle.position.set(0, 0, 0);
+rectangle.rotation.x += 0;
+rectangle.rotation.y += Math.cos(45);
+// rectangle.rotation.z += Math.sin(45);
+scene.add(rectangle);
 
 // CylinderGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments)
 const geometryCylinder = new THREE.CylinderGeometry(.3, .3, 4, 16, 16);
-const materialCylinder = new THREE.MeshBasicMaterial({ color: 0x00cccc, wireframe: false });
+const materialCylinder = new THREE.MeshLambertMaterial({ color: 0x00cccc, wireframe: false });
 const cylinder = new THREE.Mesh(geometryCylinder, materialCylinder);
 cylinder.castShadow = true;
-cylinder.receiveShadow = false;
+cylinder.receiveShadow = true;
 cylinder.position.set(0, 4.5, 0);
 cylinder.rotation.x += 0;
 
 scene.add(cylinder);
 
 // ConeGeometry(radius, height, radialSegments, heightSegments)
-const geometryCone = new THREE.ConeGeometry(.8, 1.5, 16);
-const materialCone = new THREE.MeshBasicMaterial({ color: 0x00cccc, wireframe: false });
+const geometryCone = new THREE.ConeGeometry(.8, 1.5, 4);
+const materialCone = new THREE.MeshLambertMaterial({ color: 0x00cccc, wireframe: false });
 const cone = new THREE.Mesh(geometryCone, materialCone);
 cone.castShadow = true;
-cone.receiveShadow = false;
+cone.receiveShadow = true;
 cone.position.set(0, 7, 0);
 scene.add(cone);
+
+// const object = new THREE.Mesh(geometryRectangle, new THREE.MeshBasicMaterial(0x000000));
+// const box = new THREE.BoxHelper(object, 0x000000);
+// scene.add(box);
 
 const animate = function () {
 	requestAnimationFrame(animate);
@@ -65,7 +107,7 @@ const animate = function () {
 	// cone.rotation.y += 0.01;
 	// cylinder.rotation.x += 0.01;
 	// cylinder.rotation.y += 0.01;
-
+	// dynamicLighting();
 	renderer.render(scene, camera);
 }
 
