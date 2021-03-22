@@ -17,14 +17,18 @@ const camera = new THREE.OrthographicCamera(
 );
 camera.position.set(0, 0, 5);
 
+const canvas = document.getElementById('board');
+
 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 renderer.setClearColor(0x000000, 0);
 renderer.setPixelRatio(window.devicePixelRatio);
-renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
 
-const canvas =
-	document.getElementById('board').appendChild(renderer.domElement);
-canvas.setAttribute('id', '3D');
+
+canvas.appendChild(renderer.domElement);
+// canvas.setAttribute('id', '3D');
+
+console.log
 
 // Point light
 const numberOfLights = 5
