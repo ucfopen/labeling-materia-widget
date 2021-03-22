@@ -1,169 +1,121 @@
 
-function init() {
-	const sceneTransparentColor = 0x000000
-	const setAntialias = true;
 
-	const cameraAxisX = 0;
-	const cameraAxisY = 0;
-	const cameraAxisZ = 5;
+// I HAVE TO FIGURE OUT HOW TO MAKE THIS FILE WAIT UNTIL PLAYER.JS FINISHES LOADING.
+// window.onload = init;
+console.log('Beginning of draw3D.js');
 
-	const numberOfLights = 2
-	const lights = [numberOfLights];
-	const lightCastShadow = true;
-	var lightColor = 0xffffff;
+const scene = new THREE.Scene();
+// scene.background = new THREE.Color(0xcccccc);
+let cameraDimensions = 10;
+const camera = new THREE.OrthographicCamera(
+	-cameraDimensions,
+	cameraDimensions,
+	cameraDimensions,
+	-cameraDimensions,
+	-cameraDimensions * 4,
+	cameraDimensions * 4
+);
+camera.position.set(0, 0, 5);
 
-	const showWireframe = false;
-	const shapeShadows = true;
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setClearColor(0x000000, 0);
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
 
-	const coneRadius = .8;
-	const coneHeight = 1.5;
-	const coneRadialSegments = 4;
-	const coneHeightSegments = 128;
-	const coneColor = 0x00cccc;
-	var coneAxisX = -2.5;
-	var coneAxisY = 0;
-	var coneAxisZ = 0;
-	var coneRotateX = Math.PI / 2;
-	var coneRotateY = 0;
-	var coneRotateZ = Math.PI / 2;
+const canvas =
+	document.getElementById('board').appendChild(renderer.domElement);
+canvas.setAttribute('id', '3D');
 
-	const rectangleWidth = .6;
-	var rectangleHeight = 4;
-	const rectangleLength = .6;
-	const rectangleColor = 0x00cccc;
-	var rectangleAxisX = 0;
-	var rectangleAxisY = 0;
-	var rectangleAxisZ = 0;
-	var rectangleRotateX = Math.PI / 2;
-	var rectangleRotateY = 0;
-	var rectangleRotateZ = 0;
+// Point light
+const numberOfLights = 5
+const lights = [numberOfLights];
 
-	const cylinderRadius = .3;
-	var cylinderLength = 4;
-	const cylinderRadialSegments = 16;
-	const cylinderHeightSegments = 16;
-	const cylinderColor = 0x00cc00;
-	var cylinderAxisX = 0;
-	var cylinderAxisY = -1;
-	var cylinderAxisZ = 0;
-	var cylinderRotateX = 0;
-	var cylinderRotateY = 0;
-	var cylinderRotateZ = 0;
-
-	var scene = new THREE.Scene();
-
-	// Call SHAPES to be generated
-
-	// ----------------------------------
-
-	var cameraDimensions = 10;
-	const camera = new THREE.OrthographicCamera(
-		-cameraDimensions,
-		cameraDimensions,
-		cameraDimensions,
-		-cameraDimensions,
-		-cameraDimensions * 4,
-		cameraDimensions * 4
-	);
-	camera.position.set(0, 0, 5);
-	// camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-	// const canvas =
-	// 	document.getElementById('board').appendChild(renderer.domElement);
-	// canvas.setAttribute('id', '3D');
-
-	var renderer = new THREE.WebGLRenderer({ antialias: true });
-	renderer.shadowMap.enabled = true;
-	renderer.setSize(window.innerWidth, window.innerHeight);
-	renderer.setClearColor(0xffffff);
-	document.getElementById('webgl').appendChild(renderer.domElement);
-
-	var controls = new THREE.OrbitControls(camera, renderer.domElement);
-
-	animate(renderer, scene, camera, controls);
+for (index = 0; index <= numberOfLights; index++) {
+	lights[index] = new THREE.PointLight(0xffffff, 1.2, 100);
+	lights[index].castShadow = true;
 }
 
-function getBox(rectangleWidth, rectangleHeight, rectangleLength) {
-	var mesh = new THREE.Mesh(
-		new THREE.BoxGeometry(w, h, d),
-		new THREE.MeshPhongMaterial({ color: 0xbbbbbb, wireframe: false, }),
-	);
-
-	mesh.castShadow = true;
-	return mesh;
+for (index = 0; index <= numberOfLights; index++) {
+	scene.add(lights[index]);
 }
 
-// Create a grid of boxes of AREA = amount * amount
-function getBoxGrid(amount, separationMultiplier) {
-	var group = new THREE.Group();
+// Top 3 lights
+lights[0].position.set(8, 8, 0);
+lights[1].position.set(-5, 8, -8);
+lights[2].position.set(-5, 8, 8);
 
-	for (var index = 0; index < amount; index++) {
-		var obj = getBox(1, 1, 1);
-		obj.position.x = index * separationMultiplier;
-		obj.position.y = obj.geometry.parameters.height / 2;
-		group.add(obj);
+// // Bottom 3 lights
+// lights[3].position.set(8, -8, 0);
+// lights[4].position.set(-5, -8, -8);
+// lights[5].position.set(-5, -8, 8);
 
-		for (var cnt = 0; cnt < amount; cnt++) {
-			var obj = getBox(1, 1, 1);
-			obj.position.x = index * separationMultiplier;
-			obj.position.y = obj.geometry.parameters.height / 2;
-			obj.position.z = cnt * separationMultiplier;
+// dynamic moving lighting
+function dynamicLighting() {
+	var time = Date.now() * 0.0005;
+	lights[0].position.x = Math.sin(time * 0.7) * 30;
+	lights[0].position.y = Math.cos(time * 0.5) * 40;
+	lights[0].position.z = Math.cos(time * 0.3) * 30;
 
-			group.add(obj);
-		}
-	}
-
-	group.position.x = -(separationMultiplier * (amount - 1)) / 2;
-	group.position.y = 0;
-	group.position.z = -(separationMultiplier * (amount - 1)) / 2;
-
-	return group;
+	lights[1].position.x = Math.cos(time * 0.3) * 30;
+	lights[1].position.y = Math.sin(time * 0.5) * 40;
+	lights[1].position.z = Math.sin(time * 0.7) * 30;
 }
 
-function getPlane(size) {
-	var mesh = new THREE.Mesh(
-		new THREE.PlaneGeometry(size, size),
-		new THREE.MeshPhongMaterial({ color: 0xbbbbbb, wireframe: false, side: THREE.DoubleSide, }),
-	);
+let rectangleX = 0.5;
+let rectangleY = 3;
+let rectangleZ = 1;
 
-	mesh.receiveShadow = true;
-	return mesh;
+// BoxGeometry(x, y, z)
+// BoxGeometry(length, width, height)
+const rectangle = new THREE.Mesh(
+	new THREE.BoxGeometry(rectangleX, rectangleY, rectangleZ),
+	new THREE.MeshLambertMaterial({ color: 0xffffff, wireframe: false }),
+);
+rectangle.castShadow = true;
+rectangle.receiveShadow = true;
+rectangle.position.set(0, 0, 0);
+rectangle.rotation.x += 0;
+rectangle.rotation.y += Math.cos(45);
+// rectangle.rotation.z += Math.sin(45);
+scene.add(rectangle);
+
+// CylinderGeometry(radiusTop, radiusBottom, height, radialSegments, heightSegments)
+const cylinder = new THREE.Mesh(
+	new THREE.CylinderGeometry(.3, .3, 4, 16, 16),
+	new THREE.MeshLambertMaterial({ color: 0x00cccc, wireframe: false })
+);
+cylinder.castShadow = true;
+cylinder.receiveShadow = true;
+cylinder.position.set(0, 4.5, 0);
+cylinder.rotation.x += 0;
+
+// ConeGeometry(radius, height, radialSegments, heightSegments)
+const cone = new THREE.Mesh(
+	new THREE.ConeGeometry(.8, 1.5, 4),
+	new THREE.MeshLambertMaterial({ color: 0x00cccc, wireframe: false }),
+);
+cone.castShadow = true;
+cone.receiveShadow = true;
+cone.position.set(0, 7, 0);
+
+const arrow = new THREE.Group();
+arrow.add(cone);
+arrow.add(cylinder);
+scene.add(arrow);
+// const object = new THREE.Mesh(geometryRectangle, new THREE.MeshBasicMaterial(0x000000));
+// const box = new THREE.BoxHelper(object, 0x000000);
+// scene.add(box);
+
+const animate = function () {
+	requestAnimationFrame(animate);
+	// cone.rotation.x += 0.01;
+	// cone.rotation.y += 0.01;
+	// cylinder.rotation.x += 0.01;
+	// cylinder.rotation.y += 0.01;
+	// dynamicLighting();
+	renderer.render(scene, camera);
 }
 
-function getSphere(radius) {
-	var mesh = new THREE.Mesh(
-		new THREE.SphereGeometry(radius, 24, 24),
-		new THREE.MeshBasicMaterial({ color: 0xffffff, wireframe: false, }),
-	);
+animate();
 
-	return mesh;
-}
-
-// Updates the browser to allow for animation.
-function animate(renderer, scene, camera, controls) {
-	renderer.render(
-		scene,
-		camera
-	);
-
-	controls.update();
-
-	// var timeElapsed = clock.getElapsedTime();
-	// var boxGrid = scene.getObjectByName('boxGrid');
-
-	// boxGrid.children.forEach(function (child, index) {
-	// 	var x = timeElapsed * 2 + index;
-	// 	child.scale.y = (noise.simplex2(x, x) + 1) / 2 + 0.001;
-
-	// 	// Get a random unique value between 0 and pi/2, to that number we add
-	// 	//0.001 so it's not exactly flushed with the plane.
-	// 	// child.scale.y = (Math.sin(timeElapsed * 2 + index) + 1) / 2 + 0.001;
-	// 	child.position.y = child.scale.y / 2;
-	// });
-
-	requestAnimationFrame(function () {
-		update(renderer, scene, camera, controls);
-	});
-}
-
-var scene = init();
+console.log('Ending of draw3D.js');
