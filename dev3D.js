@@ -57,8 +57,13 @@ function init() {
 
 	var scene = new THREE.Scene();
 
+	// Add Light enviroment
+	var light = getAmbientLight(1);
+	scene.add(light);
+
 	// Call SHAPES to be generated
 	var rectangle = getBox(rectangleWidth, rectangleHeight, rectangleLength, rectangleColor);
+	rectangle.position.set(0, 0, 0);
 	var cone = getCone(coneRadius, coneHeight, coneRadialSegments, coneHeightSegments, coneColor);
 	rectangle.add(cone);
 	scene.add(rectangle);
@@ -73,25 +78,24 @@ function init() {
 		1,
 		1000
 	);
-	camera.position.set(0, 0, 5);
+	camera.position.set(0, 0, 0);
 	// camera.lookAt(new THREE.Vector3(0, 0, 0));
 
-	var renderer = new THREE.WebGLRenderer({ antialias: true });
+	var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+	renderer.setClearColor(0x000000, 0);
 	renderer.setPixelRatio(window.devicePixelRatio);
 	// renderer.shadowMap.enabled = true;
-	renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
-	renderer.setClearColor(0xffffff);
+	renderer.setSize(canvas.offsetWidth - 1, canvas.offsetHeight - 1);
 
 	canvas.appendChild(renderer.domElement);
-	var controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-	animate(renderer, scene, camera, controls);
+	animate(renderer, scene, camera);
 }
 
 function getBox(rectangleWidth, rectangleHeight, rectangleLength, rectangleColor) {
 	var mesh = new THREE.Mesh(
-		new THREE.BoxGeometry(w, h, d),
-		new THREE.MeshPhongMaterial({ color: rectangleColor, wireframe: false, }),
+		new THREE.BoxGeometry(rectangleWidth, rectangleHeight, rectangleLength),
+		new THREE.MeshBasicMaterial({ color: rectangleColor, wireframe: false, }),
 	);
 
 	mesh.castShadow = true;
@@ -100,7 +104,7 @@ function getBox(rectangleWidth, rectangleHeight, rectangleLength, rectangleColor
 
 function getCone(coneRadius, coneHeight, coneRadialSegments, coneHeightSegments, coneColor) {
 	var mesh = new THREE.Mesh(
-		new THREE.BoxGeometry(w, h, d),
+		new THREE.ConeGeometry(coneRadius, coneHeight, coneRadialSegments, coneHeightSegments),
 		new THREE.MeshPhongMaterial({ color: coneColor, wireframe: false, }),
 	);
 
@@ -108,17 +112,21 @@ function getCone(coneRadius, coneHeight, coneRadialSegments, coneHeightSegments,
 	return mesh;
 }
 
+function getAmbientLight(intensity) {
+	var light = new THREE.AmbientLight(0xffffff, intensity);
+
+	return light;
+}
+
 // Updates the browser to allow for animation.
-function animate(renderer, scene, camera, controls) {
+function animate(renderer, scene, camera) {
 	renderer.render(
 		scene,
 		camera
 	);
 
-	controls.update();
-
 	requestAnimationFrame(function () {
-		update(renderer, scene, camera, controls);
+		animate(renderer, scene, camera);
 	});
 }
 
