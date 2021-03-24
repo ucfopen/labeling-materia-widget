@@ -3,11 +3,11 @@ const canvas = document.getElementById('board');
 
 const sceneTransparentColor = 0x000000;
 const setAntialias = false;
-const showWireframe = false;
+const showWireframe = true;
 const shapeShadows = true;
 
 const coneRadius = 1;
-const coneHeight = 2;
+const coneHeight = 1;
 const coneRadialSegments = 4;
 const coneHeightSegments = 8
 const coneColor = 0xffffff;
@@ -67,13 +67,12 @@ function init() {
 	var rectangle = getBox(rectangleWidth, rectangleHeight, rectangleLength, rectangleColor);
 	var cylinder = getCylinder(cylinderRadius, cylinderLength, cylinderRadialSegments, cylinderHeightSegments, cylinderColor);
 	var cone = getCone(coneRadius, coneHeight, coneRadialSegments, coneHeightSegments, coneColor);
-	cylinder.name = 'arrowBody';
-	cylinder.position.set(6, 8, 0);
+	cylinder.name = 'arrow';
+	cylinder.position.set(6, 0, 0);
 	cone.rotation.y += .3;
+	cone.position.x += 1;
 
-	console.log(cylinder.position.y);
-
-	if (cylinder.position.y > 0) {
+	if (cylinder.position.y > 0 || cylinder.position.y == 0) {
 		cone.position.y = cylinder.position.y / 2.3; // Positive Y
 	}
 	if (cylinder.position.y < 0) {
@@ -81,10 +80,14 @@ function init() {
 		cone.position.y = cylinder.position.y / 2.3; // Positive Y
 	}
 
-
 	cylinder.add(cone);
 	scene.add(cylinder);
 
+	var arrow = scene.getObjectByName('arrow');
+	// arrow.children[0].geometry.parameters.height = 5;
+	// var child = arrow.children[0].geometry.parameters.height;
+
+	printShotgun(arrow);
 	// ----------------------------------
 
 	var cameraDimensions = 15;
@@ -105,7 +108,7 @@ function init() {
 	renderer.setSize(canvas.offsetWidth - 1, canvas.offsetHeight - 1);
 	canvas.appendChild(renderer.domElement);
 
-	animate(renderer, scene, camera);
+	animate(renderer, scene, camera, arrow, light);
 }
 
 function getBox(rectangleWidth, rectangleHeight, rectangleLength, rectangleColor) {
@@ -152,20 +155,36 @@ function getDirectionalLight(intensity) {
 	return light;
 }
 
+function dynamicLights(light) {
+	var time = Date.now() * 0.0005;
+	light.position.x = Math.sin(time * 0.7) * 20;
+	light.position.y = Math.cos(time * 0.5) * 25;
+}
+
+function stretchArrowBody(arrow) {
+	return arrow.geometry.parameters.height += 0.1;
+	arrow.geometry.verticesNeedUpdate = true;
+}
+
+function printShotgun(arrow) {
+	console.log(arrow);
+}
+
 // Updates the browser to allow for animation.
-function animate(renderer, scene, camera) {
+function animate(renderer, scene, camera, arrow, light) {
 	renderer.render(
 		scene,
 		camera
 	);
 
-	var time = Date.now() * 0.0005;
-	var light = scene.getObjectByName('directionalLight');
-	light.position.x = Math.sin(time * 0.7) * 20;
-	light.position.y = Math.cos(time * 0.5) * 25;
+	dynamicLights(light);
+
+	stretchArrowBody(arrow);
+	// printShotgun(arrow);
 
 	requestAnimationFrame(function () {
-		animate(renderer, scene, camera);
+		arrow.geometry.verticesNeedUpdate = true;
+		animate(renderer, scene, camera, arrow, light);
 	});
 }
 
