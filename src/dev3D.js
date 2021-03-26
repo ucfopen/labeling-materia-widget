@@ -1,6 +1,7 @@
 
-// Namespace('Labeling').Draw3D = ((() => ({
-// 	drawLine3D(x1, y1, x2, y2, width, color) {
+// Namespace('Labeling').Draw = ((() => ({
+
+// 	draw3D(ctx, x1, y1, x2, color){
 
 const canvas = document.getElementById('board');
 
@@ -15,6 +16,10 @@ const coneRadialSegments = 4;
 const coneHeightSegments = 8
 const coneColor = 0xffffff;
 
+const rectangleWidth = 1;
+const rectangleLength = 1;
+const rectangleColor = 0x00cccc;
+
 const cylinderRadius = .5;
 const cylinderRadialSegments = 8;
 const cylinderHeightSegments = 8;
@@ -23,8 +28,6 @@ const cylinderColor = 0xffffff;
 const cameraAxisX = 0;
 const cameraAxisY = 0;
 const cameraAxisZ = 5;
-
-const numberOfArrows = 4
 
 function init() {
 
@@ -39,6 +42,14 @@ function init() {
 	var coneRotateX = Math.PI / 2;
 	var coneRotateY = 0;
 	var coneRotateZ = Math.PI / 2;
+
+	var rectangleHeight = 4;
+	var rectangleAxisX = 0;
+	var rectangleAxisY = 0;
+	var rectangleAxisZ = 0;
+	var rectangleRotateX = Math.PI / 2;
+	var rectangleRotateY = 0;
+	var rectangleRotateZ = 0;
 
 	var cylinderLength = 6;
 	var cylinderAxisX = 0;
@@ -57,39 +68,34 @@ function init() {
 	scene.add(light);
 
 	// Call SHAPES to be generated
+	var rectangle = getBox(rectangleWidth, rectangleHeight, rectangleLength, rectangleColor);
 	var cylinder = getCylinder(cylinderRadius, cylinderLength, cylinderRadialSegments, cylinderHeightSegments, cylinderColor);
 	var cone = getCone(coneRadius, coneHeight, coneRadialSegments, coneHeightSegments, coneColor);
-	cylinder.add(cone);
 	cylinder.name = 'arrow';
-	cylinder.position.set(15, 0, 0);
+	cylinder.position.set(0, 0, 0);
 	cone.rotation.y += .3;
 
 	// SHAPE POINTING DIRECTION /////////////////////////////////////////////
 	if (cylinder.position.y >= 0) {
 		cone.position.y = cylinder.geometry.parameters.height / 1.7;
-	} else if (cylinder.position.y < 0) {
-		cone.rotation.z += Math.PI;
-		cone.position.y = -cylinder.geometry.parameters.height / 1.7; // Positive Y
 	} else {
 		cone.position.y = cylinder.geometry.parameters.height / 1.7; // Positive Y
 	}
 
-
-	////////////////////////////////////////////////////////////////////////////////////////////////
-
-	var arrow = scene.getObjectByName('arrow');
-
-	var arrowList = generateArrows(numberOfArrows, cylinderLength);
-	console.log(arrowList);
-
-	for (var index = 0; index < numberOfArrows; index++) {
-		scene.add(arrowList[index]);
+	if (cylinder.position.y < 0) {
+		cone.rotation.z += Math.PI;
+		cone.position.y = -cylinder.geometry.parameters.height / 1.7; // Positive Y
 	}
 
+	////////////////////////////////////////////////////////////////////////////////////////////////
+	// cylinder.add(cone);
 	scene.add(cylinder);
 
+	var arrow = scene.getObjectByName('arrow');
+	// arrow.children[0].geometry.parameters.height = 5;
 	// var child = arrow.children[0].geometry.parameters.height;
-	// printShotgun(child);
+
+	printShotgun(arrow);
 	// ----------------------------------
 
 	var cameraDimensions = 15;
@@ -110,7 +116,7 @@ function init() {
 	renderer.setSize(canvas.offsetWidth - 1, canvas.offsetHeight - 1);
 	canvas.appendChild(renderer.domElement);
 
-	animate(renderer, scene, camera, light);
+	animate(renderer, scene, camera, arrow, light);
 }
 
 function getBox(rectangleWidth, rectangleHeight, rectangleLength, rectangleColor) {
@@ -143,49 +149,12 @@ function getCone(coneRadius, coneHeight, coneRadialSegments, coneHeightSegments,
 	return mesh;
 }
 
-
-function generateArrows(numberOfArrows, cylinderLength) {
-
-	var index;
-	var time = Date.now() * 0.0005;
-	var arrowList = [numberOfArrows];
-
-	for (index = 0; index < numberOfArrows; index++) {
-		arrowList[index] = getCylinder(cylinderRadius, cylinderLength, cylinderRadialSegments, cylinderHeightSegments, cylinderColor);
-		var cone2 = getCone(coneRadius, coneHeight, coneRadialSegments, coneHeightSegments, coneColor);
-
-		if (index % 2 == 0) {
-			arrowList[index].position.x = Math.floor(Math.random() * 10);
-			arrowList[index].position.y = Math.floor(Math.random() * 10);
-		} else {
-			arrowList[index].position.x = -Math.floor(Math.random() * 10);
-			arrowList[index].position.y = -Math.floor(Math.random() * 10);
-		}
-
-		// if (arrowList[index].y >= 0) {
-		// 	cone.position.y = arrowList[index].geometry.parameters.height / 1.7;
-		// }
-		// else if (arrowList[index].y < 0) {
-		// 	cone.rotation.z += Math.PI;
-		// 	cone.position.y = -arrowList[index].geometry.parameters.height / 1.7; // Positive Y
-		// }
-		// else {
-		// 	cone.position.y = arrowList[index].geometry.parameters.height / 1.7; // Positive Y
-		// }
-
-		cone2.rotation.y += .3;
-		arrowList[index].add(cone2);
-	}
-
-	return arrowList;
-}
-
-
 function getAmbientLight(intensity) {
 	var light = new THREE.AmbientLight(0xffffff, intensity);
 
 	return light;
 }
+
 
 function getDirectionalLight(intensity) {
 	var light = new THREE.DirectionalLight(0xffffff, intensity);
@@ -202,7 +171,7 @@ function dynamicLights(light) {
 
 function stretchArrowBody(arrow) {
 	return arrow.geometry.parameters.height += 0.1;
-	// arrow.geometry.verticesNeedUpdate = true;
+	arrow.geometry.verticesNeedUpdate = true;
 }
 
 function printShotgun(arrow) {
@@ -210,7 +179,7 @@ function printShotgun(arrow) {
 }
 
 // Updates the browser to allow for animation.
-function animate(renderer, scene, camera, light) {
+function animate(renderer, scene, camera, arrow, light) {
 	renderer.render(
 		scene,
 		camera
@@ -218,19 +187,15 @@ function animate(renderer, scene, camera, light) {
 
 	dynamicLights(light);
 
-	// stretchArrowBody(arrow);
+	stretchArrowBody(arrow);
 	// printShotgun(arrow);
 
 	requestAnimationFrame(function () {
-		// arrow.geometry.verticesNeedUpdate = true;
-		animate(renderer, scene, camera, light);
+		arrow.geometry.verticesNeedUpdate = true;
+		animate(renderer, scene, camera, arrow, light);
 	});
 }
 
 var scene = init();
 
-		// })))();
-
-// 	}
-
-// })))();
+	// })))();
