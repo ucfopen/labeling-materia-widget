@@ -11,6 +11,11 @@ const customCopy = copy.concat([
 		to: path.join(outputPath, 'guides', 'assets'),
 		toType: 'dir'
 	},
+	{
+		from: path.join(__dirname, 'src', '_models3D'),
+		to: path.join(outputPath, '_models3D'),
+		toType: 'dir'
+	},
 ])
 
 const entries = {
