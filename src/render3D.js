@@ -25,7 +25,7 @@ const boxLength = 1;
 const boxColor = 0x00fff0;
 
 const mtlFileStr = 'assets/obj/male02/male02.mtl';
-const objFileStr = 'src/3Dmodels/tree.obj';
+const objFileStr = '_models3D/cerberus/Cerberus.obj';
 
 const loader = new THREE.TextureLoader();
 const mtlLoader = new THREE.MTLLoader();
