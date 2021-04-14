@@ -5,13 +5,6 @@ const showWireframe = false;
 const shapeShadows = false;
 const sceneColor = 0xdddddd;
 
-const cameraPositionX = 2;
-const cameraPositionY = 2;
-const cameraPositionZ = 5;
-const cameraLookAtX = 0;
-const cameraLookAtY = 0;
-const cameraLookAtZ = 0;
-
 let numberOfLights = 2
 const sphereRadius = .1;
 const sphereWidthSegments = 8;
@@ -24,8 +17,9 @@ const boxLength = 0.3;
 const boxColor = 0x00fff0;
 
 let object;
-// const manager = new THREE.LoadingManager(loadModel);
-const manager = new THREE.LoadingManager(getMTLandOBJRender);
+const objScale = 1;
+const manager = new THREE.LoadingManager(loadModel);
+// const manager = new THREE.LoadingManager(getMTLandOBJRender);
 manager.onProgress = function (item, loaded, total) { console.log(item, loaded, total); };
 
 const mtlFileStr = '_models3D/male02/male02.mtl';
@@ -33,27 +27,39 @@ const objFileStr = '_models3D/male02/male02.obj';
 
 const mtlLoader = new THREE.MTLLoader(manager);
 const objLoader = new THREE.OBJLoader(manager);
+let objDimensions = new THREE.Box3();
+let objCenter = new THREE.Vector3();
+
+let cameraPositionX = 0;
+let cameraPositionY = 0;
+let cameraPositionZ = 1;
+// yTotal = yMax - Ymin;
+// let cameraPositionZ = yTotal + (yTotal * 0.5);
+
+let cameraLookAtX = objCenter.getComponent(0);
+let cameraLookAtY = objCenter.getComponent(1);
+let cameraLookAtZ = objCenter.getComponent(2);
 
 function init() {
 	var scene = new THREE.Scene();
 	scene.background = new THREE.Color(sceneColor);
 
 	var gui = new dat.GUI();
-	var camera = createCamera();
-	var renderer = createRenderer();
-	var controls = new THREE.OrbitControls(camera, renderer.domElement);
-	controls.target = new THREE.Vector3(cameraLookAtX, cameraLookAtY, cameraLookAtZ);
 
-	createLightEnvironment(scene, gui);
+	var lightList = createLightEnvironment(scene);
+	// var guiItems = createGUI(lightList, gui);
 
 	var box = getBox(boxWidth, boxHeight, boxLength, boxColor);
 	scene.add(box);
 
-	// getOBJRender(objLoader, scene);
-	getMTLandOBJRender(scene);
+	getOBJRender(scene);
+	// getMTLandOBJRender(scene);
 
+	var camera = createCamera();
+	var renderer = createRenderer();
+	var controls = new THREE.OrbitControls(camera, renderer.domElement);
+	// controls.target = new THREE.Vector3(cameraLookAtX, cameraLookAtY, cameraLookAtZ);
 	canvas.appendChild(renderer.domElement);
-
 	update(renderer, scene, camera, controls);
 	return scene;
 }
@@ -68,11 +74,13 @@ function update(renderer, scene, camera, controls) {
 
 }
 
-function printShotgun(obj) {
+function printShotgun(str, obj) {
+	console.log(str);
 	console.log(obj);
 }
 
 function createCamera() {
+	printShotgun('Ymax', objDimensions['max']['y']);
 	// field of view || aspect ratio || near clipping plane || far clipping plane
 	var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
 	camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
@@ -123,7 +131,7 @@ function getDirectionalLight(intensity) {
 	return light;
 }
 
-function createLightEnvironment(scene, gui) {
+function createLightEnvironment(scene) {
 	var lightList = [];
 
 	for (var index = 0; index < numberOfLights; index++) {
@@ -133,15 +141,19 @@ function createLightEnvironment(scene, gui) {
 
 		(index % 2) === 0 ? lightList[index].position.set(-25, 15, 15) : lightList[index].position.set(25, 15, -15);
 
-		gui.add(lightList[index], 'intensity', 0, 10);
-		gui.add(lightList[index].position, 'x', -50, 50);
-		gui.add(lightList[index].position, 'y', -50, 50);
-		gui.add(lightList[index].position, 'z', -50, 50);
-
 		scene.add(lightList[index]);
 	}
 
 	return lightList;
+}
+
+function createGUI(lightList, gui) {
+	for (var index = 0; index < numberOfLights; index++) {
+		gui.add(lightList[index], 'intensity', 0, 10);
+		gui.add(lightList[index].position, 'x', -50, 50);
+		gui.add(lightList[index].position, 'y', -50, 50);
+		gui.add(lightList[index].position, 'z', -50, 50);
+	}
 }
 
 function getMaterialComposition(type, color) {
@@ -202,20 +214,28 @@ function loadModel() {
 		// .depthWrite when when drawing a 2D overlays
 	});
 
-	object.scale.x = 5;
-	object.scale.y = 5;
-	object.scale.z = 5;
-
 	return object;
 }
 
 // Render OBJ files.
 function getOBJRender(scene) {
+	// Create a invisible box that provides the dimensions of the obj.
 	objLoader.load(
-		objLocationStr,
+		objFileStr,
 		function (obj) {
 			object = obj;
-			scene.add(object);
+			objDimensions.setFromObject(object);
+			objDimensions.getCenter(objCenter);
+
+			obj.position.sub(objCenter);
+			obj.scale.x = objScale;
+			obj.scale.y = objScale;
+			obj.scale.z = objScale;
+			scene.add(obj);
+
+			printShotgun('objDimensions:', objDimensions);
+			printShotgun('Ymax', objDimensions['max']['y']);
+			printShotgun('objCenter:', objCenter);
 		},
 		onProgress,
 		onError
@@ -224,14 +244,28 @@ function getOBJRender(scene) {
 
 // Render OBJ files with there MLT files.
 function getMTLandOBJRender(scene) {
-	// mtlLoader.load(mtlFileStr, (mtl) => {
-	// 	mtl.preload();
-	// objLoader.setMaterials(mtl);
-	objLoader.load(objFileStr, (root) => {
-		scene.add(root);
-	},
-		onProgress,
-		onError);
+	mtlLoader.load(
+		mtlFileStr, function (mtl) {
+			mtl.preload();
+			objLoader.load(
+				objFileStr, function (obj) {
+					var box = new THREE.Box3().setFromObject(obj);
+					var center = new THREE.Vector3();
+					box.getCenter(center);
+					obj.position.sub(center);
+					object = obj;
+					object.scale.x = objScale;
+					object.scale.y = objScale;
+					object.scale.z = objScale;
+					scene.add(obj);
+					printShotgun('object:', object);
+				},
+				onProgress,
+				onError
+			);
+			objLoader.setMaterials(mtl);
+		}
+	);
 }
 
 function onProgress(xhr) {
@@ -239,7 +273,7 @@ function onProgress(xhr) {
 };
 
 function onError(error) {
-	console.log('ERROR: Rendering Model');
+	console.log('ERROR: ' + error);
 };
 
 var scene = init();
