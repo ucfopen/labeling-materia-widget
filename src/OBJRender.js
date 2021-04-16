@@ -11,54 +11,48 @@ const sphereWidthSegments = 8;
 const sphereHeightSegments = 8;
 const sphereColor = 0xffffff;
 
-const boxWidth = 0.3;
-const boxHeight = 0.3;
-const boxLength = 0.3;
+const boxWidth = 1;
+const boxHeight = 1;
+const boxLength = 1;
 const boxColor = 0x00fff0;
 
 let object;
-const objScale = 1;
+let objScale = 1;
 const manager = new THREE.LoadingManager(loadModel);
 // const manager = new THREE.LoadingManager(getMTLandOBJRender);
 manager.onProgress = function (item, loaded, total) { console.log(item, loaded, total); };
 
-const mtlFileStr = '_models3D/male02/male02.mtl';
+// const mtlFileStr = '_models3D/male02/male02.mtl';
 const objFileStr = '_models3D/male02/male02.obj';
+
+// const mtlFileStr = '_models3D/vroom/Audi_R8_2017.mtl';
+// const objFileStr = '_models3D/vroom/Audi_R8_2017.obj';
+
+// const mtlFileStr = '_models3D/female02/female02.mtl';
+// const objFileStr = '_models3D/female02/female02.obj';
+
+// const objFileStr = '_models3D/cerberus/Cerberus.obj';
+
+// const objFileStr = '_models3D/tree.obj';
 
 const mtlLoader = new THREE.MTLLoader(manager);
 const objLoader = new THREE.OBJLoader(manager);
-let objDimensions = new THREE.Box3();
-let objCenter = new THREE.Vector3();
-
-let cameraPositionX = 0;
-let cameraPositionY = 0;
-let cameraPositionZ = 1;
-// yTotal = yMax - Ymin;
-// let cameraPositionZ = yTotal + (yTotal * 0.5);
-
-let cameraLookAtX = objCenter.getComponent(0);
-let cameraLookAtY = objCenter.getComponent(1);
-let cameraLookAtZ = objCenter.getComponent(2);
 
 function init() {
 	var scene = new THREE.Scene();
-	scene.background = new THREE.Color(sceneColor);
-
 	var gui = new dat.GUI();
-
-	var lightList = createLightEnvironment(scene);
-	// var guiItems = createGUI(lightList, gui);
-
-	var box = getBox(boxWidth, boxHeight, boxLength, boxColor);
-	scene.add(box);
-
-	getOBJRender(scene);
-	// getMTLandOBJRender(scene);
-
 	var camera = createCamera();
 	var renderer = createRenderer();
 	var controls = new THREE.OrbitControls(camera, renderer.domElement);
-	// controls.target = new THREE.Vector3(cameraLookAtX, cameraLookAtY, cameraLookAtZ);
+	var lightList = createLightEnvironment(scene);
+	// var guiItems = createGUI(lightList, gui);
+
+	scene.background = new THREE.Color(sceneColor);
+
+	getBox(scene);
+	getOBJRender(scene, camera, controls);
+	// getMTLandOBJRender(scene);
+
 	canvas.appendChild(renderer.domElement);
 	update(renderer, scene, camera, controls);
 	return scene;
@@ -80,11 +74,10 @@ function printShotgun(str, obj) {
 }
 
 function createCamera() {
-	printShotgun('Ymax', objDimensions['max']['y']);
 	// field of view || aspect ratio || near clipping plane || far clipping plane
 	var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
-	camera.position.set(cameraPositionX, cameraPositionY, cameraPositionZ);
-	camera.lookAt(cameraLookAtX, cameraLookAtY, cameraLookAtZ);
+	camera.position.set(0, 0, 3);
+	camera.lookAt(0, 0, 0);
 
 	return camera;
 }
@@ -98,13 +91,15 @@ function createRenderer() {
 	return renderer;
 }
 
-function getBox(boxWidth, boxHeight, boxLength, boxColor) {
+function getBox(scene) {
 	var mesh = new THREE.Mesh(
 		new THREE.BoxGeometry(boxWidth, boxHeight, boxLength),
 		new THREE.MeshLambertMaterial({ color: boxColor, wireframe: showWireframe, }),
 	);
 
 	mesh.castShadow = true;
+	mesh.position.set(0, 0, 0);
+	scene.add(mesh);
 	return mesh;
 }
 
@@ -218,23 +213,37 @@ function loadModel() {
 }
 
 // Render OBJ files.
-function getOBJRender(scene) {
+function getOBJRender(scene, camera, controls) {
 	// Create a invisible box that provides the dimensions of the obj.
 	objLoader.load(
 		objFileStr,
 		function (obj) {
 			object = obj;
-			objDimensions.setFromObject(object);
-			objDimensions.getCenter(objCenter);
-
-			obj.position.sub(objCenter);
 			obj.scale.x = objScale;
 			obj.scale.y = objScale;
 			obj.scale.z = objScale;
+
+			// Create invisible box with dimensions of obj.
+			var objDimensions = new THREE.Box3().setFromObject(object);
+			// Obtains the center point of obj
+			var objCenter = new THREE.Vector3();
+			objDimensions.getCenter(objCenter);
+
+			var yMax = objDimensions['max']['y'];
+			var yMin = objDimensions['min']['y'];
+
+			if (yMin < 0)
+				yMin = -1 * yMin;
+
+			if (yMax < 0)
+				yMax = -1 * yMax;
+
+			camera.position.y = objCenter['y'];
+			camera.position.z = (yMax + yMin) + ((yMax + yMin) * 0.5);
+			controls.target = objCenter;
 			scene.add(obj);
 
 			printShotgun('objDimensions:', objDimensions);
-			printShotgun('Ymax', objDimensions['max']['y']);
 			printShotgun('objCenter:', objCenter);
 		},
 		onProgress,
