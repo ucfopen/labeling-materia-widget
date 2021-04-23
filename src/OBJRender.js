@@ -4,7 +4,7 @@ const showWireframe = false;
 const shapeShadows = false;
 const sceneColor = 0xdddddd;
 var numberOfLights = 2
-const sphereRadius = .1;
+const sphereRadius = 10;
 const sphereWidthSegments = 8;
 const sphereHeightSegments = 8;
 const sphereColor = 0xffffff;
@@ -44,6 +44,7 @@ function init() {
 	var renderer = createRenderer();
 	var controls = new THREE.OrbitControls(camera, renderer.domElement);
 	var container = new THREE.Object3D();
+	container.name = 'myContainer';
 	var objDimensions = new THREE.Box3();
 	var objCenter = new THREE.Vector3();
 	var raycaster = new THREE.Raycaster();
@@ -66,6 +67,9 @@ function init() {
 	setTimeout(() => objCenter.setY((objDimensions['max']['y'] + objDimensions['min']['y']) / 2), 1000);
 	setTimeout(() => objCenter.setZ((objDimensions['max']['z'] + objDimensions['min']['z']) / 2), 1000);
 	setTimeout(() => printShotgun('-> objCenter point:', objCenter), 1000);
+	setTimeout(() => printShotgun('->scene', scene), 1000);
+	// Process to GET any object by name.
+	setTimeout(() => printShotgun('-> From scene get myRenderObject', scene.getObjectByName('myRenderObject')), 1000);
 
 	canvas.appendChild(renderer.domElement);
 	update(scene, camera, renderer, controls, raycaster);
@@ -75,9 +79,9 @@ function init() {
 // Updates values that need to be constantly re-render.
 function update(scene, camera, renderer, controls, raycaster) {
 	controls.update();
-	window.addEventListener('mousemove', onMouseMove, false);
+	// window.addEventListener('mousemove', onMouseMove, true);
 	// window.requestAnimationFrame(render);
-	// detectPosition(scene, raycaster, camera);
+	detectPosition(scene, camera, renderer, raycaster);
 	renderer.render(scene, camera);
 
 	requestAnimationFrame(function () {
@@ -89,20 +93,26 @@ function onMouseMove(event) {
 	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
 	mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
 
-	console.log('');
-	printShotgun('-> mouse.x', mouse.x);
-	printShotgun('-> mouse.y', mouse.y);
+	// console.log('');
+	// printShotgun('-> mouse.x', mouse.x);
+	// printShotgun('-> mouse.y', mouse.y);
 }
 
-function detectPosition(scene, camera, raycaster) {
+function detectPosition(scene, camera, renderer, raycaster) {
 	raycaster.setFromCamera(mouse, camera);
-	var intersects = raycaster.intersectObjects(scene.children);
 
-	for (let i = 0; i < intersects.length; i++) {
-		intersects[i].object.material.color.set(0xff0000);
-	}
+	var temp;
+	setTimeout(() => (temp = raycaster.intersectObjects(scene.children['3'].children['0'].children)), 2000);
+	// var temp = raycaster.intersectObjects(scene.children['3'].children['0'].children);
+	// var intersects = raycaster.intersectObjects(scene.getObjectByName('myRenderObject'));
+	setTimeout(() => printShotgun('===> temp', temp[0].object.material.color.set(0xff0000)), 2000);
 
-	renderer.render(scene, camera);
+	// for (let i = 0; i < temp.length; i++) {
+	// temp['0'].material.color.set(0xff0000);
+	// printShotgun('intersects[i]', intersects[i]);
+	// }
+
+	// renderer.render(scene, camera);
 }
 
 // used for troubleshooting
@@ -137,7 +147,7 @@ function getBox(scene) {
 		new THREE.BoxGeometry(boxWidth, boxHeight, boxLength),
 		new THREE.MeshLambertMaterial({ color: boxColor, wireframe: showWireframe, }),
 	);
-
+	mesh.name = 'TESTBox';
 	mesh.castShadow = true;
 	mesh.position.set(0, 0, 0);
 	scene.add(mesh);
@@ -177,7 +187,7 @@ function createLightEnvironment(scene) {
 		lightList[index].add(sphere);
 
 		(index % 2) === 0 ? lightList[index].position.set(-25, 15, 15) : lightList[index].position.set(25, 15, -15);
-
+		lightList[index].name = 'light ' + index;
 		scene.add(lightList[index]);
 	}
 
@@ -263,13 +273,16 @@ function getMaterialComposition(type, color) {
 // VARIABLES container, objDimensions, and objCenter contain and provide dimensions of
 // obj. A invisible box contains the obj that provides depth, width, and heigh.
 function getOBJRender(scene, camera, controls, container, objDimensions, objCenter) {
+	// Textures shade can change based on the color level
+	var materialComposition = getMaterialComposition('physical', 0x0000ff);
 	objLoader.load(
 		objFileStr,
 		function (obj) {
 			obj.scale.x = objScale;
 			obj.scale.y = objScale;
 			obj.scale.z = objScale;
-
+			obj.name = 'myRenderObject';
+			// obj.setMaterials(materialComposition);
 			// Obtains the center point of obj
 			objCenter = new THREE.Vector3();
 			// Create invisible box with dimensions of obj.
