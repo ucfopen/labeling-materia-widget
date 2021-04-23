@@ -12,7 +12,7 @@ const boxWidth = 1;
 const boxHeight = 1;
 const boxLength = 1;
 const boxColor = 0x00fff0;
-
+const mouse = new THREE.Vector2();
 // const mtlFileStr = '_models3D/male02/male02.mtl';
 const objFileStr = '_models3D/male02/male02.obj';
 
@@ -27,6 +27,8 @@ const objFileStr = '_models3D/male02/male02.obj';
 // const objFileStr = '_models3D/tree.obj';
 
 // var object;
+
+
 let objScale = 1;
 
 // const manager = new THREE.LoadingManager(getMTLandOBJRender);
@@ -44,6 +46,8 @@ function init() {
 	var container = new THREE.Object3D();
 	var objDimensions = new THREE.Box3();
 	var objCenter = new THREE.Vector3();
+	var raycaster = new THREE.Raycaster();
+
 	var lightList = createLightEnvironment(scene);
 	// var guiItems = createGUI(lightList, gui);
 
@@ -64,19 +68,41 @@ function init() {
 	setTimeout(() => printShotgun('-> objCenter point:', objCenter), 1000);
 
 	canvas.appendChild(renderer.domElement);
-	update(renderer, scene, camera, controls);
+	update(scene, camera, renderer, controls, raycaster);
 	return scene;
 }
 
 // Updates values that need to be constantly re-render.
-function update(renderer, scene, camera, controls) {
+function update(scene, camera, renderer, controls, raycaster) {
 	controls.update();
-	// printShotgun('container child matrixWorld', object.matrixWorld);
+	window.addEventListener('mousemove', onMouseMove, false);
+	// window.requestAnimationFrame(render);
+	// detectPosition(scene, raycaster, camera);
 	renderer.render(scene, camera);
 
 	requestAnimationFrame(function () {
-		update(renderer, scene, camera, controls);
+		update(scene, camera, renderer, controls, raycaster);
 	});
+}
+
+function onMouseMove(event) {
+	mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+	mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+	console.log('');
+	printShotgun('-> mouse.x', mouse.x);
+	printShotgun('-> mouse.y', mouse.y);
+}
+
+function detectPosition(scene, camera, raycaster) {
+	raycaster.setFromCamera(mouse, camera);
+	var intersects = raycaster.intersectObjects(scene.children);
+
+	for (let i = 0; i < intersects.length; i++) {
+		intersects[i].object.material.color.set(0xff0000);
+	}
+
+	renderer.render(scene, camera);
 }
 
 // used for troubleshooting
