@@ -1,40 +1,37 @@
 const canvas = document.getElementById('board');
-
 const setAntialias = false;
 const showWireframe = false;
 const shapeShadows = false;
 const sceneColor = 0xdddddd;
-
-let numberOfLights = 2
+var numberOfLights = 2
 const sphereRadius = .1;
 const sphereWidthSegments = 8;
 const sphereHeightSegments = 8;
 const sphereColor = 0xffffff;
-
 const boxWidth = 1;
 const boxHeight = 1;
 const boxLength = 1;
 const boxColor = 0x00fff0;
 
-let object;
-let objScale = 1;
-const manager = new THREE.LoadingManager(loadModel);
-// const manager = new THREE.LoadingManager(getMTLandOBJRender);
-manager.onProgress = function (item, loaded, total) { console.log(item, loaded, total); };
-
 // const mtlFileStr = '_models3D/male02/male02.mtl';
 const objFileStr = '_models3D/male02/male02.obj';
 
-// const mtlFileStr = '_models3D/vroom/Audi_R8_2017.mtl';
-// const objFileStr = '_models3D/vroom/Audi_R8_2017.obj';
-
 // const mtlFileStr = '_models3D/female02/female02.mtl';
 // const objFileStr = '_models3D/female02/female02.obj';
+
+// const mtlFileStr = '_models3D/vroom/Audi_R8_2017.mtl';
+// const objFileStr = '_models3D/vroom/Audi_R8_2017.obj';
 
 // const objFileStr = '_models3D/cerberus/Cerberus.obj';
 
 // const objFileStr = '_models3D/tree.obj';
 
+// var object;
+let objScale = 1;
+
+// const manager = new THREE.LoadingManager(getMTLandOBJRender);
+const manager = new THREE.LoadingManager();
+manager.onProgress = function (item, loaded, total) { console.log(item, loaded, total); };
 const mtlLoader = new THREE.MTLLoader(manager);
 const objLoader = new THREE.OBJLoader(manager);
 
@@ -44,35 +41,51 @@ function init() {
 	var camera = createCamera();
 	var renderer = createRenderer();
 	var controls = new THREE.OrbitControls(camera, renderer.domElement);
+	var container = new THREE.Object3D();
+	var objDimensions = new THREE.Box3();
+	var objCenter = new THREE.Vector3();
 	var lightList = createLightEnvironment(scene);
 	// var guiItems = createGUI(lightList, gui);
 
 	scene.background = new THREE.Color(sceneColor);
 
 	getBox(scene);
-	getOBJRender(scene, camera, controls);
+	getOBJRender(scene, camera, controls, container, objDimensions, objCenter);
 	// getMTLandOBJRender(scene);
+
+	// WAIT for obj to be render and extract data.
+	setTimeout(() => printShotgun('Main -> container:', container), 1000);
+	setTimeout(() => printShotgun('-> container.children.matrixWorld', container.children[0].matrixWorld), 1000);
+	setTimeout(() => printShotgun('-> objDimensions min and max:', objDimensions), 1000);
+	setTimeout(() => printShotgun('-> object width, height, depth:', objDimensions.getSize()), 1000);
+	setTimeout(() => objCenter.setX((objDimensions['max']['x'] + objDimensions['min']['x']) / 2), 1000);
+	setTimeout(() => objCenter.setY((objDimensions['max']['y'] + objDimensions['min']['y']) / 2), 1000);
+	setTimeout(() => objCenter.setZ((objDimensions['max']['z'] + objDimensions['min']['z']) / 2), 1000);
+	setTimeout(() => printShotgun('-> objCenter point:', objCenter), 1000);
 
 	canvas.appendChild(renderer.domElement);
 	update(renderer, scene, camera, controls);
 	return scene;
 }
 
+// Updates values that need to be constantly re-render.
 function update(renderer, scene, camera, controls) {
 	controls.update();
+	// printShotgun('container child matrixWorld', object.matrixWorld);
 	renderer.render(scene, camera);
 
 	requestAnimationFrame(function () {
 		update(renderer, scene, camera, controls);
 	});
-
 }
 
-function printShotgun(str, obj) {
+// used for troubleshooting
+function printShotgun(str, data) {
 	console.log(str);
-	console.log(obj);
+	console.log(data);
 }
 
+// creates a perspective camera
 function createCamera() {
 	// field of view || aspect ratio || near clipping plane || far clipping plane
 	var camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 1, 1000);
@@ -82,8 +95,9 @@ function createCamera() {
 	return camera;
 }
 
+// Create renderer using the window width and height
 function createRenderer() {
-	renderer = new THREE.WebGLRenderer({ antialias: setAntialias, alpha: true });
+	var renderer = new THREE.WebGLRenderer({ antialias: setAntialias, alpha: true });
 	renderer.setSize(window.innerWidth / 1.05, window.innerHeight / 1.05);
 	renderer.setPixelRatio(window.devicePixelRatio);
 	renderer.shadowMap.enabled = true;
@@ -91,6 +105,7 @@ function createRenderer() {
 	return renderer;
 }
 
+// Basic shapes used for troubleshooting.
 function getBox(scene) {
 	var mesh = new THREE.Mesh(
 		new THREE.BoxGeometry(boxWidth, boxHeight, boxLength),
@@ -126,6 +141,7 @@ function getDirectionalLight(intensity) {
 	return light;
 }
 
+// Returns a list of directional lights pointing at specific locations
 function createLightEnvironment(scene) {
 	var lightList = [];
 
@@ -142,6 +158,7 @@ function createLightEnvironment(scene) {
 	return lightList;
 }
 
+// Returns a gui for controlling each directional light
 function createGUI(lightList, gui) {
 	for (var index = 0; index < numberOfLights; index++) {
 		gui.add(lightList[index], 'intensity', 0, 10);
@@ -151,6 +168,7 @@ function createGUI(lightList, gui) {
 	}
 }
 
+// Returns a material data type based on the parse values
 function getMaterialComposition(type, color) {
 	var selectedMaterial;
 	var materialOptions = {
@@ -188,63 +206,66 @@ function getMaterialComposition(type, color) {
 	return selectedMaterial;
 }
 
-function loadModel() {
-	// Textures shade can change based on the color level
-	var materialComposition = getMaterialComposition('physical', 0xcccccc);
+// NEED TO BE ABLE TO EXPLAIN BETTER
+// function loadModel() {
+// 	// Textures shade can change based on the color level
+// 	var materialComposition = getMaterialComposition('physical', 0xcccccc);
 
-	object.traverse(function (child) {
-		child.material = materialComposition;
-		materialComposition.castShadow = true;
-		materialComposition.side = THREE.FrontSide; // Render outer layer only
-		materialComposition.wrapS = THREE.RepeatWrapping;
-		materialComposition.wrapT = THREE.RepeatWrapping;
-		materialComposition.magFilter = THREE.NearestFilter
-		materialComposition.bumpScale = 0;
-		// materialComposition.metalness = 0.1; // ONLY on STANDARD! 0 to 1.0 == PURE METAL item
-		// materialComposition.roughness = 0.4; // ONLY on STANDARD! Smooth Mirror reflection == 0 to 1
-		// materialComposition.shininess = 100; // Only on Phong! This is the opposite of shininess.
-		materialComposition.wireframe = showWireframe;
-		// materialComposition.map = new THREE.TextureLoader().load('_models3D/cerberus/Cerberus_A.jpg');
-		// .depthTest
-		// .depthWrite when when drawing a 2D overlays
-	});
+// 	object.traverse(function (child) {
+// 		child.material = materialComposition;
+// 		materialComposition.castShadow = true;
+// 		materialComposition.side = THREE.FrontSide; // Render outer layer only
+// 		materialComposition.wrapS = THREE.RepeatWrapping;
+// 		materialComposition.wrapT = THREE.RepeatWrapping;
+// 		materialComposition.magFilter = THREE.NearestFilter
+// 		materialComposition.bumpScale = 0;
+// 		// materialComposition.metalness = 0.1; // ONLY on STANDARD! 0 to 1.0 == PURE METAL item
+// 		// materialComposition.roughness = 0.4; // ONLY on STANDARD! Smooth Mirror reflection == 0 to 1
+// 		// materialComposition.shininess = 100; // Only on Phong! This is the opposite of shininess.
+// 		materialComposition.wireframe = showWireframe;
+// 		// materialComposition.map = new THREE.TextureLoader().load('_models3D/cerberus/Cerberus_A.jpg');
+// 		// .depthTest
+// 		// .depthWrite when when drawing a 2D overlays
+// 	});
 
-	return object;
-}
+// 	return object;
+// }
 
-// Render OBJ files.
-function getOBJRender(scene, camera, controls) {
-	// Create a invisible box that provides the dimensions of the obj.
+
+// RENDER file extension .obj, and centralizes it to the window.
+// VARIABLES scene, camera, and control allow for the rendering and seeing of obj
+// VARIABLES container, objDimensions, and objCenter contain and provide dimensions of
+// obj. A invisible box contains the obj that provides depth, width, and heigh.
+function getOBJRender(scene, camera, controls, container, objDimensions, objCenter) {
 	objLoader.load(
 		objFileStr,
 		function (obj) {
-			object = obj;
 			obj.scale.x = objScale;
 			obj.scale.y = objScale;
 			obj.scale.z = objScale;
 
-			// Create invisible box with dimensions of obj.
-			var objDimensions = new THREE.Box3().setFromObject(object);
 			// Obtains the center point of obj
-			var objCenter = new THREE.Vector3();
+			objCenter = new THREE.Vector3();
+			// Create invisible box with dimensions of obj.
+			objDimensions.setFromObject(obj);
+			// Get the center of the box
 			objDimensions.getCenter(objCenter);
 
-			var yMax = objDimensions['max']['y'];
-			var yMin = objDimensions['min']['y'];
+			// Gets the obj HEIGHT
+			var totalHeight = objDimensions.getSize().y;
 
-			if (yMin < 0)
-				yMin = -1 * yMin;
-
-			if (yMax < 0)
-				yMax = -1 * yMax;
-
-			camera.position.y = objCenter['y'];
-			camera.position.z = (yMax + yMin) + ((yMax + yMin) * 0.5);
+			// Matches the HEIGHT of the camera with the center of the box
+			camera.position.y = objCenter.y;
+			// Moves the camera in the positive
+			camera.position.z = totalHeight + (totalHeight * 0.5);
 			controls.target = objCenter;
-			scene.add(obj);
 
-			printShotgun('objDimensions:', objDimensions);
-			printShotgun('objCenter:', objCenter);
+			// Makes the render object a child of the container
+			container.add(obj);
+
+			// Produces ERROR object is not a instance of Object3D.
+			// container.add(objDimensions);
+			scene.add(container);
 		},
 		onProgress,
 		onError
@@ -252,22 +273,39 @@ function getOBJRender(scene, camera, controls) {
 }
 
 // Render OBJ files with there MLT files.
-function getMTLandOBJRender(scene) {
+function getMTLandOBJRender(scene, camera, controls, container, objDimensions, objCenter) {
 	mtlLoader.load(
 		mtlFileStr, function (mtl) {
 			mtl.preload();
 			objLoader.load(
-				objFileStr, function (obj) {
-					var box = new THREE.Box3().setFromObject(obj);
-					var center = new THREE.Vector3();
-					box.getCenter(center);
-					obj.position.sub(center);
-					object = obj;
-					object.scale.x = objScale;
-					object.scale.y = objScale;
-					object.scale.z = objScale;
-					scene.add(obj);
-					printShotgun('object:', object);
+				objFileStr,
+				function (obj) {
+					obj.scale.x = objScale;
+					obj.scale.y = objScale;
+					obj.scale.z = objScale;
+
+					// Obtains the center point of obj
+					objCenter = new THREE.Vector3();
+					// Create invisible box with dimensions of obj.
+					objDimensions.setFromObject(obj);
+					// Get the center of the box
+					objDimensions.getCenter(objCenter);
+
+					// Gets the obj height
+					var totalHeight = objDimensions.getSize().y;
+
+					// Matches the HEIGHT of the camera with the center of the box
+					camera.position.y = objCenter.y;
+					// Moves the camera in the positive
+					camera.position.z = totalHeight + (totalHeight * 0.5);
+					controls.target = objCenter;
+
+					// Makes the render object a child of the container
+					container.add(obj);
+
+					// Produces ERROR object is not a instance of Object3D.
+					// container.add(objDimensions);
+					scene.add(container);
 				},
 				onProgress,
 				onError
@@ -277,10 +315,12 @@ function getMTLandOBJRender(scene) {
 	);
 }
 
+// Returns a console log of the model % loaded
 function onProgress(xhr) {
 	console.log('Model downloaded: ' + Math.round((xhr.loaded / xhr.total * 100), 2) + '% loaded');
 };
 
+// Returns a console log ERROR when model doesn't load
 function onError(error) {
 	console.log('ERROR: ' + error);
 };
