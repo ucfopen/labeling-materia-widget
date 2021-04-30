@@ -7,7 +7,7 @@ const objFileStr = '_models3D/male02/male02.obj';
 // const objFileStr = '_models3D/cerberus/Cerberus.obj';
 // const objFileStr = '_models3D/tree.obj';
 
-const setAntialias = false;
+const setAntialias = true;
 const showWireframe = false;
 const shapeShadows = false;
 const sceneColor = 0xdddddd;
@@ -28,12 +28,24 @@ function main() {
 	// window.innerWidth = 800 & window.innerHeight = 601
 
 	const scene = new THREE.Scene();
-	scene.name = 'myScene';
+	scene.name = 'scene';
 	scene.background = new THREE.Color(sceneColor);
 
 	const renderer = new THREE.WebGLRenderer({ antialias: setAntialias, alpha: true });
 	renderer.setPixelRatio(window.devicePixelRatio);
 	canvas.appendChild(renderer.domElement);
+
+
+	// *************** ORTHOGRAPHIC CAMERA
+	// const frustumSize = 1000;
+	// const aspect = window.innerWidth / window.innerHeight;
+	// var leftBorder = frustumSize * aspect / -2;
+	// var rightBorder = frustumSize * aspect / 2;
+	// var topBorder = frustumSize / 2;
+	// var bottomBorder = frustumSize / -2;
+	// var nearCamera = 1;
+	// var farCamera = 1000;
+	// const camera = new THREE.OrthographicCamera(leftBorder, rightBorder, topBorder, bottomBorder, nearCamera, farCamera);
 
 	// *************  PERSPECTIVE CAMERA
 	var fov = 45;
@@ -82,12 +94,8 @@ function main() {
 		requestAnimationFrame(render);
 	} // End of render()
 
-	// Provides a time space so all the data can be loaded properly.
-	//////////// intersectObjects() DOES NOT HAVE ENOUGHS TIME TO GO FETCH THE DATA AND
-	//////////// GENERATE A PROPER SET FOR THE VARIABLE.
-	//////////// MIGHT HAVE TO CREATE intersectObjects VARIABLE IN THE MAIN AND SEE HOW IT AFFECTS IT.
-	//////////// I ASSUME IT MIGHT NOT WORK DUE TO THE SCENE CONTAINING THE DATA OF OBJ WHEN MOVE.
-	setTimeout(() => { requestAnimationFrame(render); }, 3000);
+	printShotgun('scene', scene);
+	requestAnimationFrame(render);
 
 	function getCanvasRelativePosition(event) {
 		// (rect.left * 0.5) and (rect.top * 0.5) were added to align the website to the 3D world.
@@ -125,13 +133,9 @@ function main() {
 	});
 
 	window.addEventListener('touchend', clearPickPosition);
-
-	printShotgun('scene', scene);
-	printShotgun('scene.children[2] =>', scene.children[2]);
 }// END OF MAIN()
 
 // Raycaster
-// *****************************************************************************
 function clearPickPosition() {
 	// Stop picking if the user doesn't move the mouse
 	pickPosition.x = -100000;
@@ -170,15 +174,11 @@ class PickHelper {
 
 		// cast a ray through the frustum
 		this.raycaster.setFromCamera(normalizedPosition, camera);
-
 		// get the list of objects the ray intersected
-		// var intersectedObjects = this.raycaster.intersectObjects(scene.children);
-
 		var intersectedObjects = this.raycaster.intersectObjects(scene.children);
-		printShotgun('intersectedObjects', intersectedObjects);
 		if (intersectedObjects.length) {
 			// pick the first object. It's the closest one
-			this.pickedObject = intersectedObjects[2].children[0].object;
+			this.pickedObject = intersectedObjects[0].object;
 			// save its color
 			this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
 			// set its emissive color to flashing red/yellow
@@ -186,8 +186,6 @@ class PickHelper {
 		}
 	}
 } // End of CLASS PickHelper
-// ******************************************************************************
-
 
 function getDirectionalLight(intensity) {
 	var light = new THREE.DirectionalLight(0xffffff, intensity);
@@ -198,13 +196,14 @@ function getDirectionalLight(intensity) {
 } // End of getDirectionalLight()
 
 function getBox() {
-	var boxDimension = 10;
+	var boxDimension = 1;
 	var boxColor = 0x00fff0;
 	var mesh = new THREE.Mesh(
 		new THREE.BoxGeometry(boxDimension, boxDimension, boxDimension),
 		new THREE.MeshPhongMaterial({ color: boxColor, wireframe: showWireframe, }),
 	);
 
+	mesh.scale += 5;
 	mesh.name = 'TESTBox';
 	mesh.castShadow = true;
 	mesh.position.set(0, 0, 0);
