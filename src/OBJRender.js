@@ -174,11 +174,11 @@ class PickHelper {
 		// get the list of objects the ray intersected
 		// var intersectedObjects = this.raycaster.intersectObjects(scene.children);
 
-		var intersectedObjects = this.raycaster.intersectObjects(scene.children);
-		printShotgun('intersectedObjects', intersectedObjects);
+		var intersectedObjects = this.raycaster.intersectObjects(scene.children[2].children, true);
+		// printShotgun('intersectedObjects', intersectedObjects);
 		if (intersectedObjects.length) {
 			// pick the first object. It's the closest one
-			this.pickedObject = intersectedObjects[2].children[0].object;
+			this.pickedObject = intersectedObjects[0].object;
 			// save its color
 			this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
 			// set its emissive color to flashing red/yellow
