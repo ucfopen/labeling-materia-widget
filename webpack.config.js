@@ -30,14 +30,6 @@ const entries = {
 		path.join(__dirname, 'src', 'player.js'),
 		path.join(__dirname, 'src', 'player.html'),
 	],
-	// 'OBJ&MTLRender.js': [
-	// 	path.join(__dirname, 'src/lib', 'three.min.js'),
-	// 	path.join(__dirname, 'src/lib', 'MTLLoader.js'),
-	// 	path.join(__dirname, 'src/lib', 'OBJLoader.js'),
-	// 	path.join(__dirname, 'src/lib', 'OrbitControls.js'),
-	// 	path.join(__dirname, 'src/lib', 'dat.gui.min.js'),
-	// 	path.join(__dirname, 'src', 'OBJ&MTLRender.js'),
-	// ],
 	'OBJRender.js': [
 		path.join(__dirname, 'src/lib', 'three.min.js'),
 		path.join(__dirname, 'src/lib', 'MTLLoader.js'),
