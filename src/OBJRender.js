@@ -8,12 +8,20 @@ const objFileStr = '_models3D/male02/male02.obj';
 // const objFileStr = '_models3D/tree.obj';
 
 const setAntialias = false;
-const showWireframe = false;
+const showWireframe = true;
 const shapeShadows = false;
 const sceneColor = 0xdddddd;
 
 const canvas = document.getElementById('board');
-const pickPosition = { x: 0, y: 0 };
+
+let fov = 45;
+let aspect = canvas.offsetWidth / canvas.offsetHeight;  // the canvas default
+let near = 1;
+let far = 1000;
+
+const mousePosition = { x: 0, y: 0 };
+const sphereList = [];
+const clock = new THREE.Clock();
 
 // var object;
 const objScale = 1;
@@ -32,23 +40,17 @@ function main() {
 	scene.background = new THREE.Color(sceneColor);
 
 	const renderer = new THREE.WebGLRenderer({ antialias: setAntialias, alpha: true });
+	renderer.name = 'myRenderer';
 	renderer.setPixelRatio(window.devicePixelRatio);
 	canvas.appendChild(renderer.domElement);
 
-	// *************  PERSPECTIVE CAMERA
-	var fov = 45;
-	var aspect = canvas.offsetWidth / canvas.offsetHeight;  // the canvas default
-	var near = 1;
-	var far = 1000;
 	const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-
-	camera.name = 'camera';
+	camera.name = 'myCamera';
 	camera.position.set(0, 0, 1);
 	camera.add(getDirectionalLight(1));
 
 	const controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-	// Place the camera stand on a pole and move the pole around the scene.
 	const cameraPole = new THREE.Object3D();
 	cameraPole.name = 'cameraPole';
 	cameraPole.add(camera);
@@ -60,89 +62,74 @@ function main() {
 	var cube = getBox();
 	scene.add(cube);
 
+	getSphereList(scene);
 	getOBJRender(scene, camera, controls, objDimensions, objCenter);
-
-	resizeRendererToDisplaySize(renderer);
+	onWindowResize(renderer);
 
 	var pickHelper = new PickHelper(scene, camera);
-	clearPickPosition();
+	clearMousePosition();
 
 	function render(time) {
 		time *= 0.001;  // convert from minutes to seconds;
 
-		if (resizeRendererToDisplaySize(renderer)) {
+		if (onWindowResize(renderer)) {
 			camera.aspect = window.innerWidth / window.innerHeight;
 			camera.updateProjectionMatrix();
 		}
 
-		cameraPole.rotation.y = time * .1;
-		pickHelper.pick(pickPosition, scene, camera, time);
+		pickHelper.pick(mousePosition, scene, camera, time);
+
 		controls.update(); // Movement of camera
 		renderer.render(scene, camera);
 		requestAnimationFrame(render);
 	} // End of render()
 
-	// Provides a time space so all the data can be loaded properly.
-	//////////// intersectObjects() DOES NOT HAVE ENOUGHS TIME TO GO FETCH THE DATA AND
-	//////////// GENERATE A PROPER SET FOR THE VARIABLE.
-	//////////// MIGHT HAVE TO CREATE intersectObjects VARIABLE IN THE MAIN AND SEE HOW IT AFFECTS IT.
-	//////////// I ASSUME IT MIGHT NOT WORK DUE TO THE SCENE CONTAINING THE DATA OF OBJ WHEN MOVE.
-	setTimeout(() => { requestAnimationFrame(render); }, 3000);
-
-	function getCanvasRelativePosition(event) {
-		// (rect.left * 0.5) and (rect.top * 0.5) were added to align the website to the 3D world.
-		var rect = canvas.getBoundingClientRect();
-		return {
-			x: (event.clientX - rect.left + (rect.left * 0.5)) * canvas.offsetWidth / rect.width,
-			y: (event.clientY - rect.top + (rect.top * 0.5)) * canvas.offsetHeight / rect.height,
-		};
-	} // End of getCanvasRelativePosition()
-
-	function setPickPosition(event) {
-		var pos = getCanvasRelativePosition(event);
-		pickPosition.x = (pos.x / window.innerWidth) * 2 - 1;
-		pickPosition.y = (pos.y / window.innerHeight) * -2 + 1;  // note we flip Y
-		// console.log(pickPosition.x)
-	} // End of setPickPosition()
+	setTimeout(() => { requestAnimationFrame(render); }, 2000);
 
 	// Enable detection & placement of mouse.
-	window.addEventListener('mousemove', setPickPosition);
+	window.addEventListener('mousemove', onMouseMove);
+	window.addEventListener('mouseout', clearMousePosition);
+	window.addEventListener('mouseleave', clearMousePosition);
 
-	// Clear the raycaster detection if mouse outside of clipping region.
-	window.addEventListener('mouseout', clearPickPosition);
-	window.addEventListener('mouseleave', clearPickPosition);
-
-	// Enable touch to start
+	// Enable touch to start & and to move
 	window.addEventListener('touchstart', (event) => {
 		// prevent the window from scrolling
 		event.preventDefault();
-		setPickPosition(event.touches[0]);
+		onMouseMove(event.touches[0]);
 	}, { passive: false });
 
-	// Enable touch to move
 	window.addEventListener('touchmove', (event) => {
-		setPickPosition(event.touches[0]);
+		onMouseMove(event.touches[0]);
 	});
 
-	window.addEventListener('touchend', clearPickPosition);
-
+	window.addEventListener('touchend', clearMousePosition);
 	printShotgun('scene', scene);
-	printShotgun('scene.children[2] =>', scene.children[2]);
 }// END OF MAIN()
 
-// Raycaster
-// *****************************************************************************
-function clearPickPosition() {
+function clearMousePosition() {
 	// Stop picking if the user doesn't move the mouse
-	pickPosition.x = -100000;
-	pickPosition.y = -100000;
-} // End of clearPickPosition()
+	mousePosition.x = -100000;
+	mousePosition.y = -100000;
+} // End of clearMousePosition()
 
-function resizeRendererToDisplaySize(renderer) {
-	// canvas.offsetWidth = 605 & canvas.offsetHeight = 551
-	// window.innerWidth = 800 & window.innerHeight = 601
+function getMousePosition(event) {
 
-	// DIVIDING window.innerWidth / 1.32 & window.innerHeight / 1.09 will center the scene.
+	var rect = canvas.getBoundingClientRect();
+	return {
+		x: (event.clientX - rect.left + (rect.left * 0.5)) * canvas.offsetWidth / rect.width,
+		y: (event.clientY - rect.top + (rect.top * 0.5)) * canvas.offsetHeight / rect.height,
+	};
+} // End of getMousePosition()
+
+function onMouseMove(event) {
+
+	var pos = getMousePosition(event);
+	mousePosition.x = (pos.x / window.innerWidth) * 2 - 1;
+	mousePosition.y = (pos.y / window.innerHeight) * -2 + 1;  // note we flip Y
+} // End of onMouseMove()
+
+function onWindowResize(renderer) {
+
 	var width = window.innerWidth / 1.32;
 	var height = window.innerHeight / 1.09;
 	var needResize = canvas.offsetWidth !== width || canvas.offsetHeight !== height;
@@ -151,7 +138,7 @@ function resizeRendererToDisplaySize(renderer) {
 		renderer.setSize(width, height, false);
 
 	return needResize;
-} // End of resizeRendererToDisplaySize()
+} // End of onWindowResize()
 
 class PickHelper {
 	constructor(scene, camera) {
@@ -161,6 +148,7 @@ class PickHelper {
 		this.scene = scene;
 		this.camera = camera;
 	}
+
 	pick(normalizedPosition, scene, camera, time) {
 		// restore the color if there is a picked object
 		if (this.pickedObject) {
@@ -171,23 +159,22 @@ class PickHelper {
 		// cast a ray through the frustum
 		this.raycaster.setFromCamera(normalizedPosition, camera);
 
-		// get the list of objects the ray intersected
-		// var intersectedObjects = this.raycaster.intersectObjects(scene.children);
+		var position = scene.children.length;
+		var intersectedObjects = this.raycaster.intersectObjects(scene.children[position - 1].children, true);
 
-		var intersectedObjects = this.raycaster.intersectObjects(scene.children[2].children, true);
-		// printShotgun('intersectedObjects', intersectedObjects);
 		if (intersectedObjects.length) {
+
 			// pick the first object. It's the closest one
 			this.pickedObject = intersectedObjects[0].object;
+
 			// save its color
 			this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
+
 			// set its emissive color to flashing red/yellow
 			this.pickedObject.material.emissive.setHex((time * 1.5) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
 		}
 	}
 } // End of CLASS PickHelper
-// ******************************************************************************
-
 
 function getDirectionalLight(intensity) {
 	var light = new THREE.DirectionalLight(0xffffff, intensity);
@@ -211,6 +198,19 @@ function getBox() {
 	return mesh;
 } // End of getBox()
 
+function getSphereList(scene) {
+
+	for (let i = 0; i < 10; i++) {
+		var sphere = new THREE.Mesh(
+			new THREE.SphereGeometry(0.1, 32, 32),
+			new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: showWireframe }),
+		)
+		sphere.name = 'mySphere[' + i + ']';
+		scene.add(sphere);
+		sphereList.push(sphere);
+	}
+} // End of getSphereList()
+
 // Returns a console log of the model % loaded
 function onProgress(xhr) {
 	console.log('Model downloaded: ' + Math.round((xhr.loaded / xhr.total * 100), 2) + '% loaded');
@@ -226,7 +226,6 @@ function printShotgun(str, data) {
 	console.log(data);
 } // End of printShotgun()
 
-// Returns a material data type based on the parse values
 function getMaterialComposition(type, color) {
 	var selectedMaterial;
 	var materialOptions = {
@@ -262,7 +261,7 @@ function getMaterialComposition(type, color) {
 	}
 
 	return selectedMaterial;
-}
+} // End of getMaterialComposition()
 
 function getOBJRender(scene, camera, controls, objDimensions, objCenter) {
 	// Textures shade can change based on the color level
@@ -274,6 +273,8 @@ function getOBJRender(scene, camera, controls, objDimensions, objCenter) {
 			obj.scale.y = objScale;
 			obj.scale.z = objScale;
 			obj.name = 'myRender';
+
+			obj.children['0']['material']['wireframe'] = showWireframe;
 
 			// Obtains the center point of obj
 			objCenter = new THREE.Vector3();
@@ -298,9 +299,8 @@ function getOBJRender(scene, camera, controls, objDimensions, objCenter) {
 		onProgress,
 		onError
 	);
-}
+} // End of getOBJRender()
 
-// Render OBJ files with there MLT files.
 function getMTLandOBJRender(scene, camera, controls, container, objDimensions, objCenter) {
 	mtlLoader.load(
 		mtlFileStr, function (mtl) {
@@ -341,6 +341,6 @@ function getMTLandOBJRender(scene, camera, controls, container, objDimensions, o
 			objLoader.setMaterials(mtl);
 		}
 	);
-}
+} // End of getMTLandOBJRender()
 
 main();
