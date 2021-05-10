@@ -1,0 +1,109 @@
+
+==> start LEFT SHOE TIP
+
+attributes:
+normal: nn {name: "", array: Float32Array(1026), itemSize: 3, count: 342, normalized: false, …}
+position: nn {name: "", array: Float32Array(1026), itemSize: 3, count: 342, normalized: false, …}
+uv: nn {name: "", array: Float32Array(684), itemSize: 2, count: 342, normalized: false, …}
+__proto__: Object
+boundingBox: t
+max: t {x: -17.466859817504883, y: 12.336838722229004, z: 16.896581649780273, isVector3: true}
+min: t {x: -41.051979064941406, y: 0.41370901465415955, z: -11.545767784118652, isVector3: true}
+isBox3: true
+__proto__: Object
+boundingSphere: t
+center: t {x: -29.259419441223145, y: 6.375273868441582, z: 2.6754069328308105, isVector3: true}
+radius: 17.343610416676853
+__proto__: Object
+
+
+==> looking top down LEFT SHOE TIP
+
+attributes:
+normal: nn {name: "", array: Float32Array(1026), itemSize: 3, count: 342, normalized: false, …}
+position: nn {name: "", array: Float32Array(1026), itemSize: 3, count: 342, normalized: false, …}
+uv: nn {name: "", array: Float32Array(684), itemSize: 2, count: 342, normalized: false, …}
+__proto__: Object
+boundingBox: t
+max: t {x: -17.466859817504883, y: 12.336838722229004, z: 16.896581649780273, isVector3: true}
+min: t {x: -41.051979064941406, y: 0.41370901465415955, z: -11.545767784118652, isVector3: true}
+isBox3: true
+__proto__: Object
+boundingSphere: t
+center: t {x: -29.259419441223145, y: 6.375273868441582, z: 2.6754069328308105, isVector3: true}
+radius: 17.343610416676853
+__proto__: Object
+
+
+==> looking top down SHOULDER
+
+attributes:
+normal: nn {name: "", array: Float32Array(20430), itemSize: 3, count: 6810, normalized: false, …}
+position: nn {name: "", array: Float32Array(20430), itemSize: 3, count: 6810, normalized: false, …}
+uv: nn {name: "", array: Float32Array(13620), itemSize: 2, count: 6810, normalized: false, …}
+__proto__: Object
+boundingBox: t
+max: t {x: 35.07761764526367, y: 163.84201049804688, z: 18.226076126098633, isVector3: true}
+min: t {x: -33.91740036010742, y: 3.632755994796753, z: -24.71567726135254, isVector3: true}
+isBox3: true
+__proto__: Object
+boundingSphere: t
+center: t {x: 0.580108642578125, y: 83.73738324642181, z: -3.244800567626953, isVector3: true}
+radius: 85.74064804280538
+__proto__: Object
+
+
+------------ MOVING THE CAMERA position ------------------------------------
+
+==> start LEFT SHOE TIP
+
+attributes:
+normal: nn {name: "", array: Float32Array(1026), itemSize: 3, count: 342, normalized: false, …}
+position: nn {name: "", array: Float32Array(1026), itemSize: 3, count: 342, normalized: false, …}
+uv: nn {name: "", array: Float32Array(684), itemSize: 2, count: 342, normalized: false, …}
+__proto__: Object
+boundingBox: t
+max: t {x: -17.466859817504883, y: 12.336838722229004, z: 16.896581649780273, isVector3: true}
+min: t {x: -41.051979064941406, y: 0.41370901465415955, z: -11.545767784118652, isVector3: true}
+isBox3: true
+__proto__: Object
+boundingSphere: t
+center: t {x: -29.259419441223145, y: 6.375273868441582, z: 2.6754069328308105, isVector3: true}
+radius: 17.343610416676853
+__proto__: Object
+
+
+==> looking top down LEFT SHOE TIP
+
+attributes:
+normal: nn {name: "", array: Float32Array(1026), itemSize: 3, count: 342, normalized: false, …}
+position: nn {name: "", array: Float32Array(1026), itemSize: 3, count: 342, normalized: false, …}
+uv: nn {name: "", array: Float32Array(684), itemSize: 2, count: 342, normalized: false, …}
+__proto__: Object
+boundingBox: t
+max: t {x: -17.466859817504883, y: 12.336838722229004, z: 16.896581649780273, isVector3: true}
+min: t {x: -41.051979064941406, y: 0.41370901465415955, z: -11.545767784118652, isVector3: true}
+isBox3: true
+__proto__: Object
+boundingSphere: t
+center: t {x: -29.259419441223145, y: 6.375273868441582, z: 2.6754069328308105, isVector3: true}
+radius: 17.343610416676853
+__proto__: Object
+
+
+==> looking top down SHOULDER
+
+attributes:
+normal: nn {name: "", array: Float32Array(20430), itemSize: 3, count: 6810, normalized: false, …}
+position: nn {name: "", array: Float32Array(20430), itemSize: 3, count: 6810, normalized: false, …}
+uv: nn {name: "", array: Float32Array(13620), itemSize: 2, count: 6810, normalized: false, …}
+__proto__: Object
+boundingBox: t
+max: t {x: 35.07761764526367, y: 163.84201049804688, z: 18.226076126098633, isVector3: true}
+min: t {x: -33.91740036010742, y: 3.632755994796753, z: -24.71567726135254, isVector3: true}
+isBox3: true
+__proto__: Object
+boundingSphere: t
+center: t {x: 0.580108642578125, y: 83.73738324642181, z: -3.244800567626953, isVector3: true}
+radius: 85.74064804280538
+__proto__: Object

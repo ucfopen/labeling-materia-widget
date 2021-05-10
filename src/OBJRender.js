@@ -12,182 +12,93 @@ const showWireframe = true;
 const shapeShadows = false;
 const sceneColor = 0xdddddd;
 
-const canvas = document.getElementById('board');
-
-let fov = 45;
-let aspect = canvas.offsetWidth / canvas.offsetHeight;  // the canvas default
-let near = 1;
-let far = 1000;
-
-const mousePosition = { x: 0, y: 0 };
-const sphereList = [];
-const clock = new THREE.Clock();
-
-// var object;
 const objScale = 1;
-// const manager = new THREE.LoadingManager(getMTLandOBJRender);
 const manager = new THREE.LoadingManager();
 manager.onProgress = function (item, loaded, total) { console.log(item, loaded, total); };
 const mtlLoader = new THREE.MTLLoader(manager);
 const objLoader = new THREE.OBJLoader(manager);
 
-function main() {
-	// canvas.offsetWidth = 605 & canvas.offsetHeight = 551
-	// window.innerWidth = 800 & window.innerHeight = 601
+const canvas = document.getElementById('board');
 
-	const scene = new THREE.Scene();
+const windowWidth = window.innerWidth; // data value = 800
+const windowHeight = window.innerHeight; // data value = 601
+const canvasWidth = canvas.offsetWidth; // data value = 605
+const canvasHeight = canvas.offsetHeight; // data value = 551
+
+let fov = 45;
+let aspect = windowWidth / windowHeight;  // the canvas default
+let near = 0.1;
+let far = 1000;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
+const renderer = new THREE.WebGLRenderer({ antialias: setAntialias });
+
+const raycaster = new THREE.Raycaster();
+const mousePosition = new THREE.Vector2();
+const onClickPosition = new THREE.Vector2();
+
+const radius = 10;
+let sphereColor = 0xffb84d;
+const myPointer = getSphere();
+
+main();
+render();
+
+function main() {
+	const cameraPole = new THREE.Object3D();
+	const controls = new THREE.OrbitControls(camera, renderer.domElement);
+	// HAVE TO INVERT THE left and right arrows.
+
+	const objCenter = new THREE.Vector3();
+	const objDimensions = new THREE.Box3();
+
+	scene.add(myPointer);
+
 	scene.name = 'myScene';
 	scene.background = new THREE.Color(sceneColor);
+	scene.add(getBox());
 
-	const renderer = new THREE.WebGLRenderer({ antialias: setAntialias, alpha: true });
-	renderer.name = 'myRenderer';
-	renderer.setPixelRatio(window.devicePixelRatio);
-	canvas.appendChild(renderer.domElement);
-
-	const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 	camera.name = 'myCamera';
 	camera.position.set(0, 0, 1);
 	camera.add(getDirectionalLight(1));
 
-	const controls = new THREE.OrbitControls(camera, renderer.domElement);
+	renderer.name = 'myRenderer';
+	renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setSize(canvasWidth, canvasHeight);
+	canvas.appendChild(renderer.domElement);
 
-	const cameraPole = new THREE.Object3D();
-	cameraPole.name = 'cameraPole';
+	cameraPole.name = 'myCameraPole';
 	cameraPole.add(camera);
 	scene.add(cameraPole);
 
-	const objDimensions = new THREE.Box3();
-	const objCenter = new THREE.Vector3();
+	getOBJRender(controls, objDimensions, objCenter);
 
-	var cube = getBox();
-	scene.add(cube);
+	window.addEventListener('resize', onWindowResize);
+	canvas.addEventListener('mousemove', onMouseMove);
 
-	getSphereList(scene);
-	getOBJRender(scene, camera, controls, objDimensions, objCenter);
-	onWindowResize(renderer);
-
-	var pickHelper = new PickHelper(scene, camera);
-	clearMousePosition();
-
-	function render(time) {
-		time *= 0.001;  // convert from minutes to seconds;
-
-		if (onWindowResize(renderer)) {
-			camera.aspect = window.innerWidth / window.innerHeight;
-			camera.updateProjectionMatrix();
-		}
-
-		pickHelper.pick(mousePosition, scene, camera, time);
-
-		controls.update(); // Movement of camera
-		renderer.render(scene, camera);
-		requestAnimationFrame(render);
-	} // End of render()
-
-	setTimeout(() => { requestAnimationFrame(render); }, 2000);
-
-	// Enable detection & placement of mouse.
-	window.addEventListener('mousemove', onMouseMove);
-	window.addEventListener('mouseout', clearMousePosition);
-	window.addEventListener('mouseleave', clearMousePosition);
-
-	// Enable touch to start & and to move
-	window.addEventListener('touchstart', (event) => {
-		// prevent the window from scrolling
-		event.preventDefault();
-		onMouseMove(event.touches[0]);
-	}, { passive: false });
-
-	window.addEventListener('touchmove', (event) => {
-		onMouseMove(event.touches[0]);
-	});
-
-	window.addEventListener('touchend', clearMousePosition);
 	printShotgun('scene', scene);
 }// END OF MAIN()
 
-function clearMousePosition() {
-	// Stop picking if the user doesn't move the mouse
-	mousePosition.x = -100000;
-	mousePosition.y = -100000;
-} // End of clearMousePosition()
+function getSphere() {
 
-function getMousePosition(event) {
+	let widthAndHeightSegments = 16;
 
-	var rect = canvas.getBoundingClientRect();
-	return {
-		x: (event.clientX - rect.left + (rect.left * 0.5)) * canvas.offsetWidth / rect.width,
-		y: (event.clientY - rect.top + (rect.top * 0.5)) * canvas.offsetHeight / rect.height,
-	};
-} // End of getMousePosition()
+	let mesh = new THREE.Mesh(
+		new THREE.SphereGeometry(radius, widthAndHeightSegments, widthAndHeightSegments),
+		new THREE.MeshBasicMaterial({ color: sphereColor, wireframe: false, }),
+	);
 
-function onMouseMove(event) {
-
-	var pos = getMousePosition(event);
-	mousePosition.x = (pos.x / window.innerWidth) * 2 - 1;
-	mousePosition.y = (pos.y / window.innerHeight) * -2 + 1;  // note we flip Y
-} // End of onMouseMove()
-
-function onWindowResize(renderer) {
-
-	var width = window.innerWidth / 1.32;
-	var height = window.innerHeight / 1.09;
-	var needResize = canvas.offsetWidth !== width || canvas.offsetHeight !== height;
-
-	if (needResize)
-		renderer.setSize(width, height, false);
-
-	return needResize;
-} // End of onWindowResize()
-
-class PickHelper {
-	constructor(scene, camera) {
-		this.raycaster = new THREE.Raycaster();
-		this.pickedObject = null;
-		this.pickedObjectSavedColor = 0;
-		this.scene = scene;
-		this.camera = camera;
-	}
-
-	pick(normalizedPosition, scene, camera, time) {
-		// restore the color if there is a picked object
-		if (this.pickedObject) {
-			this.pickedObject.material.emissive.setHex(this.pickedObjectSavedColor);
-			this.pickedObject = undefined;
-		}
-
-		// cast a ray through the frustum
-		this.raycaster.setFromCamera(normalizedPosition, camera);
-
-		var position = scene.children.length;
-		var intersectedObjects = this.raycaster.intersectObjects(scene.children[position - 1].children, true);
-
-		if (intersectedObjects.length) {
-
-			// pick the first object. It's the closest one
-			this.pickedObject = intersectedObjects[0].object;
-
-			// save its color
-			this.pickedObjectSavedColor = this.pickedObject.material.emissive.getHex();
-
-			// set its emissive color to flashing red/yellow
-			this.pickedObject.material.emissive.setHex((time * 1.5) % 2 > 1 ? 0xFFFF00 : 0xFF0000);
-		}
-	}
-} // End of CLASS PickHelper
-
-function getDirectionalLight(intensity) {
-	var light = new THREE.DirectionalLight(0xffffff, intensity);
-	light.name = 'directionalLight';
-	light.castShadow = true;
-	light.position.set(-1, 2, 4);
-	return light;
-} // End of getDirectionalLight()
+	mesh.name = 'myPointer';
+	mesh.castShadow = true;
+	mesh.position.set(0, 0, 0);
+	return mesh;
+}
 
 function getBox() {
-	var boxDimension = 10;
-	var boxColor = 0x00fff0;
-	var mesh = new THREE.Mesh(
+	let boxDimension = 10;
+	let boxColor = 0x00fff0;
+	let mesh = new THREE.Mesh(
 		new THREE.BoxGeometry(boxDimension, boxDimension, boxDimension),
 		new THREE.MeshPhongMaterial({ color: boxColor, wireframe: showWireframe, }),
 	);
@@ -196,39 +107,29 @@ function getBox() {
 	mesh.castShadow = true;
 	mesh.position.set(0, 0, 0);
 	return mesh;
-} // End of getBox()
+}
 
-function getSphereList(scene) {
+function getDirectionalLight(intensity) {
+	let light = new THREE.DirectionalLight(0xffffff, intensity);
+	light.name = 'directionalLight';
+	light.castShadow = true;
+	light.position.set(-1, 2, 4);
+	return light;
+}
 
-	for (let i = 0; i < 10; i++) {
-		var sphere = new THREE.Mesh(
-			new THREE.SphereGeometry(0.1, 32, 32),
-			new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: showWireframe }),
-		)
-		sphere.name = 'mySphere[' + i + ']';
-		scene.add(sphere);
-		sphereList.push(sphere);
-	}
-} // End of getSphereList()
-
-// Returns a console log of the model % loaded
 function onProgress(xhr) {
+	// Returns a console log of the model % loaded
 	console.log('Model downloaded: ' + Math.round((xhr.loaded / xhr.total * 100), 2) + '% loaded');
-} // End of onProgress
+}
 
-// Returns a console log ERROR when model doesn't load
 function onError(error) {
+	// Returns a console log ERROR when model doesn't load
 	console.log('ERROR: ' + error);
-} // End of onError()
-
-function printShotgun(str, data) {
-	console.log(str);
-	console.log(data);
-} // End of printShotgun()
+}
 
 function getMaterialComposition(type, color) {
-	var selectedMaterial;
-	var materialOptions = {
+	let selectedMaterial;
+	let materialOptions = {
 		color: color === undefined ? 0xffffff : color,
 	};
 
@@ -263,9 +164,9 @@ function getMaterialComposition(type, color) {
 	return selectedMaterial;
 } // End of getMaterialComposition()
 
-function getOBJRender(scene, camera, controls, objDimensions, objCenter) {
+function getOBJRender(controls, objDimensions, objCenter) {
 	// Textures shade can change based on the color level
-	var materialComposition = getMaterialComposition('physical', 0x0000ff);
+	let materialComposition = getMaterialComposition('physical', 0x0000ff);
 	objLoader.load(
 		objFileStr,
 		function (obj) {
@@ -284,7 +185,7 @@ function getOBJRender(scene, camera, controls, objDimensions, objCenter) {
 			objDimensions.getCenter(objCenter);
 
 			// Gets the obj HEIGHT
-			var totalHeight = objDimensions.getSize().y;
+			let totalHeight = objDimensions.getSize().y;
 
 			// Matches the HEIGHT of the camera with the center of the box
 			camera.position.y = objCenter.y;
@@ -301,7 +202,7 @@ function getOBJRender(scene, camera, controls, objDimensions, objCenter) {
 	);
 } // End of getOBJRender()
 
-function getMTLandOBJRender(scene, camera, controls, container, objDimensions, objCenter) {
+function getMTLandOBJRender(controls, container, objDimensions, objCenter) {
 	mtlLoader.load(
 		mtlFileStr, function (mtl) {
 			mtl.preload();
@@ -320,7 +221,7 @@ function getMTLandOBJRender(scene, camera, controls, container, objDimensions, o
 					objDimensions.getCenter(objCenter);
 
 					// Gets the obj height
-					var totalHeight = objDimensions.getSize().y;
+					let totalHeight = objDimensions.getSize().y;
 
 					// Matches the HEIGHT of the camera with the center of the box
 					camera.position.y = objCenter.y;
@@ -343,4 +244,72 @@ function getMTLandOBJRender(scene, camera, controls, container, objDimensions, o
 	);
 } // End of getMTLandOBJRender()
 
-main();
+function printShotgun(str, data) {
+	console.log(str);
+	console.log(data);
+}
+
+function render() {
+	requestAnimationFrame(render);
+	renderer.render(scene, camera);
+}
+
+function onWindowResize() {
+	camera.aspect = windowWidth / windowHeight;
+	camera.updateProjectionMatrix();
+
+	renderer.setSize(windowWidth, windowHeight);
+}
+
+function onMouseMove(event) {
+
+	event.preventDefault();
+
+	const array = getMousePosition(event.clientX, event.clientY); // array[x, y]
+	onClickPosition.fromArray(array); // object {x, y, isVector2: true}
+
+	let listLength = scene.children.length;
+	let intersectedObjects = scene.children[listLength - 1];
+	const intersects = getIntersects(onClickPosition, intersectedObjects.children);
+
+
+
+	// console.log('intersects.length = ' + intersects.length);
+
+	if (intersects.length > 0) {
+
+		let getHoverMesh = intersects[0].object.geometry;
+		let hoverMeshAttributes = getHoverMesh.attributes;
+		let hoverMeshCenter = getHoverMesh.boundingSphere.center;
+		myPointer.position.set(hoverMeshCenter['x'], hoverMeshCenter['y'], hoverMeshCenter['Z']);
+
+
+
+		console.log(getHoverMesh); // ==> OBTAIN THE MESH BEING INTERPOLATED.
+		console.log(hoverMeshAttributes);
+
+
+
+
+		// if (INTERSECTED != intersects[0].index) {
+
+		// }
+	}
+}
+
+function getMousePosition(x, y) {
+
+	const rect = canvas.getBoundingClientRect();
+	let xPosition = (x - rect.left) / rect.width;
+	let yPosition = (y - rect.top) / rect.height;
+
+	return [xPosition, yPosition];
+}
+
+function getIntersects(point, objects) {
+
+	mousePosition.set((point.x * 2) - 1, - (point.y * 2) + 1);
+	raycaster.setFromCamera(mousePosition, camera);
+
+	return raycaster.intersectObjects(objects);
+}
