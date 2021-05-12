@@ -26,7 +26,7 @@ const canvasWidth = canvas.offsetWidth; // data value = 605
 const canvasHeight = canvas.offsetHeight; // data value = 551
 
 let fov = 45;
-let aspect = windowWidth / windowHeight;  // the canvas default
+let aspect = canvasWidth / canvasHeight;  // the canvas default
 let near = 0.1;
 let far = 1000;
 
@@ -34,6 +34,9 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias });
 
+const controls = new THREE.OrbitControls(camera, renderer.domElement);
+const objDimensions = new THREE.Box3();
+const objCenter = new THREE.Vector3();
 const raycaster = new THREE.Raycaster();
 const mousePosition = new THREE.Vector2();
 const onClickPosition = new THREE.Vector2();
@@ -42,18 +45,14 @@ const radius = 10;
 let sphereColor = 0xffb84d;
 const myPointer = getSphere();
 
+const verticesCheckList = [];
+
 main();
 render();
 
 function main() {
-	const cameraPole = new THREE.Object3D();
-	const controls = new THREE.OrbitControls(camera, renderer.domElement);
+
 	// HAVE TO INVERT THE left and right arrows.
-
-	const objCenter = new THREE.Vector3();
-	const objDimensions = new THREE.Box3();
-
-	scene.add(myPointer);
 
 	scene.name = 'myScene';
 	scene.background = new THREE.Color(sceneColor);
@@ -68,16 +67,15 @@ function main() {
 	renderer.setSize(canvasWidth, canvasHeight);
 	canvas.appendChild(renderer.domElement);
 
-	cameraPole.name = 'myCameraPole';
-	cameraPole.add(camera);
-	scene.add(cameraPole);
+	scene.add(myPointer);
+	scene.add(camera);
 
-	getOBJRender(controls, objDimensions, objCenter);
+	getOBJRender(controls, objCenter);
 
 	window.addEventListener('resize', onWindowResize);
-	canvas.addEventListener('mousemove', onMouseMove);
-
-	printShotgun('scene', scene);
+	canvas.addEventListener('click', onMouseMove);
+	printShotgun('scene', scene.children);
+	console.log(myPointer)
 }// END OF MAIN()
 
 function getSphere() {
@@ -164,23 +162,18 @@ function getMaterialComposition(type, color) {
 	return selectedMaterial;
 } // End of getMaterialComposition()
 
-function getOBJRender(controls, objDimensions, objCenter) {
+function getOBJRender(controls) {
 	// Textures shade can change based on the color level
 	let materialComposition = getMaterialComposition('physical', 0x0000ff);
 	objLoader.load(
 		objFileStr,
 		function (obj) {
-			obj.scale.x = objScale;
-			obj.scale.y = objScale;
-			obj.scale.z = objScale;
+			// obj.children['0']['material']['wireframe'] = showWireframe;
 			obj.name = 'myRender';
 
-			obj.children['0']['material']['wireframe'] = showWireframe;
-
-			// Obtains the center point of obj
-			objCenter = new THREE.Vector3();
 			// Create invisible box with dimensions of obj.
 			objDimensions.setFromObject(obj);
+
 			// Get the center of the box
 			objDimensions.getCenter(objCenter);
 
@@ -189,12 +182,11 @@ function getOBJRender(controls, objDimensions, objCenter) {
 
 			// Matches the HEIGHT of the camera with the center of the box
 			camera.position.y = objCenter.y;
+
 			// Moves the camera in the positive
 			camera.position.z = totalHeight + (totalHeight * 0.5);
 			controls.target = objCenter;
 
-			// Produces ERROR object is not a instance of Object3D.
-			// container.add(objDimensions);
 			scene.add(obj);
 		},
 		onProgress,
@@ -265,37 +257,65 @@ function onMouseMove(event) {
 
 	event.preventDefault();
 
+	let listLength = scene.children.length;
+	let intersectedObjects = scene.children[listLength - 1];
+
 	const array = getMousePosition(event.clientX, event.clientY); // array[x, y]
 	onClickPosition.fromArray(array); // object {x, y, isVector2: true}
 
-	let listLength = scene.children.length;
-	let intersectedObjects = scene.children[listLength - 1];
 	const intersects = getIntersects(onClickPosition, intersectedObjects.children);
 
-
-
-	// console.log('intersects.length = ' + intersects.length);
-
 	if (intersects.length > 0) {
+		// console.log(objDimensions);
+		// console.log(objCenter);
+		// printShotgun('intersects[0]', intersects[0]);
 
-		let getHoverMesh = intersects[0].object.geometry;
-		let hoverMeshAttributes = getHoverMesh.attributes;
-		let hoverMeshCenter = getHoverMesh.boundingSphere.center;
-		myPointer.position.set(hoverMeshCenter['x'], hoverMeshCenter['y'], hoverMeshCenter['Z']);
+		let vertexToCheck = {
+			faceIndex: intersects[0].faceIndex,
+			point: intersects[0].point,
+			uuid: intersects[0].object.geometry.uuid,
+			uv: intersects[0].uv,
+		};
+		// console.log(vertexToCheck);
+
+		myPointer.position.set(vertexToCheck.point['x'], vertexToCheck.point['y'], vertexToCheck.point['Z']);
 
 
+		if (verticesCheckList.length === 0) {
+			verticesCheckList.push(vertexToCheck);
+		}
+		else {
+			vertexIDCheck(vertexToCheck);
+		}
 
-		console.log(getHoverMesh); // ==> OBTAIN THE MESH BEING INTERPOLATED.
-		console.log(hoverMeshAttributes);
-
-
-
-
-		// if (INTERSECTED != intersects[0].index) {
-
-		// }
 	}
-}
+} // End of onMouseMove
+
+function vertexIDCheck(vertex) {
+
+	let checkListLength = verticesCheckList.length;
+
+	verticesCheckList.forEach((element, index) => {
+		console.log(verticesCheckList)
+		// console.log(element);
+		// console.log('index ' + checkListLength);
+
+		if (element.uuid == verticesCheckList[index].uuid) {
+			console.log('im in');
+			console.log(myPointer.material.color);
+			myPointer.material.color.r = 1;
+			myPointer.material.color.g = 0;
+			myPointer.material.color.b = 0;
+		}
+		else {
+			myPointer.material.color.r = 0;
+			myPointer.material.color.g = 0.7215686274509804;
+			myPointer.material.color.b = 0.30196078431372547;
+		}
+
+	})
+
+} // End of vertexIDCheck
 
 function getMousePosition(x, y) {
 
