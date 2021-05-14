@@ -71,7 +71,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/vroom/Textures/Car.Brake-Disk.BMP.png
+map_Kd _models3D/vroom/Textures/Car.Brake-Disk.BMP.png
 
 newmtl BrakeDisc
 Ns 96.078431
@@ -82,7 +82,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/vroom/Textures/Car.Brake-Disk.BMP.png
+map_Kd _models3D/vroom/Textures/Car.Brake-Disk.BMP.png
 
 newmtl CarbonFibre
 Ns 96.078431
@@ -93,7 +93,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/vroom/Renders/Audi_R8_2017.2.png
+map_Kd _models3D/vroom/Renders/Audi_R8_2017.2.png
 
 newmtl Centre(Black)
 Ns 96.078431
@@ -104,7 +104,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/vroom/Renders/Audi_R8_2017.2.png
+map_Kd _models3D/vroom/Renders/Audi_R8_2017.2.png
 
 newmtl FarLight
 Ns 96.078431
@@ -135,7 +135,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/vroom/Renders/Audi_R8_2017.2.png
+map_Kd _models3D/vroom/Renders/Audi_R8_2017.2.png
 
 newmtl GlassFrontHighlight
 Ns 96.078431
@@ -163,7 +163,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/vroom/Renders/Audi_R8_2017.9black.png
+map_Kd _models3D/vroom/Renders/Audi_R8_2017.9black.png
 
 newmtl InteriorFrontHighlight
 Ns 96.078431
@@ -245,7 +245,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/vroom/Textures/NumernSchildAudiR8.png
+map_Kd _models3D/vroom/Textures/NumernSchildAudiR8.png
 
 newmtl Ring(Light)
 Ns 96.078431
@@ -266,7 +266,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/vroom/Renders/Audi_R8_2017.9black.png
+map_Kd _models3D/vroom/Renders/Audi_R8_2017.9black.png
 
 newmtl Tyre
 Ns 96.078431
@@ -277,7 +277,7 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/vroom/Textures/Tyre.png
+map_Kd _models3D/vroom/Textures/Tyre.png
 
 newmtl WheelsChrome
 Ns 96.078431
