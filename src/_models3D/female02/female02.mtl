@@ -7,7 +7,7 @@ Ks 0.165000 0.165000 0.165000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/obj/female02/01_-_Default1noCulling.JPG
+map_Kd _models3D/female02/01_-_Default1noCulling.JPG
 
 
 newmtl _02_-_Default1noCulli__02_-_Default1noCulli
@@ -18,7 +18,7 @@ Ks 0.165000 0.165000 0.165000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/obj/female02/02_-_Default1noCulling.JPG
+map_Kd _models3D/female02/02_-_Default1noCulling.JPG
 
 newmtl _01_-_Default1noCulli__01_-_Default1noCulli
 Ns 154.901961
@@ -28,7 +28,7 @@ Ks 0.165000 0.165000 0.165000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/obj/female02/01_-_Default1noCulling.JPG
+map_Kd _models3D/female02/01_-_Default1noCulling.JPG
 
 
 newmtl FrontColorNoCullingID__03_-_Default1noCulli
@@ -39,7 +39,7 @@ Ks 0.165000 0.165000 0.165000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/obj/female02/03_-_Default1noCulling.JPG
+map_Kd _models3D/female02/03_-_Default1noCulling.JPG
 
 
 newmtl _03_-_Default1noCulli__03_-_Default1noCulli
@@ -50,7 +50,7 @@ Ks 0.165000 0.165000 0.165000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/obj/female02/03_-_Default1noCulling.JPG
+map_Kd _models3D/female02/03_-_Default1noCulling.JPG
 
 
 newmtl FrontColorNoCullingID__02_-_Default1noCulli
@@ -61,6 +61,6 @@ Ks 0.165000 0.165000 0.165000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd /assets/obj/female02/02_-_Default1noCulling.JPG
+map_Kd _models3D/female02/02_-_Default1noCulling.JPG
 
 

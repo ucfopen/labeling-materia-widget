@@ -1,4 +1,4 @@
-// const mtlFileStr = '_models3D/male02/male02.mtl';
+const mtlFileStr = '_models3D/male02/male02.mtl';
 const objFileStr = '_models3D/male02/male02.obj';
 // const mtlFileStr = '_models3D/female02/female02.mtl';
 // const objFileStr = '_models3D/female02/female02.obj';
@@ -9,19 +9,9 @@ const objFileStr = '_models3D/male02/male02.obj';
 
 const setAntialias = false;
 const showWireframe = true;
-const shapeShadows = false;
 const sceneColor = 0xdddddd;
 
-const objScale = 1;
-const manager = new THREE.LoadingManager();
-manager.onProgress = function (item, loaded, total) { console.log(item, loaded, total); };
-const mtlLoader = new THREE.MTLLoader(manager);
-const objLoader = new THREE.OBJLoader(manager);
-
 const canvas = document.getElementById('board');
-
-const windowWidth = window.innerWidth; // data value = 800
-const windowHeight = window.innerHeight; // data value = 601
 const canvasWidth = canvas.offsetWidth; // data value = 605
 const canvasHeight = canvas.offsetHeight; // data value = 551
 
@@ -41,10 +31,9 @@ const raycaster = new THREE.Raycaster();
 const mousePosition = new THREE.Vector2();
 const onClickPosition = new THREE.Vector2();
 
-const radius = 10;
 let sphereColor = 0xffb84d;
+const radius = 10;
 const myPointer = getSphere();
-
 const verticesCheckList = [];
 
 main();
@@ -52,11 +41,8 @@ render();
 
 function main() {
 
-	// HAVE TO INVERT THE left and right arrows.
-
 	scene.name = 'myScene';
 	scene.background = new THREE.Color(sceneColor);
-	scene.add(getBox());
 
 	camera.name = 'myCamera';
 	camera.position.set(0, 0, 1);
@@ -70,7 +56,8 @@ function main() {
 	scene.add(myPointer);
 	scene.add(camera);
 
-	getOBJRender(controls);
+	// getOBJRender(controls); // use if obj provided
+	getMTLandOBJRender(controls); // use if mtl and obj provided
 
 	window.addEventListener('resize', onWindowResize);
 	canvas.addEventListener('click', onMouseClick);
@@ -125,49 +112,44 @@ function onError(error) {
 	console.log('ERROR: ' + error);
 }
 
-function getMaterialComposition(type, color) {
-	let selectedMaterial;
-	let materialOptions = {
-		color: color === undefined ? 0xffffff : color,
-	};
-
-	switch (type) {
-		// Lower on the list equals more GPU demanding!
-		// Keep in mind if ever doing mobiles.
-		case 'basic':
-			selectedMaterial = new THREE.MeshBasicMaterial(materialOptions);
-			break;
-		case 'lambert':
-			// computes lighting only at vertices
-			selectedMaterial = new THREE.MeshLambertMaterial(materialOptions);
-			break;
-		case 'phong':
-			// computes lighting at every pixel
-			// texture focus on shininess
-			selectedMaterial = new THREE.MeshPhongMaterial(materialOptions);
-			break;
-		case 'standard':
-			// textures focus on metalness & roughness
-			selectedMaterial = new THREE.MeshStandardMaterial(materialOptions);
-			break;
-		case 'physical':
-			// textures focus on clearcoat & clearCoatRoughness
-			selectedMaterial = new THREE.MeshPhysicalMaterial(materialOptions);
-			break;
-		default:
-			selectedMaterial = new THREE.MeshBasicMaterial(materialOptions);
-			break;
-	}
-
-	return selectedMaterial;
-} // End of getMaterialComposition()
-
 function getOBJRender(controls) {
-	// Textures shade can change based on the color level
-	objLoader.load(
-		objFileStr,
-		function (obj) {
-			obj.children['0']['material']['wireframe'] = showWireframe;
+
+	let objLoader = new THREE.OBJLoader();
+	objLoader.load(objFileStr, (obj) => {
+		obj.name = 'myRender';
+
+		// Create invisible box with dimensions of obj.
+		objDimensions.setFromObject(obj);
+
+		// Get the center of the box
+		objDimensions.getCenter(objCenter);
+
+		// Gets the obj HEIGHT
+		let totalHeight = objDimensions.getSize().y;
+
+		// Matches the HEIGHT of the camera with the center of the box
+		camera.position.y = objCenter.y;
+
+		// Moves the camera in the positive
+		camera.position.z = totalHeight + (totalHeight * 0.5);
+		controls.target = objCenter;
+
+		scene.add(obj);
+	},
+		onProgress,
+		onError
+	);
+} // End of getOBJRender()
+
+function getMTLandOBJRender(controls) {
+
+	let mtlLoader = new THREE.MTLLoader();
+	mtlLoader.load(mtlFileStr, (mtl) => {
+		mtl.preload();
+
+		let objLoader = new THREE.OBJLoader();
+		objLoader.setMaterials(mtl);
+		objLoader.load(objFileStr, (obj) => {
 			obj.name = 'myRender';
 
 			// Create invisible box with dimensions of obj.
@@ -188,51 +170,10 @@ function getOBJRender(controls) {
 
 			scene.add(obj);
 		},
-		onProgress,
-		onError
-	);
-} // End of getOBJRender()
-
-function getMTLandOBJRender(controls, container, objDimensions, objCenter) {
-	mtlLoader.load(
-		mtlFileStr, function (mtl) {
-			mtl.preload();
-			objLoader.load(
-				objFileStr,
-				function (obj) {
-					obj.scale.x = objScale;
-					obj.scale.y = objScale;
-					obj.scale.z = objScale;
-
-					// Obtains the center point of obj
-					objCenter = new THREE.Vector3();
-					// Create invisible box with dimensions of obj.
-					objDimensions.setFromObject(obj);
-					// Get the center of the box
-					objDimensions.getCenter(objCenter);
-
-					// Gets the obj height
-					let totalHeight = objDimensions.getSize().y;
-
-					// Matches the HEIGHT of the camera with the center of the box
-					camera.position.y = objCenter.y;
-					// Moves the camera in the positive
-					camera.position.z = totalHeight + (totalHeight * 0.5);
-					controls.target = objCenter;
-
-					// Makes the render object a child of the container
-					container.add(obj);
-
-					// Produces ERROR object is not a instance of Object3D.
-					// container.add(objDimensions);
-					scene.add(container);
-				},
-				onProgress,
-				onError
-			);
-			objLoader.setMaterials(mtl);
-		}
-	);
+			onProgress,
+			onError
+		);
+	});
 } // End of getMTLandOBJRender()
 
 function printShotgun(str, data) {
@@ -246,10 +187,10 @@ function render() {
 }
 
 function onWindowResize() {
-	camera.aspect = windowWidth / windowHeight;
+	camera.aspect = window.innerWidth / window.innerHeight;
 	camera.updateProjectionMatrix();
 
-	renderer.setSize(windowWidth, windowHeight);
+	renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
 function onMouseClick(event) {
