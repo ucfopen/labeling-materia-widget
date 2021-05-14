@@ -1,4 +1,4 @@
-// const mtlFileStr = '_models3D/male02/male02.mtl';
+const mtlFileStr = '_models3D/male02/male02.mtl';
 const objFileStr = '_models3D/male02/male02.obj';
 // const mtlFileStr = '_models3D/female02/female02.mtl';
 // const objFileStr = '_models3D/female02/female02.obj';
@@ -70,10 +70,11 @@ function main() {
 	scene.add(myPointer);
 	scene.add(camera);
 
-	getOBJRender(controls, objCenter);
+	getOBJRender(controls)
+	// getMTLandOBJRender(controls);
 
 	window.addEventListener('resize', onWindowResize);
-	canvas.addEventListener('click', onMouseMove);
+	canvas.addEventListener('click', onMouseClick);
 	printShotgun('scene', scene.children);
 	console.log(myPointer)
 }// END OF MAIN()
@@ -168,7 +169,6 @@ function getOBJRender(controls) {
 	objLoader.load(
 		objFileStr,
 		function (obj) {
-			// obj.children['0']['material']['wireframe'] = showWireframe;
 			obj.name = 'myRender';
 
 			// Create invisible box with dimensions of obj.
@@ -194,47 +194,42 @@ function getOBJRender(controls) {
 	);
 } // End of getOBJRender()
 
-function getMTLandOBJRender(controls, container, objDimensions, objCenter) {
-	mtlLoader.load(
-		mtlFileStr, function (mtl) {
-			mtl.preload();
-			objLoader.load(
-				objFileStr,
-				function (obj) {
-					obj.scale.x = objScale;
-					obj.scale.y = objScale;
-					obj.scale.z = objScale;
+// function getMTLandOBJRender(controls) {
+// 	const mtlLoader = new THREE.MTLLoader();
+// 	mtlLoader.load(
+// 		mtlFileStr, (mtl) => {
+// 			mtl.preload();
 
-					// Obtains the center point of obj
-					objCenter = new THREE.Vector3();
-					// Create invisible box with dimensions of obj.
-					objDimensions.setFromObject(obj);
-					// Get the center of the box
-					objDimensions.getCenter(objCenter);
+// 			const objLoader = new THREE.OBJLoader();
+// 			objLoader.setMaterials(mlt);
+// 			objLoader.load(
+// 				objFileStr, (obj) => {
 
-					// Gets the obj height
-					let totalHeight = objDimensions.getSize().y;
+// 					obj.name = 'myRender';
 
-					// Matches the HEIGHT of the camera with the center of the box
-					camera.position.y = objCenter.y;
-					// Moves the camera in the positive
-					camera.position.z = totalHeight + (totalHeight * 0.5);
-					controls.target = objCenter;
+// 					// Create invisible box with dimensions of obj.
+// 					objDimensions.setFromObject(obj);
 
-					// Makes the render object a child of the container
-					container.add(obj);
+// 					// Get the center of the box
+// 					objDimensions.getCenter(objCenter);
 
-					// Produces ERROR object is not a instance of Object3D.
-					// container.add(objDimensions);
-					scene.add(container);
-				},
-				onProgress,
-				onError
-			);
-			objLoader.setMaterials(mtl);
-		}
-	);
-} // End of getMTLandOBJRender()
+// 					// Gets the obj HEIGHT
+// 					let totalHeight = objDimensions.getSize().y;
+
+// 					// Matches the HEIGHT of the camera with the center of the box
+// 					camera.position.y = objCenter.y;
+
+// 					// Moves the camera in the positive
+// 					camera.position.z = totalHeight + (totalHeight * 0.5);
+// 					controls.target = objCenter;
+
+// 					scene.add(obj);
+// 				},
+// 				// onProgress,
+// 				// onError
+// 			);
+// 		});
+// } // End of getMTLandOBJRender()
 
 function printShotgun(str, data) {
 	console.log(str);
@@ -253,7 +248,7 @@ function onWindowResize() {
 	renderer.setSize(windowWidth, windowHeight);
 }
 
-function onMouseMove(event) {
+function onMouseClick(event) {
 
 	event.preventDefault();
 
@@ -266,55 +261,35 @@ function onMouseMove(event) {
 	const intersects = getIntersects(onClickPosition, intersectedObjects.children);
 
 	if (intersects.length > 0) {
-		// console.log(objDimensions);
-		// console.log(objCenter);
-		// printShotgun('intersects[0]', intersects[0]);
-
 		let vertexToCheck = {
 			faceIndex: intersects[0].faceIndex,
 			point: intersects[0].point,
-			uuid: intersects[0].object.geometry.uuid,
 			uv: intersects[0].uv,
 		};
-		// console.log(vertexToCheck);
 
 		myPointer.position.set(vertexToCheck.point['x'], vertexToCheck.point['y'], vertexToCheck.point['Z']);
 
-
-		if (verticesCheckList.length === 0) {
-			verticesCheckList.push(vertexToCheck);
-		}
-		else {
-			vertexIDCheck(vertexToCheck);
-		}
-
+		verticesCheckList.length == 0 ? verticesCheckList.push(vertexToCheck) : vertexIDCheck(vertexToCheck);
 	}
-} // End of onMouseMove
+} // End of onMouseClick()
 
 function vertexIDCheck(vertex) {
 
-	let checkListLength = verticesCheckList.length;
+	verticesCheckList.forEach(element => {
 
-	verticesCheckList.forEach((element, index) => {
-		console.log(verticesCheckList)
-		// console.log(element);
-		// console.log('index ' + checkListLength);
+		// printShotgun('vertex', vertex);
+		// printShotgun('element', element);
 
-		if (element.uuid == verticesCheckList[index].uuid) {
-			console.log('im in');
-			console.log(myPointer.material.color);
-			myPointer.material.color.r = 1;
-			myPointer.material.color.g = 0;
-			myPointer.material.color.b = 0;
-		}
-		else {
-			myPointer.material.color.r = 0;
-			myPointer.material.color.g = 0.7215686274509804;
-			myPointer.material.color.b = 0.30196078431372547;
-		}
-
+		JSON.stringify(vertex) === JSON.stringify(element)
+			? myPointer.material.color.set(0xff0000)
+			: myPointer.material.color.set(0x0000ff);
 	})
 
+	// REMEMBER TO ADD A APPROXIMATION TO THE CHECKING OF THE VERTEX.FACEINDEX
+	// IT'S DIFFICULT TO CLICK ON THE SAME SPECIFIC VERTEX.
+	// console.log(vertex.faceIndex < 100 && vertex.faceIndex > 50);
+
+	// printShotgun('----verticesCheckList', verticesCheckList);
 } // End of vertexIDCheck
 
 function getMousePosition(x, y) {

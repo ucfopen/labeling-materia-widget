@@ -31,7 +31,7 @@ const entries = {
 		path.join(__dirname, 'src', 'player.html'),
 	],
 	'OBJRender.js': [
-		path.join(__dirname, 'src/lib', 'three.min.js'),
+		path.join(__dirname, 'src/lib', 'three.js'),
 		path.join(__dirname, 'src/lib', 'MTLLoader.js'),
 		path.join(__dirname, 'src/lib', 'OBJLoader.js'),
 		path.join(__dirname, 'src/lib', 'OrbitControls.js'),
