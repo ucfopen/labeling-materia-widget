@@ -1,4 +1,4 @@
-const mtlFileStr = '_models3D/male02/male02.mtl';
+// const mtlFileStr = '_models3D/male02/male02.mtl';
 const objFileStr = '_models3D/male02/male02.obj';
 // const mtlFileStr = '_models3D/female02/female02.mtl';
 // const objFileStr = '_models3D/female02/female02.obj';
@@ -70,8 +70,7 @@ function main() {
 	scene.add(myPointer);
 	scene.add(camera);
 
-	getOBJRender(controls)
-	// getMTLandOBJRender(controls);
+	getOBJRender(controls);
 
 	window.addEventListener('resize', onWindowResize);
 	canvas.addEventListener('click', onMouseClick);
@@ -165,10 +164,10 @@ function getMaterialComposition(type, color) {
 
 function getOBJRender(controls) {
 	// Textures shade can change based on the color level
-	let materialComposition = getMaterialComposition('physical', 0x0000ff);
 	objLoader.load(
 		objFileStr,
 		function (obj) {
+			obj.children['0']['material']['wireframe'] = showWireframe;
 			obj.name = 'myRender';
 
 			// Create invisible box with dimensions of obj.
@@ -194,42 +193,47 @@ function getOBJRender(controls) {
 	);
 } // End of getOBJRender()
 
-// function getMTLandOBJRender(controls) {
-// 	const mtlLoader = new THREE.MTLLoader();
-// 	mtlLoader.load(
-// 		mtlFileStr, (mtl) => {
-// 			mtl.preload();
+function getMTLandOBJRender(controls, container, objDimensions, objCenter) {
+	mtlLoader.load(
+		mtlFileStr, function (mtl) {
+			mtl.preload();
+			objLoader.load(
+				objFileStr,
+				function (obj) {
+					obj.scale.x = objScale;
+					obj.scale.y = objScale;
+					obj.scale.z = objScale;
 
-// 			const objLoader = new THREE.OBJLoader();
-// 			objLoader.setMaterials(mlt);
-// 			objLoader.load(
-// 				objFileStr, (obj) => {
+					// Obtains the center point of obj
+					objCenter = new THREE.Vector3();
+					// Create invisible box with dimensions of obj.
+					objDimensions.setFromObject(obj);
+					// Get the center of the box
+					objDimensions.getCenter(objCenter);
 
-// 					obj.name = 'myRender';
+					// Gets the obj height
+					let totalHeight = objDimensions.getSize().y;
 
-// 					// Create invisible box with dimensions of obj.
-// 					objDimensions.setFromObject(obj);
+					// Matches the HEIGHT of the camera with the center of the box
+					camera.position.y = objCenter.y;
+					// Moves the camera in the positive
+					camera.position.z = totalHeight + (totalHeight * 0.5);
+					controls.target = objCenter;
 
-// 					// Get the center of the box
-// 					objDimensions.getCenter(objCenter);
+					// Makes the render object a child of the container
+					container.add(obj);
 
-// 					// Gets the obj HEIGHT
-// 					let totalHeight = objDimensions.getSize().y;
-
-// 					// Matches the HEIGHT of the camera with the center of the box
-// 					camera.position.y = objCenter.y;
-
-// 					// Moves the camera in the positive
-// 					camera.position.z = totalHeight + (totalHeight * 0.5);
-// 					controls.target = objCenter;
-
-// 					scene.add(obj);
-// 				},
-// 				// onProgress,
-// 				// onError
-// 			);
-// 		});
-// } // End of getMTLandOBJRender()
+					// Produces ERROR object is not a instance of Object3D.
+					// container.add(objDimensions);
+					scene.add(container);
+				},
+				onProgress,
+				onError
+			);
+			objLoader.setMaterials(mtl);
+		}
+	);
+} // End of getMTLandOBJRender()
 
 function printShotgun(str, data) {
 	console.log(str);
@@ -267,7 +271,9 @@ function onMouseClick(event) {
 			uv: intersects[0].uv,
 		};
 
-		myPointer.position.set(vertexToCheck.point['x'], vertexToCheck.point['y'], vertexToCheck.point['Z']);
+		myPointer.position.x = vertexToCheck.point['x'];
+		myPointer.position.y = vertexToCheck.point['y'];
+		myPointer.position.z = vertexToCheck.point['z'];
 
 		verticesCheckList.length == 0 ? verticesCheckList.push(vertexToCheck) : vertexIDCheck(vertexToCheck);
 	}
