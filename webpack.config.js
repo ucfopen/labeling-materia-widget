@@ -26,17 +26,15 @@ const entries = {
 	],
 	'player.js': [
 		path.join(__dirname, 'src', 'draw.js'),
-		// path.join(__dirname, 'src', 'draw3D.js'),
 		path.join(__dirname, 'src', 'player.js'),
 		path.join(__dirname, 'src', 'player.html'),
 	],
-	'OBJRender.js': [
-		path.join(__dirname, 'src/lib', 'three.js'),
-		path.join(__dirname, 'src/lib', 'MTLLoader.js'),
-		path.join(__dirname, 'src/lib', 'OBJLoader.js'),
-		path.join(__dirname, 'src/lib', 'OrbitControls.js'),
-		path.join(__dirname, 'src/lib', 'dat.gui.min.js'),
-		path.join(__dirname, 'src', 'OBJRender.js'),
+	'core3D.js': [
+		path.join(__dirname, 'src', 'lib', 'three.js'),
+		path.join(__dirname, 'src', 'lib', 'MTLLoader.js'),
+		path.join(__dirname, 'src', 'lib', 'OBJLoader.js'),
+		path.join(__dirname, 'src', 'lib', 'OrbitControls.js'),
+		path.join(__dirname, 'src', 'core3D.js'),
 	],
 	'creator.css': [
 		path.join(__dirname, 'src', 'creator.html'),
