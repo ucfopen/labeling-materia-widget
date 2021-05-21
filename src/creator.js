@@ -29,14 +29,22 @@ Namespace('Labeling').Creator = (function () {
 	const _defaultLabel = '[label title]';
 
 	const initNewWidget = function (widget, baseUrl) {
-		$('#image').hide();
-		$('#chooseimage').show();
+		// $('#image').hide();
+		document.querySelector('#image').hidden = true;
+
+		// $('#chooseimage').show();
+		document.querySelector('#chooseimage').hidden = false;
+
 		// prompt the user for a widget title
-		$('#titlebox').addClass('show');
-		$('#backgroundcover').addClass('show');
+		// $('#titlebox').addClass('show');
+		document.querySelector('#titlebox').classList.add("show");
+
+		// $('#backgroundcover').addClass('show');
+		document.querySelector('#backgroundcover').classList.add("show");
 
 		// hide the canvas so we can interact with it
-		$('#canvas').css('display', 'none');
+		// $('#canvas').css('display', 'none');
+		document.querySelector('#canvas').style.display = 'none';
 
 		_gettingStarted = true;
 
@@ -46,9 +54,17 @@ Namespace('Labeling').Creator = (function () {
 		_qset.options.backgroundTheme = 'themeCorkBoard';
 		_qset.options.backgroundColor = 2565927;
 
+		creatorVer();
+
 		// set up the creator, shared between new and existing
 		return _setupCreator();
 	};
+
+	function creatorVer() {
+		document.querySelector('#ver2D').addEventListener('click', event => {
+			document.querySelector('#pickVer').remove();
+		});
+	}
 
 	var _setupCreator = function () {
 		// set background and header title
@@ -61,16 +77,26 @@ Namespace('Labeling').Creator = (function () {
 		_img = new Image();
 
 		// set up event handlers
-		$('.graph').click(function () {
+		// $('.graph').click(function () {
+		// 	_qset.options.backgroundTheme = 'themeGraphPaper';
+		// 	return _setBackground();
+		// });
+		document.querySelector('.graph').addEventListener('click', event => {
 			_qset.options.backgroundTheme = 'themeGraphPaper';
 			return _setBackground();
 		});
 
-		$('.cork').click(function () {
+
+		// $('.cork').click(function () {
+		// 	_qset.options.backgroundTheme = 'themeCorkBoard';
+		// 	return _setBackground();
+		// });
+		document.querySelector('.cork').addEventListener('click', event => {
 			_qset.options.backgroundTheme = 'themeCorkBoard';
 			return _setBackground();
 		});
 
+		// Color Wheel
 		$('.backgroundtile.color').click(function () {
 			if (_qset.options.backgroundTheme !== 'themeSolidColor') {
 				_qset.options.backgroundTheme = 'themeSolidColor';
@@ -89,6 +115,13 @@ Namespace('Labeling').Creator = (function () {
 			});
 			return false;
 		});
+
+		// document.querySelector('.backgroundtile.color').addEventListener('click', event => {
+		// 	if (_qset.options.backgroundTheme !== 'themeSolidColor') {
+		// 		_qset.options.backgroundTheme = 'themeSolidColor';
+		// 		_setBackground();
+		// 	}
+		// });
 
 		$('#opaque-toggle').change(function () {
 			_anchorOpacity = ' ';
@@ -187,6 +220,7 @@ Namespace('Labeling').Creator = (function () {
 			chooseText: 'Done'
 		});
 	};
+
 
 	var _showMiniTitleEditor = function () {
 		$('#titlechanger').addClass('show');

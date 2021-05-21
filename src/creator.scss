@@ -510,6 +510,53 @@ h1 {
 	}
 }
 
+#pickVer {
+	text-align: center;
+	z-index: 100000;
+	opacity: 1;
+}
+
+.verBtn {
+	font-family: Lato, arial, serif;
+	padding: 7px 13px 8px 13px;
+
+	font-weight: 700;
+	color:#694d28;
+	-moz-box-shadow: 1px 2px 4px #888;
+	-webkit-box-shadow: 1px 2px 4px #888;
+	box-shadow: 1px 2px 4px #888;
+	font-size: 15px;
+	cursor:pointer;
+	display:inline-block;
+
+	color: #dddddd;
+	background-color: #70bd34;
+}
+
+.orange
+{
+	background:#ff8f11;
+	background-image: -webkit-linear-gradient(top, #ffbc78, #ff8f11);
+	background-image: -o-linear-gradient(top, #ffbc78, #ff8f11);
+	background-image: -moz-linear-gradient(top, #ffbc78, #ff8f11);
+	background-image: -ms-linear-gradient(top, #ffbc78, #ff8f11);
+	border:#ff8f11 1px solid;
+	color: #694d28;
+}
+.orange:hover
+{
+	background:#ffce8c;
+	background-image: -webkit-linear-gradient(top, #ff8f11, #ffbc78);
+	background-image: -o-linear-gradient(top, #ff8f11, #ffbc78);
+	background-image: -moz-linear-gradient(top, #ff8f11, #ffbc78);
+	background-image: -ms-linear-gradient(top, #ff8f11, #ffbc78);
+	text-decoration:none;
+}
+
+.spacing {
+	margin: 10px 20px;
+}
+
 #btnMoveResizeCancel {
 	background: #fff;
 	color: #000;
