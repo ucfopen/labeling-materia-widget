@@ -43,45 +43,9 @@ Namespace('Labeling').Draw = ((() => // draw a stylized line connecting to a ter
 
         ctx.lineTo(x2 + labelOffsetX + lineCurveOffsetX, y2 + lineCurveOffsetY);
         ctx.lineTo(x2 + labelOffsetX + lineResultX, y2 + labelOffsetY);
-        // ctx.quadraticCurveTo(
-        //     x2 + labelOffsetX + lineCurveOffsetX + 40,
-        //     y2 + lineCurveOffsetY + 32,
-        //     x2 + labelOffsetX + lineResultX + 40,
-        //     y2 + labelOffsetY + 32
-        // );
-
-        // ctx.lineTo(x2 + labelOffsetX + lineResultX + 60, y2 + labelOffsetY + 32);
-        // ctx.lineTo(x2 + labelOffsetX + lineResultX + 20, y2 + labelOffsetY);
-        // ctx.lineTo(x2 + labelOffsetX + lineResultX - 24, y2 + labelOffsetY + 32);
-        // ctx.lineTo(x2 + labelOffsetX + lineResultX, y2 + labelOffsetY + 32);
-        // ctx.quadraticCurveTo(
-        //     x2 + labelOffsetX + lineCurveOffsetX + 40,
-        //     y2 + lineCurveOffsetY,
-        //     x1,
-        //     y1
-        // );
-        // ctx.quadraticCurveTo(
-        //     x2 + labelOffsetX + lineCurveOffsetX,
-        //     y2 + lineCurveOffsetY,
-        //     x1 - 5,
-        //     y1
-        // );
-
-
-        // ctx.moveTo(x1, y1);
-        // ctx.quadraticCurveTo(
-        //     x2 + labelOffsetX + lineCurveOffsetX + 10,
-        //     y2 + lineCurveOffsetY,
-        //     x2 + labelOffsetX + lineResultX + 10,
-        //     y2 + labelOffsetY
-        // );
-
-        // ctx.fillStyle = 'white';
-        // ctx.fill();
         ctx.lineWidth = width;
         ctx.strokeStyle = color;
         ctx.lineCap = 'round';
         return ctx.stroke();
     }
 })))();
-

@@ -26,24 +26,21 @@ Namespace('Labeling').Creator = (function () {
 	// track if the user is "getting started" or well on their way
 	let _gettingStarted = false;
 
+	let flag3D = false;
+	console.log(flag3D);
+
 	const _defaultLabel = '[label title]';
 
-	const initNewWidget = function (widget, baseUrl) {
-		// $('#image').hide();
-		document.querySelector('#image').hidden = true;
+	const initNewWidget = function () {
 
-		// $('#chooseimage').show();
-		document.querySelector('#chooseimage').hidden = false;
+		document.querySelector('#image').display = 'none';
+		document.querySelector('#chooseimage').display = 'block';
 
 		// prompt the user for a widget title
-		// $('#titlebox').addClass('show');
 		document.querySelector('#titlebox').classList.add("show");
-
-		// $('#backgroundcover').addClass('show');
 		document.querySelector('#backgroundcover').classList.add("show");
 
 		// hide the canvas so we can interact with it
-		// $('#canvas').css('display', 'none');
 		document.querySelector('#canvas').style.display = 'none';
 
 		_gettingStarted = true;
@@ -54,14 +51,15 @@ Namespace('Labeling').Creator = (function () {
 		_qset.options.backgroundTheme = 'themeCorkBoard';
 		_qset.options.backgroundColor = 2565927;
 
-		creatorVer();
+		// creatorVer();
 
 		// set up the creator, shared between new and existing
-		return _setupCreator();
+		// return _setupCreator();
+		return (flag3D ? _setupCreator3D() : _setupCreator());
 	};
 
-	function creatorVer() {
-		document.querySelector('#ver2D').addEventListener('click', event => {
+	function chooseVer() {
+		document.querySelector('#ver2D').addEventListener('click', () => {
 			document.querySelector('#pickVer').remove();
 		});
 	}
@@ -77,26 +75,17 @@ Namespace('Labeling').Creator = (function () {
 		_img = new Image();
 
 		// set up event handlers
-		// $('.graph').click(function () {
-		// 	_qset.options.backgroundTheme = 'themeGraphPaper';
-		// 	return _setBackground();
-		// });
-		document.querySelector('.graph').addEventListener('click', event => {
+		document.querySelector('.graph').addEventListener('click', () => {
 			_qset.options.backgroundTheme = 'themeGraphPaper';
 			return _setBackground();
 		});
 
-
-		// $('.cork').click(function () {
-		// 	_qset.options.backgroundTheme = 'themeCorkBoard';
-		// 	return _setBackground();
-		// });
-		document.querySelector('.cork').addEventListener('click', event => {
+		document.querySelector('.cork').addEventListener('click', () => {
 			_qset.options.backgroundTheme = 'themeCorkBoard';
 			return _setBackground();
 		});
 
-		// Color Wheel
+		// Color Wheel ==> custom jQuery
 		$('.backgroundtile.color').click(function () {
 			if (_qset.options.backgroundTheme !== 'themeSolidColor') {
 				_qset.options.backgroundTheme = 'themeSolidColor';
@@ -115,13 +104,6 @@ Namespace('Labeling').Creator = (function () {
 			});
 			return false;
 		});
-
-		// document.querySelector('.backgroundtile.color').addEventListener('click', event => {
-		// 	if (_qset.options.backgroundTheme !== 'themeSolidColor') {
-		// 		_qset.options.backgroundTheme = 'themeSolidColor';
-		// 		_setBackground();
-		// 	}
-		// });
 
 		$('#opaque-toggle').change(function () {
 			_anchorOpacity = ' ';
@@ -165,50 +147,73 @@ Namespace('Labeling').Creator = (function () {
 			})();
 		});
 
-		$('#btnMoveResize').click(function () {
+		document.querySelector('#btnMoveResize').addEventListener('click', () => {
 			_resizeMode(true);
 
-			if (_qset.options.backgroundTheme === "themeGraphPaper") {
-				$('.resizable').addClass('dark');
-			} else {
-				$('.resizable').removeClass('dark');
-			}
+			let resizable = document.querySelector('.resizable');
 
+			_qset.options.backgroundTheme === "themeGraphPaper"
+				? resizable.classList.add('dark')
+				: resizable.classList.remove('dark');
+
+			let imageWrapper = document.querySelector('#imagewrapper');
 			return _lastImgDimensions = {
-				width: $('#imagewrapper').width(),
-				height: $('#imagewrapper').height(),
-				left: $('#imagewrapper').position().left,
-				top: $('#imagewrapper').position().top
+				width: imageWrapper.offsetWidth,
+				height: imageWrapper.offsetHeight,
+				left: imageWrapper.offsetLeft,
+				top: imageWrapper.offsetTop,
 			};
 		});
 
-		$('#btnMoveResizeCancel').click(function () {
-			_resizeMode(false);
-			$('#imagewrapper').width(_lastImgDimensions.width);
-			$('#imagewrapper').height(_lastImgDimensions.height);
-			$('#imagewrapper').css('left', _lastImgDimensions.left + 'px');
-			return $('#imagewrapper').css('top', _lastImgDimensions.top + 'px');
+		document.querySelector('#btnMoveResize').addEventListener('click', () => {
+			_resizeMode(true);
+
+			_qset.options.backgroundTheme === "themeGraphPaper"
+				? document.querySelector('.resizable').classList.add('dark')
+				: document.querySelector('.resizable').classList.remove('dark')
+
 		});
 
-		$('#btnMoveResizeDone').click(() => _resizeMode(false));
+		document.querySelector('#btnMoveResizeCancel').addEventListener('click', () => {
+			_resizeMode(false);
 
-		$('#btnChooseImage').click(() => Materia.CreatorCore.showMediaImporter());
+			let imageWrapper = document.querySelector('#imagewrapper');
+			imageWrapper.style.width = _lastImgDimensions.width + 'px';
+			imageWrapper.style.height = _lastImgDimensions.height + 'px';
+			imageWrapper.style.left = _lastImgDimensions.left + 'px';
 
-		$('#btn-enter-title').click(function () {
+			return imageWrapper.style.top = _lastImgDimensions.top + 'px';
+		});
+
+		document.querySelector('#btnMoveResizeDone').addEventListener('click', () => {
+			_resizeMode(false);
+		});
+
+		document.querySelector('#btnChooseImage').addEventListener('click', () => {
+			Materia.CreatorCore.showMediaImporter();
+		});
+
+		document.querySelector('#btn-enter-title').addEventListener('click', () => {
 			Materia.CreatorCore.showMediaImporter();
 			return true;
 		});
 
-		$('#title').click(_showMiniTitleEditor);
-		$('#header .link').click(_showMiniTitleEditor);
+		document.querySelector('#title').addEventListener('click', _showMiniTitleEditor);
+		document.querySelector('#header .link').addEventListener('click', _showMiniTitleEditor);
 
 		window.setTitle = function (title) {
-			if (title == null) { title = document.getElementById("title").textContent; }
+
+			if (title == null) {
+				title = document.getElementById("title").textContent;
+			}
+
 			title = title.replace(/</g, '').replace(/>/g, '');
-			$('#titlebox').removeClass('show');
-			$('#titlechanger').removeClass('show');
-			$('#backgroundcover').removeClass('show');
-			return $('#title').html((title || 'My labeling widget'));
+
+			document.querySelector('#titlebox').classList.remove('show');
+			document.querySelector('#titlechanger').classList.remove('show');
+			document.querySelector('#backgroundcover').classList.remove('show');
+
+			return document.querySelector('#title').textContent = title || 'My labeling widget';
 		};
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false);
@@ -221,10 +226,124 @@ Namespace('Labeling').Creator = (function () {
 		});
 	};
 
+	// **** 3D VERSION *********************************************************
+	var _setupCreator3D = function () {
+		// set background and header title
+		_setBackground();
+
+		// get canvas context
+		_canvas = document.getElementById('canvas');
+		_context = _canvas.getContext('2d');
+
+		_img = new Image();
+
+		// SET Up event handlers
+
+		// Color Wheel ==> custom jQuery
+		$('.backgroundtile.color').click(function () {
+			if (_qset.options.backgroundTheme !== 'themeSolidColor') {
+				_qset.options.backgroundTheme = 'themeSolidColor';
+				_setBackground();
+			}
+
+			$("#colorpicker").spectrum("show");
+			$('.sp-coloropt').click(function (e) {
+				if ((e != null) && (e.target != null)) {
+					let color = e.target.style.backgroundColor.split(',');
+					color = parseInt(parseInt(color[0].substring(4)).toString(16) + parseInt(color[1]).toString(16) + parseInt(color[2]).toString(16), 16);
+					_qset.options.backgroundTheme = 'themeSolidColor';
+					_qset.options.backgroundColor = color;
+					return _setBackground();
+				}
+			});
+			return false;
+		});
+
+		$('#opaque-toggle').change(function () {
+			_anchorOpacity = ' ';
+			const dots = $(document).find('.dot');
+			let i = 0;
+			return (() => {
+				const result = [];
+				while (i < dots.length) {
+					$(dots[i]).removeClass('frosted transparent');
+					result.push(i++);
+				}
+				return result;
+			})();
+		});
+
+		$('#frosted-toggle').change(function () {
+			_anchorOpacity = ' frosted';
+			const dots = $(document).find('.dot');
+			let i = 0;
+			return (() => {
+				const result = [];
+				while (i < dots.length) {
+					$(dots[i]).removeClass('transparent').addClass('frosted');
+					result.push(i++);
+				}
+				return result;
+			})();
+		});
+
+		$('#transparent-toggle').change(function () {
+			_anchorOpacity = ' transparent';
+			const dots = $(document).find('.dot');
+			let i = 0;
+			return (() => {
+				const result = [];
+				while (i < dots.length) {
+					$(dots[i]).removeClass('frosted').addClass('transparent');
+					result.push(i++);
+				}
+				return result;
+			})();
+		});
+
+		document.querySelector('#btnChooseImage').addEventListener('click', () => {
+			Materia.CreatorCore.showMediaImporter();
+		});
+
+		document.querySelector('#btn-enter-title').addEventListener('click', () => {
+			Materia.CreatorCore.showMediaImporter();
+			return true;
+		});
+
+		document.querySelector('#title').addEventListener('click', _showMiniTitleEditor);
+		document.querySelector('#header .link').addEventListener('click', _showMiniTitleEditor);
+
+		window.setTitle = function (title) {
+
+			if (title == null) {
+				title = document.getElementById("title").textContent;
+			}
+
+			title = title.replace(/</g, '').replace(/>/g, '');
+
+			document.querySelector('#titlebox').classList.remove('show');
+			document.querySelector('#titlechanger').classList.remove('show');
+			document.querySelector('#backgroundcover').classList.remove('show');
+
+			return document.querySelector('#title').textContent = title || 'My labeling widget';
+		};
+
+		document.getElementById('canvas').addEventListener('click', _addTerm, false);
+
+		// update background
+		return $('#colorpicker').spectrum({
+			move: _updateColorFromSelector,
+			cancelText: '',
+			chooseText: 'Done'
+		});
+	};
+
+	// *************************************************************
 
 	var _showMiniTitleEditor = function () {
-		$('#titlechanger').addClass('show');
-		$('#backgroundcover').addClass('show');
+		document.querySelector('#titlechanger').classList.add('show');
+		document.querySelector('#backgroundcover').classList.add('show');
+
 		return $('#titletxt').val($('#title').html()).focus();
 	};
 
@@ -267,54 +386,59 @@ Namespace('Labeling').Creator = (function () {
 	// sets background from the qset
 	var _setBackground = function () {
 		let background;
-		$('.backgroundtile').removeClass('show');
+		document.querySelector('.backgroundtile').classList.remove('show');
 
 		// set background
 		switch (_qset.options.backgroundTheme) {
 			case 'themeGraphPaper':
 				background = 'url(assets/labeling-graph-bg.png)';
-				$('.graph').addClass('show');
+				document.querySelector('.graph').classList.add('show');
 				break;
+
 			case 'themeCorkBoard':
 				background = 'url(assets/labeling-cork-bg.jpg)';
-				$('.cork').addClass('show');
+				document.querySelector('.cork').classList.add('show');
 				break;
+
 			default:
 				// convert to hex and zero pad the background, which is stored as an integer
 				background = '#' + ('000000' + _qset.options.backgroundColor.toString(16)).substr(-6);
-				$('.color').addClass('show');
-				$('#curcolor').css('background', background);
+				document.querySelector('.color').classList.add('show');
+				document.querySelector('#curcolor').style.background = background;
 		}
 
-		return $('#board').css('background', background);
+		return document.querySelector('#board').style.background = background;
 	};
 
 	const initExistingWidget = function (title, widget, qset, version, baseUrl) {
 		_qset = qset;
 
-		_setupCreator();
-		_makeDraggable();
+		flag3D ? _setupCreator3D() : _setupCreator();
+		if (!flag3D) { _makeDraggable(); }
 
 		// get asset url from Materia API (baseUrl and all)
 		const url = Materia.CreatorCore.getMediaUrl(_qset.options.image.id);
 
 		// render the image inside of the imagewrapper
-		$('#image').attr('src', url);
-		$('#image').attr('data-imgid', _qset.options.image.id);
+		let imageDon = document.querySelector('#image');
+		imageDon.setAttribute('src', url);
+		imageDon.setAttribute('data-imgid', _qset.options.image.id);
 
 		// load the image resource via JavaScript for rendering later
 		_img.src = url;
+		let imageWrapper = document.querySelector('#imagewrapper');
+
 		_img.onload = function () {
-			$('#imagewrapper').css('height', (_img.height * _qset.options.imageScale));
-			return $('#imagewrapper').css('width', (_img.width * _qset.options.imageScale));
+			imageWrapper.style.height = _img.height * _qset.options.imageScale;
+			return imageWrapper.style.width = _img.width * _qset.options.imageScale;
 		};
 
 		// set the resizable image wrapper to the size and pos from qset
-		$('#imagewrapper').css('left', (_qset.options.imageX));
-		$('#imagewrapper').css('top', (_qset.options.imageY));
+		imageWrapper.style.left = _qset.options.imageX;
+		imageWrapper.style.top = _qset.options.imageY;
 
 		// set the title from the qset
-		$('#title').html(title);
+		document.querySelector('#title').innerHTML = title;
 		_title = title;
 
 		// add qset terms to the list
@@ -357,14 +481,14 @@ Namespace('Labeling').Creator = (function () {
 		// draw a dot on the canvas for the question location
 		_makeTerm(e.pageX - document.getElementById('frame').offsetLeft - document.getElementById('board').offsetLeft, e.pageY - 50);
 
-		$('#help_adding').css('display', 'none');
-		$('#boardcover').css('display', 'none');
-		$('#imagewrapper').removeClass('faded');
+		document.querySelector('#help_adding').style.display = 'none';
+		document.querySelector('#boardcover').style.display = 'none';
+		document.querySelector('#imagewrapper').classList.remove('faded');
 
 		return setTimeout(function () {
-			$('#help_moving').css('display', 'block');
-			$('#btnMoveResize').css('display', 'block');
-			return $('#btnChooseImage').css('display', 'block');
+			document.querySelector('#help_moving').style.display = 'block';
+			document.querySelector('#btnMoveResize').style.display = 'block';
+			return document.querySelector('#btnChooseImage').style.display = 'block';
 		}
 			, 400);
 	};
@@ -591,7 +715,6 @@ Namespace('Labeling').Creator = (function () {
 		}
 	};
 
-
 	// a dot has been dragged, lock it in place if its within 10px
 	var _dotDragged = function (event, ui) {
 		let minDist = 9999;
@@ -693,21 +816,22 @@ Namespace('Labeling').Creator = (function () {
 			_anchorOpacityValue = 0.0;
 		}
 
+		let imageWrapper = document.querySelector('#imagewrapper');
+
 		_qset.options = {
 			backgroundTheme: _qset.options.backgroundTheme,
 			backgroundColor: _qset.options.backgroundColor,
-			imageScale: $('#imagewrapper').width() / _img.width,
+			imageScale: parseFloat(getComputedStyle(imageWrapper, null).width.replace("px", "")) / _img.width,
 			image: {
 				id: $('#image').attr('data-imgid'),
 				materiaType: "asset"
 			},
-			imageX: $('#imagewrapper').position().left,
-			imageY: $('#imagewrapper').position().top,
+			imageX: imageWrapper.offsetLeft,
+			imageY: imageWrapper.offsetTop,
 			opacity: _anchorOpacityValue
 		};
 
 		_qset.version = "2";
-
 		return _okToSave;
 	};
 
@@ -739,12 +863,49 @@ Namespace('Labeling').Creator = (function () {
 			return $('#imagewrapper').css('top', (550 / 2) - (iw.height() / 2));
 		};
 
-
-
 		_makeDraggable();
 
 		return true;
 	};
+
+	// IMAGE DOES NOT RESIZE CORRECTLY WHEN RELOADING PAGE.
+	// const onMediaImportComplete = function (media) {
+
+	// 	document.querySelector('#canvas').style.display = 'block';
+
+	// 	const url = Materia.CreatorCore.getMediaUrl(media[0].id);
+	// 	document.querySelector('#chooseimage').style.display = 'none';
+
+	// 	let imageDon = document.querySelector('#image');
+	// 	imageDon.classList.add('show');
+	// 	imageDon.setAttribute('src', url);
+	// 	imageDon.setAttribute('data-imgid', media[0].id);
+
+	// 	_img.src = url;
+	// 	_img.onload = function () {
+	// 		let height, width;
+	// 		let iw = document.querySelector('#imagewrapper');
+
+	// 		if (_img.width > _img.height) {
+	// 			width = 570;
+	// 			iw.style.width = width;
+	// 			iw.style.height = ((_img.height * parseFloat(getComputedStyle(iw, null).width.replace("px", ""))) / _img.width);
+
+	// 		} else {
+	// 			height = 470;
+	// 			iw.style.height = height;
+	// 			iw.style.width = ((_img.width * parseFloat(getComputedStyle(iw, null).height.replace("px", ""))) / _img.height);
+	// 		}
+
+	// 		iw.style.left = (600 / 2) - (parseFloat(getComputedStyle(iw, null).width.replace("px", "")) / 2);
+	// 		return iw.style.top = (550 / 2) - (parseFloat(getComputedStyle(iw, null).height.replace("px", "")) / 2);
+	// 	};
+	// 	_makeDraggable();
+
+	// 	return true;
+	// }
+	// ///////
+
 
 	// Public members
 	return {
