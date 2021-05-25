@@ -1,11 +1,4 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
+
 Namespace('Labeling').Engine = (function () {
 
 	// ORIGINAL CODE FOR PLAYER
@@ -52,13 +45,6 @@ Namespace('Labeling').Engine = (function () {
 
 	// Called by Materia.Engine when your widget Engine should start the user experience.
 	const start = function (instance, qset, version) {
-		//document.oncontextmenu = ->	false
-		//document.addEventListener 'mousedown', (e) ->
-		//	if e.button is 2 then false else true
-		//window.onselectstart =
-		//document.onselectstart = (e) ->
-		//	e.preventDefault() if e and e.preventDefault
-		//	false
 
 		let background;
 		if (version == null) { version = '1'; }
