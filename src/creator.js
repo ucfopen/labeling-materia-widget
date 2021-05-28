@@ -1,11 +1,4 @@
-/*
- * decaffeinate suggestions:
- * DS101: Remove unnecessary use of Array.from
- * DS102: Remove unnecessary code created because of implicit returns
- * DS205: Consider reworking code to avoid use of IIFEs
- * DS207: Consider shorter variations of null checks
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
+
 Namespace('Labeling').Creator = (function () {
 	// variables for local use
 	let _context, _img, _offsetY, _qset;
@@ -27,10 +20,12 @@ Namespace('Labeling').Creator = (function () {
 	let _gettingStarted = false;
 
 	let flag3D = false;
-	console.log(flag3D);
 
 	const _defaultLabel = '[label title]';
 
+	// |||
+	// |||
+	// VVV
 	const initNewWidget = function () {
 
 		document.querySelector('#image').display = 'none';
@@ -51,19 +46,15 @@ Namespace('Labeling').Creator = (function () {
 		_qset.options.backgroundTheme = 'themeCorkBoard';
 		_qset.options.backgroundColor = 2565927;
 
-		// creatorVer();
+		chooseVer();
 
 		// set up the creator, shared between new and existing
 		// return _setupCreator();
+
 		return (flag3D ? _setupCreator3D() : _setupCreator());
 	};
 
-	function chooseVer() {
-		document.querySelector('#ver2D').addEventListener('click', () => {
-			document.querySelector('#pickVer').remove();
-		});
-	}
-
+	console.log(flag3D);
 	var _setupCreator = function () {
 		// set background and header title
 		_setBackground();
@@ -225,120 +216,6 @@ Namespace('Labeling').Creator = (function () {
 			chooseText: 'Done'
 		});
 	};
-
-	// **** 3D VERSION *********************************************************
-	var _setupCreator3D = function () {
-		// set background and header title
-		_setBackground();
-
-		// get canvas context
-		_canvas = document.getElementById('canvas');
-		_context = _canvas.getContext('2d');
-
-		_img = new Image();
-
-		// SET Up event handlers
-
-		// Color Wheel ==> custom jQuery
-		$('.backgroundtile.color').click(function () {
-			if (_qset.options.backgroundTheme !== 'themeSolidColor') {
-				_qset.options.backgroundTheme = 'themeSolidColor';
-				_setBackground();
-			}
-
-			$("#colorpicker").spectrum("show");
-			$('.sp-coloropt').click(function (e) {
-				if ((e != null) && (e.target != null)) {
-					let color = e.target.style.backgroundColor.split(',');
-					color = parseInt(parseInt(color[0].substring(4)).toString(16) + parseInt(color[1]).toString(16) + parseInt(color[2]).toString(16), 16);
-					_qset.options.backgroundTheme = 'themeSolidColor';
-					_qset.options.backgroundColor = color;
-					return _setBackground();
-				}
-			});
-			return false;
-		});
-
-		$('#opaque-toggle').change(function () {
-			_anchorOpacity = ' ';
-			const dots = $(document).find('.dot');
-			let i = 0;
-			return (() => {
-				const result = [];
-				while (i < dots.length) {
-					$(dots[i]).removeClass('frosted transparent');
-					result.push(i++);
-				}
-				return result;
-			})();
-		});
-
-		$('#frosted-toggle').change(function () {
-			_anchorOpacity = ' frosted';
-			const dots = $(document).find('.dot');
-			let i = 0;
-			return (() => {
-				const result = [];
-				while (i < dots.length) {
-					$(dots[i]).removeClass('transparent').addClass('frosted');
-					result.push(i++);
-				}
-				return result;
-			})();
-		});
-
-		$('#transparent-toggle').change(function () {
-			_anchorOpacity = ' transparent';
-			const dots = $(document).find('.dot');
-			let i = 0;
-			return (() => {
-				const result = [];
-				while (i < dots.length) {
-					$(dots[i]).removeClass('frosted').addClass('transparent');
-					result.push(i++);
-				}
-				return result;
-			})();
-		});
-
-		document.querySelector('#btnChooseImage').addEventListener('click', () => {
-			Materia.CreatorCore.showMediaImporter();
-		});
-
-		document.querySelector('#btn-enter-title').addEventListener('click', () => {
-			Materia.CreatorCore.showMediaImporter();
-			return true;
-		});
-
-		document.querySelector('#title').addEventListener('click', _showMiniTitleEditor);
-		document.querySelector('#header .link').addEventListener('click', _showMiniTitleEditor);
-
-		window.setTitle = function (title) {
-
-			if (title == null) {
-				title = document.getElementById("title").textContent;
-			}
-
-			title = title.replace(/</g, '').replace(/>/g, '');
-
-			document.querySelector('#titlebox').classList.remove('show');
-			document.querySelector('#titlechanger').classList.remove('show');
-			document.querySelector('#backgroundcover').classList.remove('show');
-
-			return document.querySelector('#title').textContent = title || 'My labeling widget';
-		};
-
-		document.getElementById('canvas').addEventListener('click', _addTerm, false);
-
-		// update background
-		return $('#colorpicker').spectrum({
-			move: _updateColorFromSelector,
-			cancelText: '',
-			chooseText: 'Done'
-		});
-	};
-
-	// *************************************************************
 
 	var _showMiniTitleEditor = function () {
 		document.querySelector('#titlechanger').classList.add('show');
@@ -748,7 +625,7 @@ Namespace('Labeling').Creator = (function () {
 	// called from Materia creator page
 	const onSaveClicked = function (mode) {
 		if (mode == null) { mode = 'save'; }
-		if (!_buildSaveData()) {
+		if (!_buildSaveData() || (!_buildSaveData3D() && flag3D)) {
 			return Materia.CreatorCore.cancelSave('Widget needs a title and at least one term.');
 		}
 		return Materia.CreatorCore.save(_title, _qset);
@@ -838,6 +715,12 @@ Namespace('Labeling').Creator = (function () {
 	// called from Materia creator page
 	// loads and sets appropriate data for loading image
 	const onMediaImportComplete = function (media) {
+
+		if (flag3D) {
+			document.querySelector('#imagewrapper').style.display = 'none';
+			return true
+		}
+
 		$('#canvas').css('display', 'block');
 
 		const url = Materia.CreatorCore.getMediaUrl(media[0].id);
@@ -868,45 +751,211 @@ Namespace('Labeling').Creator = (function () {
 		return true;
 	};
 
-	// IMAGE DOES NOT RESIZE CORRECTLY WHEN RELOADING PAGE.
-	// const onMediaImportComplete = function (media) {
+	// **** 3D VERSION *********************************************************
 
-	// 	document.querySelector('#canvas').style.display = 'block';
+	function chooseVer() {
+		document.querySelector('#ver2D').addEventListener('click', () => {
+			flag3D = false;
+			console.log('flag3D: ' + flag3D);
+		});
 
-	// 	const url = Materia.CreatorCore.getMediaUrl(media[0].id);
-	// 	document.querySelector('#chooseimage').style.display = 'none';
+		document.querySelector('#ver3D').addEventListener('click', () => {
+			flag3D = true;
+			console.log('flag3D: ' + flag3D);
+		});
+	}
 
-	// 	let imageDon = document.querySelector('#image');
-	// 	imageDon.classList.add('show');
-	// 	imageDon.setAttribute('src', url);
-	// 	imageDon.setAttribute('data-imgid', media[0].id);
+	var _setupCreator3D = function () {
+		// set background and header title
+		_setBackground();
 
-	// 	_img.src = url;
-	// 	_img.onload = function () {
-	// 		let height, width;
-	// 		let iw = document.querySelector('#imagewrapper');
+		// get canvas context
+		_canvas = document.getElementById('canvas');
+		_context = _canvas.getContext('2d');
 
-	// 		if (_img.width > _img.height) {
-	// 			width = 570;
-	// 			iw.style.width = width;
-	// 			iw.style.height = ((_img.height * parseFloat(getComputedStyle(iw, null).width.replace("px", ""))) / _img.width);
+		_img = new Image();
 
-	// 		} else {
-	// 			height = 470;
-	// 			iw.style.height = height;
-	// 			iw.style.width = ((_img.width * parseFloat(getComputedStyle(iw, null).height.replace("px", ""))) / _img.height);
-	// 		}
+		// SET Up event handlers
 
-	// 		iw.style.left = (600 / 2) - (parseFloat(getComputedStyle(iw, null).width.replace("px", "")) / 2);
-	// 		return iw.style.top = (550 / 2) - (parseFloat(getComputedStyle(iw, null).height.replace("px", "")) / 2);
-	// 	};
-	// 	_makeDraggable();
+		// Color Wheel ==> custom jQuery
+		$('.backgroundtile.color').click(function () {
+			if (_qset.options.backgroundTheme !== 'themeSolidColor') {
+				_qset.options.backgroundTheme = 'themeSolidColor';
+				_setBackground();
+			}
 
-	// 	return true;
-	// }
-	// ///////
+			$("#colorpicker").spectrum("show");
+			$('.sp-coloropt').click(function (e) {
+				if ((e != null) && (e.target != null)) {
+					let color = e.target.style.backgroundColor.split(',');
+					color = parseInt(parseInt(color[0].substring(4)).toString(16) + parseInt(color[1]).toString(16) + parseInt(color[2]).toString(16), 16);
+					_qset.options.backgroundTheme = 'themeSolidColor';
+					_qset.options.backgroundColor = color;
+					return _setBackground();
+				}
+			});
+			return false;
+		});
 
+		$('#opaque-toggle').change(function () {
+			_anchorOpacity = ' ';
+			const dots = $(document).find('.dot');
+			let i = 0;
+			return (() => {
+				const result = [];
+				while (i < dots.length) {
+					$(dots[i]).removeClass('frosted transparent');
+					result.push(i++);
+				}
+				return result;
+			})();
+		});
 
+		$('#frosted-toggle').change(function () {
+			_anchorOpacity = ' frosted';
+			const dots = $(document).find('.dot');
+			let i = 0;
+			return (() => {
+				const result = [];
+				while (i < dots.length) {
+					$(dots[i]).removeClass('transparent').addClass('frosted');
+					result.push(i++);
+				}
+				return result;
+			})();
+		});
+
+		$('#transparent-toggle').change(function () {
+			_anchorOpacity = ' transparent';
+			const dots = $(document).find('.dot');
+			let i = 0;
+			return (() => {
+				const result = [];
+				while (i < dots.length) {
+					$(dots[i]).removeClass('frosted').addClass('transparent');
+					result.push(i++);
+				}
+				return result;
+			})();
+		});
+
+		document.querySelector('#btnChooseImage').addEventListener('click', () => {
+			Materia.CreatorCore.showMediaImporter();
+		});
+
+		document.querySelector('#btn-enter-title').addEventListener('click', () => {
+			Materia.CreatorCore.showMediaImporter();
+			return true;
+		});
+
+		document.querySelector('#title').addEventListener('click', _showMiniTitleEditor);
+		document.querySelector('#header .link').addEventListener('click', _showMiniTitleEditor);
+
+		window.setTitle = function (title) {
+
+			if (title == null) {
+				title = document.getElementById("title").textContent;
+			}
+
+			title = title.replace(/</g, '').replace(/>/g, '');
+
+			document.querySelector('#titlebox').classList.remove('show');
+			document.querySelector('#titlechanger').classList.remove('show');
+			document.querySelector('#backgroundcover').classList.remove('show');
+
+			return document.querySelector('#title').textContent = title || 'My labeling widget';
+		};
+
+		document.getElementById('canvas').addEventListener('click', _addTerm, false);
+
+		// update background
+		return $('#colorpicker').spectrum({
+			move: _updateColorFromSelector,
+			cancelText: '',
+			chooseText: 'Done'
+		});
+	};
+
+	// generate the qset
+	var _buildSaveData3D = function () {
+		if ((_qset == null)) { _qset = {}; }
+		if ((_qset.options == null)) { _qset.options = {}; }
+
+		const words = [];
+
+		_qset.assets = [];
+		_qset.rand = false;
+		_qset.name = '';
+		_title = $('#title').html();
+		let _okToSave = (_title != null) && (_title !== '') ? true : false;
+
+		const items = [];
+
+		const dots = $('.term');
+		for (let dot of Array.from(dots)) {
+			const item = {};
+			const label = dot.childNodes[0].innerHTML;
+
+			const answer = {
+				text: label,
+				value: 100,
+				id: ''
+			};
+			item.answers = [answer];
+			item.assets = [];
+			const question =
+				{ text: label };
+			item.questions = [question];
+			item.type = 'QA';
+			item.id = dot.getAttribute('data-id') || '';
+			item.options = {
+				labelBoxX: parseInt(dot.style.left.replace('px', '')),
+				labelBoxY: parseInt(dot.style.top.replace('px', '')),
+				endPointX: parseInt(dot.getAttribute('data-x')),
+				endPointY: parseInt(dot.getAttribute('data-y'))
+			};
+
+			items.push(item);
+		}
+
+		_qset.items = items;
+
+		if (items.length < 1) {
+			_okToSave = false;
+		}
+
+		let _anchorOpacityValue = 1.0;
+		if (_anchorOpacity.indexOf('frosted') > -1) {
+			_anchorOpacityValue = 0.5;
+		} else if (_anchorOpacity.indexOf('transparent') > -1) {
+			_anchorOpacityValue = 0.0;
+		}
+
+		let imageWrapper = document.querySelector('#imagewrapper');
+
+		_qset.options = {
+			backgroundTheme: _qset.options.backgroundTheme,
+			backgroundColor: _qset.options.backgroundColor,
+			imageScale: parseFloat(getComputedStyle(imageWrapper, null).width.replace("px", "")) / _img.width,
+			image: {
+				id: $('#image').attr('data-imgid'),
+				materiaType: "asset"
+			},
+			imageX: imageWrapper.offsetLeft,
+			imageY: imageWrapper.offsetTop,
+			opacity: _anchorOpacityValue
+		};
+
+		_qset.version = "2";
+		return _okToSave;
+	};
+
+	// **** 3D FUNCTIONS *****************************************************
+
+	// ***********************************************************************
+
+	// ///////////////////////
+	// console.log(JSON.stringify(_qset));
 	// Public members
 	return {
 		initNewWidget,
@@ -914,6 +963,6 @@ Namespace('Labeling').Creator = (function () {
 		onSaveClicked,
 		onMediaImportComplete,
 		onQuestionImportComplete,
-		onSaveComplete
+		onSaveComplete,
 	};
 })();
