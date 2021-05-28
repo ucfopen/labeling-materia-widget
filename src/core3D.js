@@ -1,13 +1,15 @@
-const mtlFileStr = '_models3D/male02/male02.mtl';
-const objFileStr = '_models3D/male02/male02.obj';
-// const mtlFileStr = '_models3D/female02/female02.mtl';
-// const objFileStr = '_models3D/female02/female02.obj';
-// const mtlFileStr = '_models3D/vroom/Audi_R8_2017.mtl';
-// const objFileStr = '_models3D/vroom/Audi_R8_2017.obj';
-// const objFileStr = '_models3D/cerberus/Cerberus.obj';
-// const objFileStr = '_models3D/tree.obj';
 
-const setAntialias = false;
+// let mtlFileStr;
+let mtlFileStr = '_models3D/male02/male02.mtl';
+let objFileStr = '_models3D/male02/male02.obj';
+// let mtlFileStr = '_models3D/female02/female02.mtl';
+// let objFileStr = '_models3D/female02/female02.obj';
+// let mtlFileStr = '_models3D/vroom/Audi_R8_2017.mtl';
+// let objFileStr = '_models3D/vroom/Audi_R8_2017.obj';
+// let objFileStr = '_models3D/cerberus/Cerberus.obj';
+// let objFileStr = '_models3D/tree.obj';
+
+const setAntialias = true;
 const showWireframe = true;
 const sceneColor = 0xdddddd;
 
@@ -21,6 +23,7 @@ let near = 0.1;
 let far = 1000;
 
 const scene = new THREE.Scene();
+const stats = new Stats();
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias });
 
@@ -56,13 +59,38 @@ function main() {
 	scene.add(myPointer);
 	scene.add(camera);
 
-	// getOBJRender(controls); // use if obj provided
-	getMTLandOBJRender(controls); // use if mtl and obj provided
+	controls.enableKeys = true;
+
+	// WASD for movement
+	controls.keys = {
+		LEFT: 68, //left arrow
+		UP: 87, // up arrow
+		RIGHT: 65, // right arrow
+		BOTTOM: 83 // down arrow
+	}
+
+	// controls.mouseButtons = {
+	// 	LEFT: THREE.MOUSE.ROTATE,
+	// 	MIDDLE: THREE.MOUSE.DOLLY,
+	// 	RIGHT: THREE.MOUSE.PAN
+	// }
+
+	// use if obj provided  // use if mtl and obj provided
+	mtlFileStr == null ? getOBJRender(controls) : getMTLandOBJRender(controls);
 
 	window.addEventListener('resize', onWindowResize);
 	canvas.addEventListener('click', onMouseClick);
+
+	// stats.dom.classList.add('statsBlock');
+	stats.dom.id = 'statsBlock';
+
+	canvas.appendChild(stats.dom);
+	stats.dom.style.top = '552px';
+	stats.dom.style.left = '720px';
+	console.log(canvas);
+
+	console.log(controls);
 	printShotgun('scene', scene.children);
-	console.log(myPointer)
 }// END OF MAIN()
 
 function getSphere() {
@@ -182,6 +210,7 @@ function printShotgun(str, data) {
 }
 
 function render() {
+	stats.update();
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
 }
@@ -223,9 +252,6 @@ function onMouseClick(event) {
 function vertexIDCheck(vertex) {
 
 	verticesCheckList.forEach(element => {
-
-		// printShotgun('vertex', vertex);
-		// printShotgun('element', element);
 
 		JSON.stringify(vertex) === JSON.stringify(element)
 			? myPointer.material.color.set(0xff0000)

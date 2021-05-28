@@ -34,6 +34,7 @@ const entries = {
 		path.join(__dirname, 'src', 'lib', 'MTLLoader.js'),
 		path.join(__dirname, 'src', 'lib', 'OBJLoader.js'),
 		path.join(__dirname, 'src', 'lib', 'OrbitControls.js'),
+		path.join(__dirname, 'src', 'lib', 'stats.js'),
 		path.join(__dirname, 'src', 'core3D.js'),
 	],
 	'creator.css': [
