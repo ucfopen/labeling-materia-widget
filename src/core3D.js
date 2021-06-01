@@ -83,13 +83,12 @@ function main() {
 
 	// stats.dom.classList.add('statsBlock');
 	stats.dom.id = 'statsBlock';
-
 	canvas.appendChild(stats.dom);
-	stats.dom.style.top = '552px';
-	stats.dom.style.left = '720px';
-	console.log(canvas);
 
-	console.log(controls);
+	let canvasRect = canvas.getBoundingClientRect();
+	stats.dom.style.left = canvasRect.right - 80 + 'px';
+	stats.dom.style.top = canvasRect.bottom - 48 + 'px';
+
 	printShotgun('scene', scene.children);
 }// END OF MAIN()
 
@@ -216,10 +215,10 @@ function render() {
 }
 
 function onWindowResize() {
-	camera.aspect = window.innerWidth / window.innerHeight;
+	camera.aspect = canvas.innerWidth / canvas.innerHeight;
 	camera.updateProjectionMatrix();
 
-	renderer.setSize(window.innerWidth, window.innerHeight);
+	renderer.setSize(canvas.innerWidth, canvas.innerHeight);
 }
 
 function onMouseClick(event) {
