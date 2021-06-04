@@ -56,6 +56,13 @@ function main() {
 	renderer.setSize(canvasWidth, canvasHeight);
 	canvas.appendChild(renderer.domElement);
 
+	stats.dom.id = 'statsBlock';
+	canvas.appendChild(stats.dom);
+
+	let canvasRect = canvas.getBoundingClientRect();
+	stats.dom.style.left = canvasRect.right - 80 + 'px';
+	stats.dom.style.top = canvasRect.bottom - 48 + 'px';
+
 	scene.add(myPointer);
 	scene.add(camera);
 
@@ -81,15 +88,7 @@ function main() {
 	window.addEventListener('resize', onWindowResize);
 	canvas.addEventListener('click', onMouseClick);
 
-	// stats.dom.classList.add('statsBlock');
-	stats.dom.id = 'statsBlock';
-	canvas.appendChild(stats.dom);
-
-	let canvasRect = canvas.getBoundingClientRect();
-	stats.dom.style.left = canvasRect.right - 80 + 'px';
-	stats.dom.style.top = canvasRect.bottom - 48 + 'px';
-
-	printShotgun('scene', scene.children);
+	renderer.domElement.id = 'myCanvas';
 }// END OF MAIN()
 
 function getSphere() {
@@ -215,10 +214,13 @@ function render() {
 }
 
 function onWindowResize() {
-	camera.aspect = canvas.innerWidth / canvas.innerHeight;
+	camera.aspect = canvas.offsetWidth / canvas.offsetHeight;
 	camera.updateProjectionMatrix();
+	renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
 
-	renderer.setSize(canvas.innerWidth, canvas.innerHeight);
+	let canvasRect = canvas.getBoundingClientRect();
+	stats.dom.style.left = canvasRect.right - 80 + 'px';
+	stats.dom.style.top = canvasRect.bottom - 48 + 'px';
 }
 
 function onMouseClick(event) {
@@ -240,6 +242,7 @@ function onMouseClick(event) {
 			uv: intersects[0].uv,
 		};
 
+		console.log(vertexToCheck);
 		myPointer.position.x = vertexToCheck.point['x'];
 		myPointer.position.y = vertexToCheck.point['y'];
 		myPointer.position.z = vertexToCheck.point['z'];
