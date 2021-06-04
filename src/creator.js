@@ -19,13 +19,15 @@ Namespace('Labeling').Creator = (function () {
 	// track if the user is "getting started" or well on their way
 	let _gettingStarted = false;
 
-	let flag3D = false;
+	let flag3D;
 
 	const _defaultLabel = '[label title]';
 
 	// |||
 	// |||
 	// VVV
+
+	// have to change function to async/await to be able read flag3D
 	const initNewWidget = function () {
 
 		document.querySelector('#image').display = 'none';
@@ -47,14 +49,11 @@ Namespace('Labeling').Creator = (function () {
 		_qset.options.backgroundColor = 2565927;
 
 		chooseVer();
-
-		// set up the creator, shared between new and existing
-		// return _setupCreator();
-
+		console.log(flag3D);
 		return (flag3D ? _setupCreator3D() : _setupCreator());
 	};
 
-	console.log(flag3D);
+
 	var _setupCreator = function () {
 		// set background and header title
 		_setBackground();
@@ -140,7 +139,7 @@ Namespace('Labeling').Creator = (function () {
 
 		document.querySelector('#btnMoveResize').addEventListener('click', () => {
 			_resizeMode(true);
-
+			console.log('active');
 			let resizable = document.querySelector('.resizable');
 
 			_qset.options.backgroundTheme === "themeGraphPaper"
@@ -753,16 +752,44 @@ Namespace('Labeling').Creator = (function () {
 
 	// **** 3D VERSION *********************************************************
 
+	// Change UI based on the
 	function chooseVer() {
-		document.querySelector('#ver2D').addEventListener('click', () => {
-			flag3D = false;
-			console.log('flag3D: ' + flag3D);
+		let ver3D = document.querySelector('#ver3D');
+		let ver2D = document.querySelector('#ver2D');
+		ver2D.classList.toggle('orange');
+
+		ver2D.addEventListener('click', () => {
+
+			ver3D.classList.toggle('orange');
+			ver2D.classList.toggle('orange');
+			ver2D.classList.contains('orange')
+				? flag3D = false
+				: flag3D = true;
+
 		});
 
-		document.querySelector('#ver3D').addEventListener('click', () => {
-			flag3D = true;
-			console.log('flag3D: ' + flag3D);
+		ver3D.addEventListener('click', () => {
+
+			ver3D.classList.toggle('orange');
+			ver2D.classList.toggle('orange');
+			ver2D.classList.contains('orange')
+				? flag3D = false
+				: flag3D = true;
 		});
+
+		document.querySelector('#btn-enter-title').addEventListener('click', () => {
+
+			if (flag3D) {
+				document.querySelector('#btnMoveResize').value = "Rotate";
+
+				let loadCore3D = document.createElement("script");
+				loadCore3D.src = 'core3D.js';
+
+				document.getElementsByTagName('head')[0].appendChild(loadCore3D);
+			}
+		});
+
+		console.log('is flag: ' + flag3D);
 	}
 
 	var _setupCreator3D = function () {
@@ -776,27 +803,6 @@ Namespace('Labeling').Creator = (function () {
 		_img = new Image();
 
 		// SET Up event handlers
-
-		// Color Wheel ==> custom jQuery
-		$('.backgroundtile.color').click(function () {
-			if (_qset.options.backgroundTheme !== 'themeSolidColor') {
-				_qset.options.backgroundTheme = 'themeSolidColor';
-				_setBackground();
-			}
-
-			$("#colorpicker").spectrum("show");
-			$('.sp-coloropt').click(function (e) {
-				if ((e != null) && (e.target != null)) {
-					let color = e.target.style.backgroundColor.split(',');
-					color = parseInt(parseInt(color[0].substring(4)).toString(16) + parseInt(color[1]).toString(16) + parseInt(color[2]).toString(16), 16);
-					_qset.options.backgroundTheme = 'themeSolidColor';
-					_qset.options.backgroundColor = color;
-					return _setBackground();
-				}
-			});
-			return false;
-		});
-
 		$('#opaque-toggle').change(function () {
 			_anchorOpacity = ' ';
 			const dots = $(document).find('.dot');
@@ -932,6 +938,7 @@ Namespace('Labeling').Creator = (function () {
 		}
 
 		let imageWrapper = document.querySelector('#imagewrapper');
+
 
 		_qset.options = {
 			backgroundTheme: _qset.options.backgroundTheme,
