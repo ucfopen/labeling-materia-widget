@@ -242,7 +242,7 @@ function onMouseClick(event) {
 			uv: intersects[0].uv,
 		};
 
-		console.log(vertexToCheck);
+		// console.log(vertexToCheck);
 		myPointer.position.x = vertexToCheck.point['x'];
 		myPointer.position.y = vertexToCheck.point['y'];
 		myPointer.position.z = vertexToCheck.point['z'];
@@ -259,7 +259,6 @@ function vertexIDCheck(vertex) {
 			? myPointer.material.color.set(0xff0000)
 			: myPointer.material.color.set(0x0000ff);
 	})
-
 	// REMEMBER TO ADD A APPROXIMATION TO THE CHECKING OF THE VERTEX.FACEINDEX
 	// IT'S DIFFICULT TO CLICK ON THE SAME SPECIFIC VERTEX.
 	// console.log(vertex.faceIndex < 100 && vertex.faceIndex > 50);
@@ -283,3 +282,5 @@ function getIntersects(point, objects) {
 
 	return raycaster.intersectObjects(objects);
 }
+
+// export default verticesCheckList;
