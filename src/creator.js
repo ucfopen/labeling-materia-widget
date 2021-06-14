@@ -774,6 +774,7 @@ Namespace('Labeling').Creator = (function () {
 
 				let loadCore3D = document.createElement("script");
 				loadCore3D.src = 'core3D.js';
+				loadCore3D.type = 'module';
 
 				document.getElementsByTagName('head')[0].appendChild(loadCore3D);
 				document.querySelector('#image').remove();

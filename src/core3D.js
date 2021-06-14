@@ -1,4 +1,7 @@
 
+import * as THREE from '../node_modules/three/build/three.module.js';
+// import { OrbitControls } from './lib/OrbitControls';
+
 // let mtlFileStr;
 let mtlFileStr = '_models3D/male02/male02.mtl';
 let objFileStr = '_models3D/male02/male02.obj';
@@ -23,11 +26,12 @@ let near = 0.1;
 let far = 1000;
 
 const scene = new THREE.Scene();
-const stats = new Stats();
+// const stats = new Stats();
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias });
 
-const controls = new THREE.OrbitControls(camera, renderer.domElement);
+// const controls = new OrbitControls(camera, renderer.domElement);
+// const controls = new THREE.OrbitControls(camera, renderer.domElement);
 const objDimensions = new THREE.Box3();
 const objCenter = new THREE.Vector3();
 const raycaster = new THREE.Raycaster();
@@ -56,25 +60,25 @@ function main() {
 	renderer.setSize(canvasWidth, canvasHeight);
 	canvas.appendChild(renderer.domElement);
 
-	stats.dom.id = 'statsBlock';
-	canvas.appendChild(stats.dom);
+	// stats.dom.id = 'statsBlock';
+	// canvas.appendChild(stats.dom);
 
 	let canvasRect = canvas.getBoundingClientRect();
-	stats.dom.style.left = canvasRect.right - 80 + 'px';
-	stats.dom.style.top = canvasRect.bottom - 48 + 'px';
+	// stats.dom.style.left = canvasRect.right - 80 + 'px';
+	// stats.dom.style.top = canvasRect.bottom - 48 + 'px';
 
 	scene.add(myPointer);
 	scene.add(camera);
 
-	controls.enableKeys = true;
+	// controls.enableKeys = true;
 
-	// WASD for movement
-	controls.keys = {
-		LEFT: 68, //left arrow
-		UP: 87, // up arrow
-		RIGHT: 65, // right arrow
-		BOTTOM: 83 // down arrow
-	}
+	// // WASD for movement
+	// controls.keys = {
+	// 	LEFT: 68, //left arrow
+	// 	UP: 87, // up arrow
+	// 	RIGHT: 65, // right arrow
+	// 	BOTTOM: 83 // down arrow
+	// }
 
 	// controls.mouseButtons = {
 	// 	LEFT: THREE.MOUSE.ROTATE,
@@ -83,7 +87,7 @@ function main() {
 	// }
 
 	// use if obj provided  // use if mtl and obj provided
-	mtlFileStr == null ? getOBJRender(controls) : getMTLandOBJRender(controls);
+	// mtlFileStr == null ? getOBJRender(controls) : getMTLandOBJRender(controls);
 
 	window.addEventListener('resize', onWindowResize);
 	canvas.addEventListener('click', onMouseClick);
@@ -208,7 +212,7 @@ function printShotgun(str, data) {
 }
 
 function render() {
-	stats.update();
+	// stats.update();
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
 }
@@ -219,8 +223,8 @@ function onWindowResize() {
 	renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
 
 	let canvasRect = canvas.getBoundingClientRect();
-	stats.dom.style.left = canvasRect.right - 80 + 'px';
-	stats.dom.style.top = canvasRect.bottom - 48 + 'px';
+	// stats.dom.style.left = canvasRect.right - 80 + 'px';
+	// stats.dom.style.top = canvasRect.bottom - 48 + 'px';
 }
 
 function onMouseClick(event) {
