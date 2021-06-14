@@ -16,6 +16,16 @@ const customCopy = copy.concat([
 		to: path.join(outputPath, '_models3D'),
 		toType: 'dir'
 	},
+	{
+		from: path.join(__dirname, 'src', 'lib'),
+		to: path.join(outputPath, 'lib'),
+		toType: 'dir'
+	},
+	{
+		from: path.join(__dirname, 'node_modules', 'three', 'build'),
+		to: path.join(outputPath, 'node_modules', 'three', 'build'),
+		toType: 'dir'
+	}
 ])
 
 const entries = {
@@ -30,11 +40,11 @@ const entries = {
 		path.join(__dirname, 'src', 'player.html'),
 	],
 	'core3D.js': [
-		path.join(__dirname, 'src', 'lib', 'three.js'),
-		path.join(__dirname, 'src', 'lib', 'MTLLoader.js'),
-		path.join(__dirname, 'src', 'lib', 'OBJLoader.js'),
-		path.join(__dirname, 'src', 'lib', 'OrbitControls.js'),
-		path.join(__dirname, 'src', 'lib', 'stats.js'),
+		// path.join(__dirname, 'src', 'lib', 'three.js'),
+		// path.join(__dirname, 'src', 'lib', 'MTLLoader.js'),
+		// path.join(__dirname, 'src', 'lib', 'OBJLoader.js'),
+		// path.join(__dirname, 'src', 'lib', 'OrbitControls.js'),
+		// path.join(__dirname, 'src', 'lib', 'stats.js'),
 		path.join(__dirname, 'src', 'core3D.js'),
 	],
 	'creator.css': [
