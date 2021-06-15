@@ -1,16 +1,19 @@
 
 import * as THREE from '../node_modules/three/build/three.module.js';
-// import { OrbitControls } from './lib/OrbitControls';
+import { OrbitControls } from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
+import { MTLLoader } from '../node_modules/three/examples/jsm/loaders/MTLLoader.js';
+import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.js';
+
 
 // let mtlFileStr;
-let mtlFileStr = '_models3D/male02/male02.mtl';
-let objFileStr = '_models3D/male02/male02.obj';
-// let mtlFileStr = '_models3D/female02/female02.mtl';
-// let objFileStr = '_models3D/female02/female02.obj';
-// let mtlFileStr = '_models3D/vroom/Audi_R8_2017.mtl';
-// let objFileStr = '_models3D/vroom/Audi_R8_2017.obj';
-// let objFileStr = '_models3D/cerberus/Cerberus.obj';
-// let objFileStr = '_models3D/tree.obj';
+let mtlFileStr = 'models3D/male02/male02.mtl';
+let objFileStr = 'models3D/male02/male02.obj';
+// let mtlFileStr = 'models3D/female02/female02.mtl';
+// let objFileStr = 'models3D/female02/female02.obj';
+// let mtlFileStr = 'models3D/vroom/Audi_R8_2017.mtl';
+// let objFileStr = 'models3D/vroom/Audi_R8_2017.obj';
+// let objFileStr = 'models3D/cerberus/Cerberus.obj';
+// let objFileStr = 'models3D/tree.obj';
 
 const setAntialias = true;
 const showWireframe = true;
@@ -30,8 +33,9 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias });
 
-// const controls = new OrbitControls(camera, renderer.domElement);
-// const controls = new THREE.OrbitControls(camera, renderer.domElement);
+let mtlLoader = new MTLLoader();
+let objLoader = new OBJLoader();
+const controls = new OrbitControls(camera, renderer.domElement);
 const objDimensions = new THREE.Box3();
 const objCenter = new THREE.Vector3();
 const raycaster = new THREE.Raycaster();
@@ -72,7 +76,7 @@ function main() {
 
 	// controls.enableKeys = true;
 
-	// // WASD for movement
+	// WASD for movement
 	// controls.keys = {
 	// 	LEFT: 68, //left arrow
 	// 	UP: 87, // up arrow
@@ -87,7 +91,7 @@ function main() {
 	// }
 
 	// use if obj provided  // use if mtl and obj provided
-	// mtlFileStr == null ? getOBJRender(controls) : getMTLandOBJRender(controls);
+	mtlFileStr == null ? getOBJRender(controls) : getMTLandOBJRender(controls);
 
 	window.addEventListener('resize', onWindowResize);
 	canvas.addEventListener('click', onMouseClick);
@@ -144,7 +148,6 @@ function onError(error) {
 
 function getOBJRender(controls) {
 
-	let objLoader = new THREE.OBJLoader();
 	objLoader.load(objFileStr, (obj) => {
 		obj.name = 'myRender';
 
@@ -173,11 +176,9 @@ function getOBJRender(controls) {
 
 function getMTLandOBJRender(controls) {
 
-	let mtlLoader = new THREE.MTLLoader();
 	mtlLoader.load(mtlFileStr, (mtl) => {
 		mtl.preload();
 
-		let objLoader = new THREE.OBJLoader();
 		objLoader.setMaterials(mtl);
 		objLoader.load(objFileStr, (obj) => {
 			obj.name = 'myRender';

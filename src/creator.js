@@ -694,7 +694,6 @@ Namespace('Labeling').Creator = (function () {
 		}
 
 		flag3D ? qsetOption3D(_qset) : qsetOption(_qset);
-		console.log(verticesCheckList);
 		_qset.version = "2";
 		return _okToSave;
 	};
@@ -777,6 +776,7 @@ Namespace('Labeling').Creator = (function () {
 				loadCore3D.type = 'module';
 
 				document.getElementsByTagName('head')[0].appendChild(loadCore3D);
+
 				document.querySelector('#image').remove();
 				document.querySelector('#imagewrapper').remove();
 
