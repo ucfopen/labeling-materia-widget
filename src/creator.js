@@ -1,4 +1,16 @@
 
+// ISSUES to tackle in the future
+/*
+There are 2 types of data structure one that is an array containing vanilla Labeling,
+and another containing the mix of vanilla Labeling with the 3D code.
+	1) Vanilla Labeling stores its data as HTML documents.
+
+	2) The mix of Vanilla and 3D stores its data in an Array of Class Vertex. The class
+		vertex's imported from FILE core3D.js.
+*/
+
+// import { vertex } from './core3D.js';
+
 
 Namespace('Labeling').Creator = (function () {
 
@@ -24,6 +36,7 @@ Namespace('Labeling').Creator = (function () {
 	let _gettingStarted = false;
 
 	let flag3D;
+	let listOfVertex = [];
 
 	const _defaultLabel = '[label title]';
 
@@ -444,11 +457,22 @@ Namespace('Labeling').Creator = (function () {
 
 		$('#terms').append(dot);
 
+		if (flag3D) {
+			let vertex = importVertex(term.id)
+				.then(result => {
+					listOfVertex.push(result)
+				}).catch(err => {
+					console.log(err);
+				});
+		}
+
 		// edit on click
 		term.onclick = function () {
 			term.childNodes[0].focus();
 			document.execCommand('selectAll', false, null);
-			if (term.childNodes[0].innerHTML === _defaultLabel) { return term.childNodes[0].innerHTML = ''; }
+			if (term.childNodes[0].innerHTML === _defaultLabel) {
+				return term.childNodes[0].innerHTML = '';
+			}
 		};
 
 		// resize text on change
@@ -491,6 +515,7 @@ Namespace('Labeling').Creator = (function () {
 				return ui;
 			}
 		});
+
 		// make the dot movable
 		$(dot).draggable({
 			drag: _dotDragged
@@ -783,11 +808,7 @@ Namespace('Labeling').Creator = (function () {
 				disableEvents();
 				enable3DEvents();
 			}
-
-			// return (flag3D ? _setupCreator3D() : _setupCreator());
 		});
-
-		console.log('is flag: ' + flag3D);
 	};
 
 	function disableEvents() {
@@ -842,10 +863,23 @@ Namespace('Labeling').Creator = (function () {
 		}
 	}
 
-	// console.log(verticesCheckList);
+	async function importVertex(termID) {
+
+		let vertex;
+		try {
+			let module = await import('./core3D.js');
+			vertex = module.vertex;
+			vertex.dataTermID = termID;
+			vertex.dotID = 'dot_' + termID;
+
+			return vertex;
+
+		} catch (e) {
+			console.log(e);
+		}
+	}
 
 	// ***********************************************************************
-
 	// ///////////////////////
 	// console.log(JSON.stringify(_qset));
 	// Public members
@@ -858,3 +892,5 @@ Namespace('Labeling').Creator = (function () {
 		onSaveComplete,
 	};
 })();
+
+export { };

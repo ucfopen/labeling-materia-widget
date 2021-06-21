@@ -45,7 +45,9 @@ const onClickPosition = new THREE.Vector2();
 let sphereColor = 0xffb84d;
 const radius = 10;
 const myPointer = getSphere();
-const verticesCheckList = [];
+let vertex;
+const listOfVertex = [];
+let vertexCnt = 0;
 
 main();
 render();
@@ -84,12 +86,6 @@ function main() {
 	// 	BOTTOM: 83 // down arrow
 	// }
 
-	// controls.mouseButtons = {
-	// 	LEFT: THREE.MOUSE.ROTATE,
-	// 	MIDDLE: THREE.MOUSE.DOLLY,
-	// 	RIGHT: THREE.MOUSE.PAN
-	// }
-
 	// use if obj provided  // use if mtl and obj provided
 	mtlFileStr == null ? getOBJRender(controls) : getMTLandOBJRender(controls);
 
@@ -98,6 +94,39 @@ function main() {
 
 	renderer.domElement.id = 'myCanvas';
 }// END OF MAIN()
+
+function render() {
+	// stats.update();
+
+	// checkListOfVertex();
+
+	controls.update();
+	requestAnimationFrame(render);
+	renderer.render(scene, camera);
+}
+
+function checkListOfVertex() {
+
+	let currentNumVertex = listOfVertex.length;
+
+	if (vertexCnt === currentNumVertex) {
+		return true;
+	}
+	else if (vertexCnt > currentNumVertex) {
+		addVertexSphere();
+	}
+	else {
+		removeVertexSphere();
+	}
+}
+
+function addVertexSphere() {
+	return console.log('Adding Vertex Sphere');
+}
+
+function removeVertexSphere() {
+	return console.log('Removing Vertex Sphere');
+}
 
 function getSphere() {
 
@@ -212,12 +241,6 @@ function printShotgun(str, data) {
 	console.log(data);
 }
 
-function render() {
-	// stats.update();
-	requestAnimationFrame(render);
-	renderer.render(scene, camera);
-}
-
 function onWindowResize() {
 	camera.aspect = canvas.offsetWidth / canvas.offsetHeight;
 	camera.updateProjectionMatrix();
@@ -228,6 +251,9 @@ function onWindowResize() {
 	// stats.dom.style.top = canvasRect.bottom - 48 + 'px';
 }
 
+// Func that processes all the raycaster to determine where the user click.
+// Its achieve by using the mouse xy-position and calculating where that its with
+// reference to the camera seeing dimensions.
 function onMouseClick(event) {
 
 	event.preventDefault();
@@ -238,38 +264,36 @@ function onMouseClick(event) {
 	const array = getMousePosition(event.clientX, event.clientY); // array[x, y]
 	onClickPosition.fromArray(array); // object {x, y, isVector2: true}
 
-	const intersects = getIntersects(onClickPosition, intersectedObjects.children);
+	const intersects = getIntersects(onClickPosition, intersectedObjects.children, true);
 
 	if (intersects.length > 0) {
-		let vertexToCheck = {
-			faceIndex: intersects[0].faceIndex,
-			point: intersects[0].point,
-			uv: intersects[0].uv,
-		};
 
-		// console.log(vertexToCheck);
-		myPointer.position.x = vertexToCheck.point['x'];
-		myPointer.position.y = vertexToCheck.point['y'];
-		myPointer.position.z = vertexToCheck.point['z'];
+		let tempVertex = getVertex(intersects[0]);
+		myPointer.position.x = tempVertex.point['x'];
+		myPointer.position.y = tempVertex.point['y'];
+		myPointer.position.z = tempVertex.point['z'];
+		// verticesList.length == 0 ? verticesList.push(tempVertex) : vertexIDCheck(tempVertex);
 
-		verticesCheckList.length == 0 ? verticesCheckList.push(vertexToCheck) : vertexIDCheck(vertexToCheck);
+		vertex = new Vertex('term_' + ++vertexCnt, 'dot_term_' + vertexCnt, intersects[0].faceIndex, intersects[0].point, intersects[0].uv);
+		listOfVertex.push(vertex);
+
+		// checkListOfVertex();
+		//	IT'S CAUSING THE INTERSECT TO STOP DETECTING THE MODEL.
+		//	Adding sphere to the scene breaks it.
+		//	scene.add(vertex.sphere());
 	}
+
 } // End of onMouseClick()
 
-function vertexIDCheck(vertex) {
-
-	verticesCheckList.forEach(element => {
-
-		JSON.stringify(vertex) === JSON.stringify(element)
-			? myPointer.material.color.set(0xff0000)
-			: myPointer.material.color.set(0x0000ff);
-	})
-	// REMEMBER TO ADD A APPROXIMATION TO THE CHECKING OF THE VERTEX.FACEINDEX
-	// IT'S DIFFICULT TO CLICK ON THE SAME SPECIFIC VERTEX.
-	// console.log(vertex.faceIndex < 100 && vertex.faceIndex > 50);
-
-	// printShotgun('----verticesCheckList', verticesCheckList);
-} // End of vertexIDCheck
+function getVertex(intersects) {
+	return {
+		dataTermID: 'null',
+		dotID: 'null',
+		faceIndex: intersects.faceIndex,
+		point: intersects.point,
+		uv: intersects.uv,
+	}
+}
 
 function getMousePosition(x, y) {
 
@@ -288,4 +312,36 @@ function getIntersects(point, objects) {
 	return raycaster.intersectObjects(objects);
 }
 
-// export default verticesCheckList;
+// Class that contains all the vertex, labeling, and sphere data.
+// The sphere data auto updates the moment dotID & point update.
+class Vertex {
+
+	constructor(_dataTermID, _dotID, _faceIndex, _point, _uv) {
+		this.dataTermID = _dataTermID;
+		this.dotID = _dotID;
+		this.faceIndex = _faceIndex;
+		this.point = _point;
+		this.uv = _uv;
+		this.sphere = function () {
+			let widthAndHeightSegments = 16;
+			let sphereColor = 0x00fff0
+
+			let mesh = new THREE.Mesh(
+				new THREE.SphereGeometry(15, widthAndHeightSegments, widthAndHeightSegments),
+				new THREE.MeshBasicMaterial({ color: sphereColor, wireframe: true, }),
+			);
+
+			mesh.name = this.dotID;
+			mesh.position.set(this.point['x'], this.point['y'], this.point['z']);
+			return mesh;
+		};
+	} // End of constructor
+
+	// STATIC
+	static isVariableNull(value) {
+		return value === null;
+	}
+} // End of class Vertex
+
+
+export { vertex };
