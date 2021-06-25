@@ -493,6 +493,14 @@ Namespace('Labeling').Creator = (function () {
 		term.childNodes[1].onclick = function () {
 			term.parentElement.removeChild(term);
 			dot.parentElement.removeChild(dot);
+
+			if (flag3D) {
+				listOfVertex.forEach((element, index) => {
+					if (element.dataTermID == term.id) { listOfVertex.splice(index, 1) }
+				});
+				hasListOfVertexChange = true;
+			}
+
 			return _drawBoard();
 		};
 
