@@ -4,6 +4,7 @@ import { OrbitControls } from '../node_modules/three/examples/jsm/controls/Orbit
 import { MTLLoader } from '../node_modules/three/examples/jsm/loaders/MTLLoader.js';
 import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.js';
 import Stats from '../node_modules/three/examples/jsm/libs/stats.module.js';
+import { hasListOfVertexChange } from './creator.js';
 
 // let mtlFileStr;
 let mtlFileStr = 'models3D/male02/male02.mtl';
@@ -120,11 +121,10 @@ function main() {
 function render() {
 	stats.update();
 
-	importListOfVertex().then(result => {
-		if (result.hasListOfVertexChange) {
-			checkListOfVertex(result.listOfVertex);
-		}
-
+	import('./creator.js').then(module => {
+		// pass the group list from renderedSpheresGroup
+		let group = scene.getObjectByName("renderedSpheresGroup");
+		if (module.hasListOfVertexChange) { checkListOfVertex(module.listOfVertex, group); }
 	}).catch(err => {
 		console.log(err);
 	});
@@ -134,49 +134,42 @@ function render() {
 	renderer.render(scene, camera);
 }
 
-function checkListOfVertex(result) {
-	let listSize = result.length;
-	// console.log(listSize);
+function checkListOfVertex(listOfVertex, group) {
+	let listSize = listOfVertex.length;
+	// stuck looping infinitely
+	console.log(listSize);
+	console.log(group.children);
+	console.log('');
 
-	if (knownNumVertex < listSize) {
-		addVertexSphere(result);
-		knownNumVertex++;
-		listOfVertexLocal = result;
-	}
-	else {
-		removeVertexSphere(result);
-		knownNumVertex--;
-		listOfVertexLocal = result;
-	}
+	knownNumVertex < listSize ? addVertexSphere(listOfVertex, group)
+		: knownNumVertex > listSize ? removeVertexSphere(listOfVertex, group)
+			: true;
+
+	knownNumVertex = group.children.length;
+	listOfVertexLocal = listOfVertex;
 }
 
-// Method for importing a the list of vertex that should be render as spheres
-// on the model.
-async function importListOfVertex() {
-
-	try {
-		let module = await import('./creator.js');
-		return module;
-	} catch (error) {
-		console.log(error);
-	}
+function addVertexSphere(listOfVertex, group) {
+	// 1) The obj of type group renderedSpheresGroup is located.
+	// 2) The sphere is added to the group.
+	// 3) By association there's no need to add the sphere to the scene directly.
+	group.add(listOfVertex[listOfVertex.length - 1].sphere());
 }
 
-function addVertexSphere(listOfVertexLocal) {
+function removeVertexSphere(listOfVertex, group) {
+	listOfVertexLocal.forEach((element, index) => {
+		// element.sphere is not being remove.
+		!listOfVertex.includes(element)
+			? group.remove(group.children[index.toString])
+			: true;
 
-	// console.log(listOfVertexLocal);
-	listOfVertexLocal.forEach(element => {
+	})
 
-		// 1) The obj of type group renderedSpheresGroup is located.
-		// 2) The sphere is added to the group.
-		// 3) By association there's no need to add the sphere to the scene directly.
-		scene.getObjectByName("renderedSpheresGroup").add(element.sphere());
-	});
+	// group.remove(group.children[1]);// does remove
+	console.log(listOfVertex)
+	console.log(listOfVertexLocal)
+	console.log(group.children);
 
-}
-
-function removeVertexSphere() {
-	// return console.log('Removing Vertex Sphere');
 }
 
 function getSphere() {
