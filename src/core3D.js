@@ -3,7 +3,7 @@ import * as THREE from '../node_modules/three/build/three.module.js';
 import { OrbitControls } from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import { MTLLoader } from '../node_modules/three/examples/jsm/loaders/MTLLoader.js';
 import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.js';
-
+import Stats from '../node_modules/three/examples/jsm/libs/stats.module.js';
 
 // let mtlFileStr;
 let mtlFileStr = 'models3D/male02/male02.mtl';
@@ -15,41 +15,63 @@ let objFileStr = 'models3D/male02/male02.obj';
 // let objFileStr = 'models3D/cerberus/Cerberus.obj';
 // let objFileStr = 'models3D/tree.obj';
 
-const setAntialias = true;
-const showWireframe = true;
-const sceneColor = 0xdddddd;
+// Variables that can
+let sceneColor = 0xdddddd; // control the background color of a scene,
+let setAntialias = true; // increase or decrease performance,
+let showWireframe = true; // remove the texture to see the line connections between vertices.
 
+// Variables that control the appearance of the sphere that displays the last position where
+// the user clicked on.
+let sphereColor = 0xffb84d;
+let sphereRadius = 6; // size of all spheres even in the CLASS Vertex.
+let myPointerSize = sphereRadius + 0.5; // size of last clicked sphere.
+let widthAndHeightSegments = 16;
+const myPointer = getSphere();
+
+// Variable used to create and keep track of vertices ["data generated"] from user ones
+// they click to create a label.
+let vertex;
+let hasListOfVertexChangeLocal;
+let listOfVertexLocal = [];
+let knownNumVertex = 0;
+let renderedSpheresGroup = new THREE.Group;
+renderedSpheresGroup.name = 'renderedSpheresGroup';
+
+// Get the HTML element where the scene will be appended to and render.
 const canvas = document.getElementById('board');
 const canvasWidth = canvas.offsetWidth; // data value = 605
 const canvasHeight = canvas.offsetHeight; // data value = 551
 
+// ThreeJs variables that control and help the scene, camera position, rendering, and
+// display of model and its texture loaders.
+let mtlLoader = new MTLLoader();
+let objLoader = new OBJLoader();
+const objDimensions = new THREE.Box3();
+const objCenter = new THREE.Vector3();
+const mousePosition = new THREE.Vector2();
+const onClickPosition = new THREE.Vector2();
+// raycaster is used for interpolating the mouse's xy-position on click
+// versus 3D world xyz-position. Look at function onMouseClick() and inside that
+// function getIntersects().
+const raycaster = new THREE.Raycaster();
+
 let fov = 45;
-let aspect = canvasWidth / canvasHeight;  // the canvas default
+let aspect = canvasWidth / canvasHeight;
 let near = 0.1;
 let far = 1000;
 
+const stats = Stats();
+let canvasRect = canvas.getBoundingClientRect();
 const scene = new THREE.Scene();
-// const stats = new Stats();
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias });
-
-let mtlLoader = new MTLLoader();
-let objLoader = new OBJLoader();
 const controls = new OrbitControls(camera, renderer.domElement);
-const objDimensions = new THREE.Box3();
-const objCenter = new THREE.Vector3();
-const raycaster = new THREE.Raycaster();
-const mousePosition = new THREE.Vector2();
-const onClickPosition = new THREE.Vector2();
 
-let sphereColor = 0xffb84d;
-const radius = 10;
-const myPointer = getSphere();
-let vertex;
-const listOfVertex = [];
-let vertexCnt = 0;
-
+// Loads in all the base requirements for properly displaying the 3D environment.
 main();
+
+// Recursive function that render and controls the 3D environment every
+// time a frame is renderer.
 render();
 
 function main() {
@@ -66,15 +88,10 @@ function main() {
 	renderer.setSize(canvasWidth, canvasHeight);
 	canvas.appendChild(renderer.domElement);
 
-	// stats.dom.id = 'statsBlock';
-	// canvas.appendChild(stats.dom);
-
-	let canvasRect = canvas.getBoundingClientRect();
-	// stats.dom.style.left = canvasRect.right - 80 + 'px';
-	// stats.dom.style.top = canvasRect.bottom - 48 + 'px';
-
-	scene.add(myPointer);
-	scene.add(camera);
+	stats.dom.id = 'statsBlock';
+	stats.dom.style.left = canvasRect.right - 80 + 'px';
+	stats.dom.style.top = canvasRect.bottom - 48 + 'px';
+	canvas.appendChild(stats.dom);
 
 	// controls.enableKeys = true;
 
@@ -86,6 +103,11 @@ function main() {
 	// 	BOTTOM: 83 // down arrow
 	// }
 
+
+	scene.add(renderedSpheresGroup);
+	scene.add(myPointer);
+	scene.add(camera);
+
 	// use if obj provided  // use if mtl and obj provided
 	mtlFileStr == null ? getOBJRender(controls) : getMTLandOBJRender(controls);
 
@@ -96,44 +118,70 @@ function main() {
 }// END OF MAIN()
 
 function render() {
-	// stats.update();
+	stats.update();
 
-	// checkListOfVertex();
+	importListOfVertex().then(result => {
+		if (result.hasListOfVertexChange) {
+			checkListOfVertex(result.listOfVertex);
+		}
+
+	}).catch(err => {
+		console.log(err);
+	});
 
 	controls.update();
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
 }
 
-function checkListOfVertex() {
+function checkListOfVertex(result) {
+	let listSize = result.length;
+	// console.log(listSize);
 
-	let currentNumVertex = listOfVertex.length;
-
-	if (vertexCnt === currentNumVertex) {
-		return true;
-	}
-	else if (vertexCnt > currentNumVertex) {
-		addVertexSphere();
+	if (knownNumVertex < listSize) {
+		addVertexSphere(result);
+		knownNumVertex++;
+		listOfVertexLocal = result;
 	}
 	else {
-		removeVertexSphere();
+		removeVertexSphere(result);
+		knownNumVertex--;
+		listOfVertexLocal = result;
 	}
 }
 
-function addVertexSphere() {
-	return console.log('Adding Vertex Sphere');
+// Method for importing a the list of vertex that should be render as spheres
+// on the model.
+async function importListOfVertex() {
+
+	try {
+		let module = await import('./creator.js');
+		return module;
+	} catch (error) {
+		console.log(error);
+	}
+}
+
+function addVertexSphere(listOfVertexLocal) {
+
+	// console.log(listOfVertexLocal);
+	listOfVertexLocal.forEach(element => {
+
+		// 1) The obj of type group renderedSpheresGroup is located.
+		// 2) The sphere is added to the group.
+		// 3) By association there's no need to add the sphere to the scene directly.
+		scene.getObjectByName("renderedSpheresGroup").add(element.sphere());
+	});
+
 }
 
 function removeVertexSphere() {
-	return console.log('Removing Vertex Sphere');
+	// return console.log('Removing Vertex Sphere');
 }
 
 function getSphere() {
-
-	let widthAndHeightSegments = 16;
-
 	let mesh = new THREE.Mesh(
-		new THREE.SphereGeometry(radius, widthAndHeightSegments, widthAndHeightSegments),
+		new THREE.SphereGeometry(myPointerSize, widthAndHeightSegments, widthAndHeightSegments),
 		new THREE.MeshBasicMaterial({ color: sphereColor, wireframe: false, }),
 	);
 
@@ -267,33 +315,14 @@ function onMouseClick(event) {
 	const intersects = getIntersects(onClickPosition, intersectedObjects.children, true);
 
 	if (intersects.length > 0) {
+		vertex = new Vertex('term_', 'dot_term_', intersects[0].faceIndex, intersects[0].point, intersects[0].uv);
 
-		let tempVertex = getVertex(intersects[0]);
-		myPointer.position.x = tempVertex.point['x'];
-		myPointer.position.y = tempVertex.point['y'];
-		myPointer.position.z = tempVertex.point['z'];
-		// verticesList.length == 0 ? verticesList.push(tempVertex) : vertexIDCheck(tempVertex);
-
-		vertex = new Vertex('term_' + ++vertexCnt, 'dot_term_' + vertexCnt, intersects[0].faceIndex, intersects[0].point, intersects[0].uv);
-		listOfVertex.push(vertex);
-
-		// checkListOfVertex();
-		//	IT'S CAUSING THE INTERSECT TO STOP DETECTING THE MODEL.
-		//	Adding sphere to the scene breaks it.
-		//	scene.add(vertex.sphere());
+		myPointer.position.x = vertex.point['x'];
+		myPointer.position.y = vertex.point['y'];
+		myPointer.position.z = vertex.point['z'];
 	}
 
 } // End of onMouseClick()
-
-function getVertex(intersects) {
-	return {
-		dataTermID: 'null',
-		dotID: 'null',
-		faceIndex: intersects.faceIndex,
-		point: intersects.point,
-		uv: intersects.uv,
-	}
-}
 
 function getMousePosition(x, y) {
 
@@ -323,12 +352,11 @@ class Vertex {
 		this.point = _point;
 		this.uv = _uv;
 		this.sphere = function () {
-			let widthAndHeightSegments = 16;
-			let sphereColor = 0x00fff0
+			let sphereColor = 0xfdedce;
 
 			let mesh = new THREE.Mesh(
-				new THREE.SphereGeometry(15, widthAndHeightSegments, widthAndHeightSegments),
-				new THREE.MeshBasicMaterial({ color: sphereColor, wireframe: true, }),
+				new THREE.SphereGeometry(sphereRadius, widthAndHeightSegments, widthAndHeightSegments),
+				new THREE.MeshBasicMaterial({ color: sphereColor, wireframe: false, }),
 			);
 
 			mesh.name = this.dotID;
@@ -344,4 +372,4 @@ class Vertex {
 } // End of class Vertex
 
 
-export { vertex };
+export { vertex }
