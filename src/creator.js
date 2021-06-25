@@ -9,8 +9,8 @@ and another containing the mix of vanilla Labeling with the 3D code.
 		vertex's imported from FILE core3D.js.
 */
 
-// import { vertex } from './core3D.js';
-
+let hasListOfVertexChange = false;
+let listOfVertex = [];
 
 Namespace('Labeling').Creator = (function () {
 
@@ -36,7 +36,6 @@ Namespace('Labeling').Creator = (function () {
 	let _gettingStarted = false;
 
 	let flag3D;
-	let listOfVertex = [];
 
 	const _defaultLabel = '[label title]';
 
@@ -388,13 +387,14 @@ Namespace('Labeling').Creator = (function () {
 	var _makeTerm = function (x, y, text, labelX = null, labelY = null, id) {
 		if (text == null) { text = _defaultLabel; }
 		if (id == null) { id = ''; }
+		if (flag3D) { hasListOfVertexChange = true; }
 		const dotx = x;
 		const doty = y;
 
 		const term = document.createElement('div');
 		term.id = 'term_' + Math.random(); // fake id for linking with dot
-		term.innerHTML = "<div class='label-input' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>" + text + "</div><div class='delete'></div>";
 		term.className = 'term';
+		term.innerHTML = "<div class='label-input' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>" + text + "</div><div class='delete'></div>";
 
 		// if we're generating a generic one, decide on a position
 		if ((labelX === null) || (labelY === null)) {
@@ -460,7 +460,7 @@ Namespace('Labeling').Creator = (function () {
 		if (flag3D) {
 			let vertex = importVertex(term.id)
 				.then(result => {
-					listOfVertex.push(result)
+					listOfVertex.push(result);
 				}).catch(err => {
 					console.log(err);
 				});
@@ -520,11 +520,18 @@ Namespace('Labeling').Creator = (function () {
 		$(dot).draggable({
 			drag: _dotDragged
 		});
+
 		setTimeout(function () {
 			term.childNodes[0].focus();
 			return document.execCommand('selectAll', false, null);
 		}
 			, 10);
+
+		if (hasListOfVertexChange) {
+			setTimeout(() => { hasListOfVertexChange = false }, 50);
+		}
+
+		// if (flag3D) { hasListOfVertexChange = false; }
 
 		return _drawBoard();
 	};
@@ -893,4 +900,4 @@ Namespace('Labeling').Creator = (function () {
 	};
 })();
 
-export { };
+export { listOfVertex, hasListOfVertexChange };
