@@ -121,54 +121,67 @@ function main() {
 function render() {
 	stats.update();
 
-	import('./creator.js').then(module => {
-		// pass the group list from renderedSpheresGroup
-		let group = scene.getObjectByName("renderedSpheresGroup");
-		if (module.hasListOfVertexChange) { checkListOfVertex(module.listOfVertex, group); }
-	}).catch(err => {
-		console.log(err);
-	});
+	import('./creator.js')
+		.then((module) => {
+			// checkListOfVertex(module.listOfVertex);
+			if (module.hasListOfVertexChange) { checkListOfVertex(module.listOfVertex); }
+			return module.listOfVertex;
+
+		}).then(listOfVertex => {
+			knownNumVertex = listOfVertex.length;
+			listOfVertexLocal = listOfVertex;
+
+		}).catch(err => {
+			console.log(err);
+		});
 
 	controls.update();
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
 }
 
-function checkListOfVertex(listOfVertex, group) {
+async function checkListOfVertex(listOfVertex) {
 	let listSize = listOfVertex.length;
-	// stuck looping infinitely
-	console.log(listSize);
-	console.log(group.children);
-	console.log('');
 
-	knownNumVertex < listSize ? addVertexSphere(listOfVertex, group)
-		: knownNumVertex > listSize ? removeVertexSphere(listOfVertex, group)
+	knownNumVertex < listSize ? addVertexSphere(listOfVertex)
+		: knownNumVertex > listSize ? removeVertexSphere(listOfVertex)
 			: true;
 
-	knownNumVertex = group.children.length;
-	listOfVertexLocal = listOfVertex;
+
 }
 
-function addVertexSphere(listOfVertex, group) {
+// Getting residue from old spheres, or sphere from mouse click out of the model.
+async function addVertexSphere(listOfVertex) {
 	// 1) The obj of type group renderedSpheresGroup is located.
 	// 2) The sphere is added to the group.
 	// 3) By association there's no need to add the sphere to the scene directly.
-	group.add(listOfVertex[listOfVertex.length - 1].sphere());
+	renderedSpheresGroup.add(listOfVertex[listOfVertex.length - 1].sphere());
+	console.log(renderedSpheresGroup.children);
+	return
 }
 
-function removeVertexSphere(listOfVertex, group) {
-	listOfVertexLocal.forEach((element, index) => {
-		// element.sphere is not being remove.
-		!listOfVertex.includes(element)
-			? group.remove(group.children[index.toString])
-			: true;
+// Remember to update/verified listOfVertex on creator.js so it matches
+// with the renderedSpheresGroup.children
+// Getting residue from old spheres, or sphere from mouse click out of the model.
+async function removeVertexSphere(listOfVertex) {
+	let groupChildren = renderedSpheresGroup.children;
+	groupChildren.forEach((element, index) => {
 
-	})
-
-	// group.remove(group.children[1]);// does remove
-	console.log(listOfVertex)
-	console.log(listOfVertexLocal)
-	console.log(group.children);
+		// Checks for the last vertex in renderedSpheresGroup
+		// If its not use, the console will return a error regarding promises.
+		// I DON'T KNOW WHY BUT THIS FUNCTION IS DOING MOST OF THE ERASING.
+		if (element.name == groupChildren[groupChildren.length - 1].name) {
+			renderedSpheresGroup.remove(groupChildren[index]);
+			return;
+		}
+		console.log(index);
+		// For the exception' of the last vertex, removes all spheres from the 3D environment.
+		if (!JSON.stringify(listOfVertex[index]).includes(JSON.stringify(element.name))) {
+			renderedSpheresGroup.remove(groupChildren[index]);
+			console.log(groupChildren);
+			return;
+		}
+	});
 
 }
 
