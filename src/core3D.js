@@ -4,7 +4,6 @@ import { OrbitControls } from '../node_modules/three/examples/jsm/controls/Orbit
 import { MTLLoader } from '../node_modules/three/examples/jsm/loaders/MTLLoader.js';
 import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.js';
 import Stats from '../node_modules/three/examples/jsm/libs/stats.module.js';
-import { hasListOfVertexChange } from './creator.js';
 
 // let mtlFileStr;
 let mtlFileStr = 'models3D/male02/male02.mtl';
@@ -32,7 +31,6 @@ const myPointer = getSphere();
 // Variable used to create and keep track of vertices ["data generated"] from user ones
 // they click to create a label.
 let vertex;
-let hasListOfVertexChangeLocal;
 let listOfVertexLocal = [];
 let knownNumVertex = 0;
 let renderedSpheresGroup = new THREE.Group;
@@ -121,68 +119,9 @@ function main() {
 function render() {
 	stats.update();
 
-	import('./creator.js')
-		.then((module) => {
-			// checkListOfVertex(module.listOfVertex);
-			if (module.hasListOfVertexChange) { checkListOfVertex(module.listOfVertex); }
-			return module.listOfVertex;
-
-		}).then(listOfVertex => {
-			knownNumVertex = listOfVertex.length;
-			listOfVertexLocal = listOfVertex;
-
-		}).catch(err => {
-			console.log(err);
-		});
-
 	controls.update();
 	requestAnimationFrame(render);
 	renderer.render(scene, camera);
-}
-
-async function checkListOfVertex(listOfVertex) {
-	let listSize = listOfVertex.length;
-
-	knownNumVertex < listSize ? addVertexSphere(listOfVertex)
-		: knownNumVertex > listSize ? removeVertexSphere(listOfVertex)
-			: true;
-
-
-}
-
-// Getting residue from old spheres, or sphere from mouse click out of the model.
-async function addVertexSphere(listOfVertex) {
-	// 1) The obj of type group renderedSpheresGroup is located.
-	// 2) The sphere is added to the group.
-	// 3) By association there's no need to add the sphere to the scene directly.
-	renderedSpheresGroup.add(listOfVertex[listOfVertex.length - 1].sphere());
-	console.log(renderedSpheresGroup.children);
-	return
-}
-
-// Remember to update/verified listOfVertex on creator.js so it matches
-// with the renderedSpheresGroup.children
-// Getting residue from old spheres, or sphere from mouse click out of the model.
-async function removeVertexSphere(listOfVertex) {
-	let groupChildren = renderedSpheresGroup.children;
-	groupChildren.forEach((element, index) => {
-
-		// Checks for the last vertex in renderedSpheresGroup
-		// If its not use, the console will return a error regarding promises.
-		// I DON'T KNOW WHY BUT THIS FUNCTION IS DOING MOST OF THE ERASING.
-		if (element.name == groupChildren[groupChildren.length - 1].name) {
-			renderedSpheresGroup.remove(groupChildren[index]);
-			return;
-		}
-		console.log(index);
-		// For the exception' of the last vertex, removes all spheres from the 3D environment.
-		if (!JSON.stringify(listOfVertex[index]).includes(JSON.stringify(element.name))) {
-			renderedSpheresGroup.remove(groupChildren[index]);
-			console.log(groupChildren);
-			return;
-		}
-	});
-
 }
 
 function getSphere() {
@@ -290,8 +229,9 @@ function getMTLandOBJRender(controls) {
 	});
 } // End of getMTLandOBJRender()
 
+// Function for testing purposes
 function printShotgun(str, data) {
-	console.log(str);
+	console.log('%c ' + str, 'color:orange; font-weight:bold;');
 	console.log(data);
 }
 
@@ -377,5 +317,4 @@ class Vertex {
 	}
 } // End of class Vertex
 
-
-export { vertex }
+export { vertex, renderedSpheresGroup }

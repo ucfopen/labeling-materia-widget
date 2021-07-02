@@ -9,7 +9,6 @@ and another containing the mix of vanilla Labeling with the 3D code.
 		vertex's imported from FILE core3D.js.
 */
 
-let hasListOfVertexChange = false;
 let listOfVertex = [];
 
 Namespace('Labeling').Creator = (function () {
@@ -36,6 +35,7 @@ Namespace('Labeling').Creator = (function () {
 	let _gettingStarted = false;
 
 	let flag3D;
+	let renderedSpheresGroup;
 
 	const _defaultLabel = '[label title]';
 
@@ -374,7 +374,6 @@ Namespace('Labeling').Creator = (function () {
 			document.querySelector('#imagewrapper').classList.remove('faded');
 		}
 
-
 		return setTimeout(function () {
 			document.querySelector('#help_moving').style.display = 'block';
 			document.querySelector('#btnMoveResize').style.display = 'block';
@@ -387,7 +386,7 @@ Namespace('Labeling').Creator = (function () {
 	var _makeTerm = function (x, y, text, labelX = null, labelY = null, id) {
 		if (text == null) { text = _defaultLabel; }
 		if (id == null) { id = ''; }
-		if (flag3D) { hasListOfVertexChange = true; }
+
 		const dotx = x;
 		const doty = y;
 
@@ -461,6 +460,7 @@ Namespace('Labeling').Creator = (function () {
 			let vertex = importVertex(term.id)
 				.then(result => {
 					listOfVertex.push(result);
+					console.log(renderedSpheresGroup.children);
 				}).catch(err => {
 					console.log(err);
 				});
@@ -496,9 +496,12 @@ Namespace('Labeling').Creator = (function () {
 
 			if (flag3D) {
 				listOfVertex.forEach((element, index) => {
-					if (element.dataTermID == term.id) { listOfVertex.splice(index, 1) }
+					if (element.dataTermID == term.id) {
+						renderedSpheresGroup.remove(renderedSpheresGroup.children[index]);
+						listOfVertex.splice(index, 1);
+						console.log(renderedSpheresGroup.children);
+					}
 				});
-				hasListOfVertexChange = true;
 			}
 
 			return _drawBoard();
@@ -534,12 +537,6 @@ Namespace('Labeling').Creator = (function () {
 			return document.execCommand('selectAll', false, null);
 		}
 			, 10);
-
-		if (hasListOfVertexChange) {
-			setTimeout(() => { hasListOfVertexChange = false }, 50);
-		}
-
-		// if (flag3D) { hasListOfVertexChange = false; }
 
 		return _drawBoard();
 	};
@@ -820,6 +817,14 @@ Namespace('Labeling').Creator = (function () {
 				document.querySelector('#image').remove();
 				document.querySelector('#imagewrapper').remove();
 
+				import('./core3D.js')
+					.then((module) => {
+						renderedSpheresGroup = module.renderedSpheresGroup;
+					})
+					.catch((err) => {
+						console.log(err);
+					});
+
 				disableEvents();
 				enable3DEvents();
 			}
@@ -887,6 +892,7 @@ Namespace('Labeling').Creator = (function () {
 			vertex.dataTermID = termID;
 			vertex.dotID = 'dot_' + termID;
 
+			renderedSpheresGroup.add(vertex.sphere());
 			return vertex;
 
 		} catch (e) {
@@ -907,5 +913,3 @@ Namespace('Labeling').Creator = (function () {
 		onSaveComplete,
 	};
 })();
-
-export { listOfVertex, hasListOfVertexChange };
