@@ -5,13 +5,13 @@ import { MTLLoader } from '../node_modules/three/examples/jsm/loaders/MTLLoader.
 import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.js';
 import Stats from '../node_modules/three/examples/jsm/libs/stats.module.js';
 
-// let mtlFileStr;
 let mtlFileStr = 'models3D/male02/male02.mtl';
 let objFileStr = 'models3D/male02/male02.obj';
 // let mtlFileStr = 'models3D/female02/female02.mtl';
 // let objFileStr = 'models3D/female02/female02.obj';
 // let mtlFileStr = 'models3D/vroom/Audi_R8_2017.mtl';
 // let objFileStr = 'models3D/vroom/Audi_R8_2017.obj';
+// let mtlFileStr;
 // let objFileStr = 'models3D/cerberus/Cerberus.obj';
 // let objFileStr = 'models3D/tree.obj';
 
@@ -45,8 +45,11 @@ const canvasHeight = canvas.offsetHeight; // data value = 551
 // display of model and its texture loaders.
 let mtlLoader = new MTLLoader();
 let objLoader = new OBJLoader();
-const objDimensions = new THREE.Box3();
-const objCenter = new THREE.Vector3();
+let objBoxCenter;
+let objBoxSize;
+let cameraInitialPosition = new THREE.Vector3();
+let cameraLooksAt = new THREE.Vector3();
+const objBoxDimensions = new THREE.Box3();
 const mousePosition = new THREE.Vector2();
 const onClickPosition = new THREE.Vector2();
 // raycaster is used for interpolating the mouse's xy-position on click
@@ -65,6 +68,7 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias });
 const controls = new OrbitControls(camera, renderer.domElement);
+// controls.enablePan = false;
 
 // Loads in all the base requirements for properly displaying the 3D environment.
 main();
@@ -172,24 +176,18 @@ function getOBJRender(controls) {
 
 	objLoader.load(objFileStr, (obj) => {
 		obj.name = 'myRender';
+		scene.add(obj);
 
 		// Create invisible box with dimensions of obj.
-		objDimensions.setFromObject(obj);
+		objBoxDimensions.setFromObject(obj);
+		objBoxSize = objBoxDimensions.getSize(new THREE.Vector3()).length();
+		objBoxCenter = objBoxDimensions.getCenter(new THREE.Vector3());
 
-		// Get the center of the box
-		objDimensions.getCenter(objCenter);
+		frameArea(objBoxSize * 1.2, objBoxSize, objBoxCenter);
 
-		// Gets the obj HEIGHT
-		let totalHeight = objDimensions.getSize().y;
-
-		// Matches the HEIGHT of the camera with the center of the box
-		camera.position.y = objCenter.y;
-
-		// Moves the camera in the positive
-		camera.position.z = totalHeight + (totalHeight * 0.5);
-		controls.target = objCenter;
-
-		scene.add(obj);
+		controls.maxDistance = objBoxSize * 10;
+		controls.target.copy(objBoxCenter);
+		controls.update();
 	},
 		onProgress,
 		onError
@@ -204,30 +202,55 @@ function getMTLandOBJRender(controls) {
 		objLoader.setMaterials(mtl);
 		objLoader.load(objFileStr, (obj) => {
 			obj.name = 'myRender';
+			scene.add(obj);
 
 			// Create invisible box with dimensions of obj.
-			objDimensions.setFromObject(obj);
+			objBoxDimensions.setFromObject(obj);
+			objBoxSize = objBoxDimensions.getSize(new THREE.Vector3()).length();
+			objBoxCenter = objBoxDimensions.getCenter(new THREE.Vector3());
 
-			// Get the center of the box
-			objDimensions.getCenter(objCenter);
+			frameArea(objBoxSize * 1.2, objBoxSize, objBoxCenter);
 
-			// Gets the obj HEIGHT
-			let totalHeight = objDimensions.getSize().y;
-
-			// Matches the HEIGHT of the camera with the center of the box
-			camera.position.y = objCenter.y;
-
-			// Moves the camera in the positive
-			camera.position.z = totalHeight + (totalHeight * 0.5);
-			controls.target = objCenter;
-
-			scene.add(obj);
+			controls.maxDistance = objBoxSize * 10;
+			controls.target.copy(objBoxCenter);
+			controls.update();
 		},
 			onProgress,
 			onError
 		);
 	});
+
 } // End of getMTLandOBJRender()
+
+function frameArea(sizeToFitOnScreen, objBoxSize, objBoxCenter) {
+	const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
+	const halfFovY = THREE.MathUtils.degToRad(camera.fov * .5);
+	const distance = halfSizeToFitOnScreen / Math.tan(halfFovY);
+
+	const direction = (new THREE.Vector3())
+		.subVectors(camera.position, objBoxCenter)
+		.multiply(new THREE.Vector3(1, 0, 1))
+		.normalize();
+
+	camera.position.copy(direction.multiplyScalar(distance).add(objBoxCenter));
+	camera.far = objBoxSize * 100;
+	camera.near = objBoxSize / 100;
+	camera.updateProjectionMatrix();
+	camera.lookAt(objBoxCenter.x, objBoxCenter.y, objBoxCenter.z);
+
+	cameraInitialPosition.copy(camera.position);
+	cameraLooksAt.copy(objBoxCenter);
+}
+
+let centeringCameraEvent = function () {
+	camera.position.copy(cameraInitialPosition);
+	camera.lookAt(objBoxCenter.x, objBoxCenter.y, objBoxCenter.z);
+	controls.maxDistance = objBoxSize * 10;
+	controls.target.copy(objBoxCenter);
+	controls.update();
+}
+
+document.getElementById('centerCamera').addEventListener('click', centeringCameraEvent);
 
 // Function for testing purposes
 function printShotgun(str, data) {
