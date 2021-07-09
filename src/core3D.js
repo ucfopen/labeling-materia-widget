@@ -264,13 +264,14 @@ function onWindowResize() {
 	renderer.setSize(canvas.offsetWidth, canvas.offsetHeight);
 
 	let canvasRect = canvas.getBoundingClientRect();
-	// stats.dom.style.left = canvasRect.right - 80 + 'px';
-	// stats.dom.style.top = canvasRect.bottom - 48 + 'px';
+	stats.dom.style.left = canvasRect.right - 80 + 'px';
+	stats.dom.style.top = canvasRect.bottom - 48 + 'px';
 }
 
 // Func that processes all the raycaster to determine where the user click.
 // Its achieve by using the mouse xy-position and calculating where that its with
 // reference to the camera seeing dimensions.
+let intersects;
 function onMouseClick(event) {
 
 	event.preventDefault();
@@ -281,7 +282,7 @@ function onMouseClick(event) {
 	const array = getMousePosition(event.clientX, event.clientY); // array[x, y]
 	onClickPosition.fromArray(array); // object {x, y, isVector2: true}
 
-	const intersects = getIntersects(onClickPosition, intersectedObjects.children, true);
+	intersects = getIntersects(onClickPosition, intersectedObjects.children, true);
 
 	if (intersects.length > 0) {
 		vertex = new Vertex('term_', 'dot_term_', intersects[0].faceIndex, intersects[0].point, intersects[0].uv);
@@ -340,4 +341,4 @@ class Vertex {
 	}
 } // End of class Vertex
 
-export { vertex, renderedSpheresGroup }
+export { vertex, intersects, renderedSpheresGroup }

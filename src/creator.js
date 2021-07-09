@@ -9,7 +9,7 @@ and another containing the mix of vanilla Labeling with the 3D code.
 		vertex's imported from FILE core3D.js.
 */
 
-let listOfVertex = [];
+
 
 Namespace('Labeling').Creator = (function () {
 
@@ -38,6 +38,7 @@ Namespace('Labeling').Creator = (function () {
 	let camera;
 	let objBoxDimensions;
 	let renderedSpheresGroup;
+	let listOfVertex = [];
 
 	const _defaultLabel = '[label title]';
 
@@ -456,14 +457,10 @@ Namespace('Labeling').Creator = (function () {
 
 		if (flag3D) {
 			importVertex(term.id)
-				.then(result => {
-					listOfVertex.push(result);
-					console.log(renderedSpheresGroup.children);
-				}).catch(err => {
+				.catch(err => {
 					console.log(err);
 				});
 		}
-
 
 		$('#terms').append(term);
 		$('#terms').append(dot);
@@ -497,7 +494,9 @@ Namespace('Labeling').Creator = (function () {
 			dot.parentElement.removeChild(dot);
 
 			if (flag3D) {
+				console.table(listOfVertex);
 				listOfVertex.forEach((element, index) => {
+
 					if (element.dataTermID == term.id) {
 						renderedSpheresGroup.remove(renderedSpheresGroup.children[index]);
 						listOfVertex.splice(index, 1);
@@ -542,6 +541,7 @@ Namespace('Labeling').Creator = (function () {
 
 		return _drawBoard();
 	};
+
 
 	// When typing on a term, resize the font accordingly
 	var _termKeyUp = function (e) {
@@ -869,174 +869,19 @@ Namespace('Labeling').Creator = (function () {
 		}
 	}
 
-	var _makeTerm = function (x, y, text, labelX = null, labelY = null, id) {
-		if (text == null) { text = _defaultLabel; }
-		if (id == null) { id = ''; }
-
-		const dotx = x;
-		const doty = y;
-
-		const term = document.createElement('div');
-		term.id = 'term_' + Math.random(); // fake id for linking with dot
-		term.className = 'term';
-		term.innerHTML = "<div class='label-input' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>" + text + "</div><div class='delete'></div>";
-
-		// if we're generating a generic one, decide on a position
-		if ((labelX === null) || (labelY === null)) {
-			y = (y - 200);
-
-			const labelAreaHalfWidth = 500 / 2;
-			const labelAreaHalfHeight = 500 / 2;
-
-			const labelStartOffsetX = 70;
-			const labelStartOffsetY = 50;
-
-			if (x < labelAreaHalfWidth) {
-				x -= labelStartOffsetX;
-
-				if (y < labelAreaHalfHeight) {
-					y += labelStartOffsetY;
-				} else {
-					y -= labelStartOffsetY;
-				}
-			} else {
-				x += labelStartOffsetX;
-
-				if (y < labelAreaHalfHeight) {
-					y += labelStartOffsetY;
-				} else {
-					y -= labelStartOffsetY;
-				}
-			}
-
-			if (y < 150) {
-				y = 150;
-			}
-
-			if (x > 450) {
-				x = 450;
-			}
-			if (x < 100) {
-				x = 100;
-			}
-		} else {
-			x = labelX;
-			y = labelY;
-		}
-
-		// set term location and dot attribute
-		term.style.left = x + 'px';
-		term.style.top = y + 'px';
-		term.setAttribute('data-x', dotx);
-		term.setAttribute('data-y', doty);
-		term.setAttribute('data-id', id);
-
-		const dot = document.createElement('div');
-		dot.className = 'dot' + _anchorOpacity;
-		dot.style.left = dotx + 'px';
-		dot.style.top = doty + 'px';
-		dot.setAttribute('data-termid', term.id);
-		dot.id = "dot_" + term.id;
-
-		if (flag3D) {
-			importVertex(term.id)
-				.then(result => {
-					listOfVertex.push(result);
-					console.log(renderedSpheresGroup.children);
-				}).catch(err => {
-					console.log(err);
-				});
-		}
-
-
-		$('#terms').append(term);
-		$('#terms').append(dot);
-
-		// edit on click
-		term.onclick = function () {
-			term.childNodes[0].focus();
-			document.execCommand('selectAll', false, null);
-			if (term.childNodes[0].innerHTML === _defaultLabel) {
-				return term.childNodes[0].innerHTML = '';
-			}
-		};
-
-		// resize text on change
-		term.childNodes[0].onkeyup = _termKeyUp;
-		// set initial font size
-		term.childNodes[0].onkeyup({ target: term.childNodes[0] });
-
-		// enter key press should stop editing
-		term.childNodes[0].onkeydown = _termKeyDown;
-
-		// check if blank when the text is cleared
-		term.childNodes[0].onblur = _termBlurred;
-
-		// clean up pasted content to make sure we don't accidentally get invisible html garbage
-		term.childNodes[0].onpaste = _termPaste;
-
-		// make delete button remove it from the list
-		term.childNodes[1].onclick = function () {
-			term.parentElement.removeChild(term);
-			dot.parentElement.removeChild(dot);
-
-			if (flag3D) {
-				listOfVertex.forEach((element, index) => {
-					if (element.dataTermID == term.id) {
-						renderedSpheresGroup.remove(renderedSpheresGroup.children[index]);
-						listOfVertex.splice(index, 1);
-						console.log(renderedSpheresGroup.children);
-					}
-				});
-			}
-
-			return _drawBoard();
-		};
-
-		// make the term movable
-		$(term).draggable({
-			drag(event, ui) {
-				if (ui.position.left < 20) {
-					ui.position.left = 20;
-				}
-				if (ui.position.left > 460) {
-					ui.position.left = 460;
-				}
-				if (ui.position.top > 505) {
-					ui.position.top = 505;
-				}
-				if (ui.position.top < 20) {
-					ui.position.top = 20;
-				}
-				_drawBoard();
-				return ui;
-			}
-		});
-
-		// make the dot movable
-		$(dot).draggable({
-			drag: _dotDragged
-		});
-
-		setTimeout(function () {
-			term.childNodes[0].focus();
-			return document.execCommand('selectAll', false, null);
-		}
-			, 10);
-
-		return _drawBoard();
-	};
-
 	async function importVertex(termID) {
 
 		let vertex;
 		try {
 			let module = await import('./core3D.js');
-			vertex = module.vertex;
-			vertex.dataTermID = termID;
-			vertex.dotID = 'dot_' + termID;
+			if (module.intersects.length > 0) {
+				vertex = module.vertex;
+				vertex.dataTermID = termID;
+				vertex.dotID = 'dot_' + termID;
+				renderedSpheresGroup.add(vertex.sphere());
+				listOfVertex.push(vertex);
+			}
 
-			renderedSpheresGroup.add(vertex.sphere());
 			return vertex;
 
 		} catch (e) {
