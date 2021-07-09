@@ -456,10 +456,7 @@ Namespace('Labeling').Creator = (function () {
 		dot.id = "dot_" + term.id;
 
 		if (flag3D) {
-			importVertex(term.id)
-				.catch(err => {
-					console.log(err);
-				});
+			importVertex(term.id);
 		}
 
 		$('#terms').append(term);
@@ -494,13 +491,11 @@ Namespace('Labeling').Creator = (function () {
 			dot.parentElement.removeChild(dot);
 
 			if (flag3D) {
-				console.table(listOfVertex);
 				listOfVertex.forEach((element, index) => {
 
 					if (element.dataTermID == term.id) {
 						renderedSpheresGroup.remove(renderedSpheresGroup.children[index]);
 						listOfVertex.splice(index, 1);
-						console.log(renderedSpheresGroup.children);
 					}
 				});
 			}
