@@ -9,8 +9,6 @@ and another containing the mix of vanilla Labeling with the 3D code.
 		vertex's imported from FILE core3D.js.
 */
 
-
-
 Namespace('Labeling').Creator = (function () {
 
 	// import verticesCheckList from './core3D';
@@ -31,14 +29,12 @@ Namespace('Labeling').Creator = (function () {
 	// store image dimensions in case the user cancels the resize
 	let _lastImgDimensions = {};
 
-	// track if the user is "getting started" or well on their way
-	let _gettingStarted = false;
-
+	// variables used through the code to manage the 3D aspect of the code
 	let flag3D;
-	let camera;
-	let objBoxDimensions;
-	let renderedSpheresGroup;
-	let listOfVertex = [];
+	// A Class Vertex construct can be seen in core3D.js, there are 5 parameters and one
+	// one function parameter called spheres.
+	let listOfVertex = []; // contains each vertex.
+	let renderedSpheresGroup; // render group containing spheres of each vertex.
 
 	const _defaultLabel = '[label title]';
 
@@ -54,8 +50,6 @@ Namespace('Labeling').Creator = (function () {
 
 		// hide the canvas so we can interact with it
 		document.querySelector('#canvas').style.display = 'none';
-
-		_gettingStarted = true;
 
 		// make a scaffold qset object
 		_qset = {};
@@ -369,7 +363,9 @@ Namespace('Labeling').Creator = (function () {
 	// Add term to the list, called by the click event
 	var _addTerm = function (e) {
 		// draw a dot on the canvas for the question location
-		_makeTerm(e.pageX - document.getElementById('frame').offsetLeft - document.getElementById('board').offsetLeft, e.pageY - 50);
+		flag3D
+			? _makeTerm3D(e.pageX - document.getElementById('frame').offsetLeft - document.getElementById('board').offsetLeft, e.pageY - 50)
+			: _makeTerm(e.pageX - document.getElementById('frame').offsetLeft - document.getElementById('board').offsetLeft, e.pageY - 50);
 
 		document.querySelector('#help_adding').style.display = 'none';
 		document.querySelector('#boardcover').style.display = 'none';
@@ -455,10 +451,6 @@ Namespace('Labeling').Creator = (function () {
 		dot.setAttribute('data-termid', term.id);
 		dot.id = "dot_" + term.id;
 
-		if (flag3D) {
-			importVertex(term.id);
-		}
-
 		$('#terms').append(term);
 		$('#terms').append(dot);
 
@@ -489,16 +481,6 @@ Namespace('Labeling').Creator = (function () {
 		term.childNodes[1].onclick = function () {
 			term.parentElement.removeChild(term);
 			dot.parentElement.removeChild(dot);
-
-			if (flag3D) {
-				listOfVertex.forEach((element, index) => {
-
-					if (element.dataTermID == term.id) {
-						renderedSpheresGroup.remove(renderedSpheresGroup.children[index]);
-						listOfVertex.splice(index, 1);
-					}
-				});
-			}
 
 			return _drawBoard();
 		};
@@ -536,7 +518,6 @@ Namespace('Labeling').Creator = (function () {
 
 		return _drawBoard();
 	};
-
 
 	// When typing on a term, resize the font accordingly
 	var _termKeyUp = function (e) {
@@ -864,24 +845,159 @@ Namespace('Labeling').Creator = (function () {
 		}
 	}
 
-	async function importVertex(termID) {
+	var _makeTerm3D = function (x, y, text, labelX = null, labelY = null, id) {
+		if (text == null) { text = _defaultLabel; }
+		if (id == null) { id = ''; }
 
-		let vertex;
-		try {
-			let module = await import('./core3D.js');
-			if (module.intersects.length > 0) {
-				vertex = module.vertex;
-				vertex.dataTermID = termID;
-				vertex.dotID = 'dot_' + termID;
-				renderedSpheresGroup.add(vertex.sphere());
-				listOfVertex.push(vertex);
+		const term = document.createElement('div');
+		term.id = 'term_' + Math.random(); // fake id for linking with dot
+
+		const dot = document.createElement('div');
+		dot.id = "dot_" + term.id;
+
+		import('./core3D.js')
+			.then((module) => {
+				if (module.intersects.length > 0) {
+					let vertex = module.vertex;
+					vertex.dataTermID = term.id;
+					vertex.dotID = 'dot_' + term.id;
+					renderedSpheresGroup.add(vertex.sphere());
+					listOfVertex.push(vertex);
+					appendingOfMake3D(x, y, text, labelX = null, labelY = null, id, term, dot)
+				}
+			}).catch((error) => {
+				console.log(error);
+			})
+
+		return;
+	};
+
+	// Manages adding the label
+	function appendingOfMake3D(x, y, text, labelX = null, labelY = null, id, term, dot) {
+
+		const dotx = x;
+		const doty = y;
+
+		// if we're generating a generic one, decide on a position
+		if ((labelX === null) || (labelY === null)) {
+			y = (y - 200);
+
+			const labelAreaHalfWidth = 500 / 2;
+			const labelAreaHalfHeight = 500 / 2;
+
+			const labelStartOffsetX = 70;
+			const labelStartOffsetY = 50;
+
+			if (x < labelAreaHalfWidth) {
+				x -= labelStartOffsetX;
+				y < labelAreaHalfHeight ? y += labelStartOffsetY : y -= labelStartOffsetY;
+
+			} else {
+				x += labelStartOffsetX;
+				y < labelAreaHalfHeight ? y += labelStartOffsetY : y -= labelStartOffsetY;
 			}
 
-			return vertex;
+			if (y < 150) {
+				y = 150;
+			}
 
-		} catch (e) {
-			console.log(e);
+			x < 100 ? x = 100
+				: x > 450 ? x = 450
+					: true;
+
+		} else {
+			x = labelX;
+			y = labelY;
+
 		}
+
+		// set term location and dot attribute
+		term.className = 'term';
+		term.innerHTML = "<div class='label-input' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>" + text + "</div><div class='delete'></div>";
+		term.style.left = x + 'px';
+		term.style.top = y + 'px';
+		term.setAttribute('data-x', dotx);
+		term.setAttribute('data-y', doty);
+		term.setAttribute('data-id', id);
+
+		dot.className = 'dot' + _anchorOpacity;
+		dot.style.left = dotx + 'px';
+		dot.style.top = doty + 'px';
+		dot.setAttribute('data-termid', term.id);
+
+		$('#terms').append(term);
+		$('#terms').append(dot);
+
+		// edit on click
+		term.onclick = function () {
+			term.childNodes[0].focus();
+			document.execCommand('selectAll', false, null);
+			if (term.childNodes[0].innerHTML === _defaultLabel) {
+				return term.childNodes[0].innerHTML = '';
+			}
+		};
+
+		// resize text on change
+		term.childNodes[0].onkeyup = _termKeyUp;
+		// set initial font size
+		term.childNodes[0].onkeyup({ target: term.childNodes[0] });
+
+		// enter key press should stop editing
+		term.childNodes[0].onkeydown = _termKeyDown;
+
+		// check if blank when the text is cleared
+		term.childNodes[0].onblur = _termBlurred;
+
+		// clean up pasted content to make sure we don't accidentally get invisible html garbage
+		term.childNodes[0].onpaste = _termPaste;
+
+		// make delete button remove it from the list
+		term.childNodes[1].onclick = function () {
+			term.parentElement.removeChild(term);
+			dot.parentElement.removeChild(dot);
+			listOfVertex.forEach((element, index) => {
+
+				if (element.dataTermID == term.id) {
+					renderedSpheresGroup.remove(renderedSpheresGroup.children[index]);
+					listOfVertex.splice(index, 1);
+				}
+			});
+
+			return _drawBoard();
+		};
+
+		// make the term movable
+		$(term).draggable({
+			drag(event, ui) {
+				if (ui.position.left < 20) {
+					ui.position.left = 20;
+				}
+				if (ui.position.left > 460) {
+					ui.position.left = 460;
+				}
+				if (ui.position.top > 505) {
+					ui.position.top = 505;
+				}
+				if (ui.position.top < 20) {
+					ui.position.top = 20;
+				}
+				_drawBoard();
+				return ui;
+			}
+		});
+
+		// make the dot movable
+		$(dot).draggable({
+			drag: _dotDragged
+		});
+
+		setTimeout(function () {
+			term.childNodes[0].focus();
+			return document.execCommand('selectAll', false, null);
+		}
+			, 10);
+
+		return _drawBoard();
 	}
 
 	function qsetOption(_qset) {
@@ -910,7 +1026,7 @@ Namespace('Labeling').Creator = (function () {
 
 	// ***********************************************************************
 	// ///////////////////////
-	// console.log(JSON.stringify(_qset));
+
 	// Public members
 	return {
 		initNewWidget,
