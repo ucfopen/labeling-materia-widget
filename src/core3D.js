@@ -31,8 +31,6 @@ const myPointer = getSphere();
 // Variable used to create and keep track of vertices ["data generated"] from user ones
 // they click to create a label.
 let vertex;
-let listOfVertexLocal = [];
-let knownNumVertex = 0;
 let renderedSpheresGroup = new THREE.Group;
 renderedSpheresGroup.name = 'renderedSpheresGroup';
 
@@ -45,11 +43,10 @@ const canvasHeight = canvas.offsetHeight; // data value = 551
 // display of model and its texture loaders.
 let mtlLoader = new MTLLoader();
 let objLoader = new OBJLoader();
+let cameraInitialPosition = new THREE.Vector3();
+const objBoxDimensions = new THREE.Box3();
 let objBoxCenter;
 let objBoxSize;
-let cameraInitialPosition = new THREE.Vector3();
-let cameraLooksAt = new THREE.Vector3();
-const objBoxDimensions = new THREE.Box3();
 const mousePosition = new THREE.Vector2();
 const onClickPosition = new THREE.Vector2();
 // raycaster is used for interpolating the mouse's xy-position on click
@@ -198,26 +195,10 @@ function getMTLandOBJRender(controls) {
 
 	mtlLoader.load(mtlFileStr, (mtl) => {
 		mtl.preload();
-
 		objLoader.setMaterials(mtl);
-		objLoader.load(objFileStr, (obj) => {
-			obj.name = 'myRender';
-			scene.add(obj);
 
-			// Create invisible box with dimensions of obj.
-			objBoxDimensions.setFromObject(obj);
-			objBoxSize = objBoxDimensions.getSize(new THREE.Vector3()).length();
-			objBoxCenter = objBoxDimensions.getCenter(new THREE.Vector3());
+		getOBJRender(controls);
 
-			frameArea(objBoxSize * 1.2, objBoxSize, objBoxCenter);
-
-			controls.maxDistance = objBoxSize * 10;
-			controls.target.copy(objBoxCenter);
-			controls.update();
-		},
-			onProgress,
-			onError
-		);
 	});
 
 } // End of getMTLandOBJRender()
@@ -239,7 +220,6 @@ function frameArea(sizeToFitOnScreen, objBoxSize, objBoxCenter) {
 	camera.lookAt(objBoxCenter.x, objBoxCenter.y, objBoxCenter.z);
 
 	cameraInitialPosition.copy(camera.position);
-	cameraLooksAt.copy(objBoxCenter);
 }
 
 let centeringCameraEvent = function () {
@@ -277,15 +257,21 @@ function onMouseClick(event) {
 	event.preventDefault();
 
 	let listLength = scene.children.length;
-	let intersectedObjects = scene.children[listLength - 1];
+	let intersectedModel = scene.children[listLength - 1];
 
 	const array = getMousePosition(event.clientX, event.clientY); // array[x, y]
 	onClickPosition.fromArray(array); // object {x, y, isVector2: true}
 
-	intersects = getIntersects(onClickPosition, intersectedObjects.children, true);
+	intersects = getIntersects(onClickPosition, intersectedModel.children, true);
 
 	if (intersects.length > 0) {
-		vertex = new Vertex('term_', 'dot_term_', intersects[0].faceIndex, intersects[0].point, intersects[0].uv);
+		vertex = new Vertex(
+			'term_',
+			'dot_term_',
+			intersects[0].faceIndex,
+			intersects[0].point,
+			intersects[0].uv
+		);
 
 		myPointer.position.x = vertex.point['x'];
 		myPointer.position.y = vertex.point['y'];
@@ -296,9 +282,9 @@ function onMouseClick(event) {
 
 function getMousePosition(x, y) {
 
-	const rect = canvas.getBoundingClientRect();
-	let xPosition = (x - rect.left) / rect.width;
-	let yPosition = (y - rect.top) / rect.height;
+	let canvasRect = canvas.getBoundingClientRect();
+	let xPosition = (x - canvasRect.left) / canvasRect.width;
+	let yPosition = (y - canvasRect.top) / canvasRect.height;
 
 	return [xPosition, yPosition];
 }
