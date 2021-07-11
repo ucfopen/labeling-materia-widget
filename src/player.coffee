@@ -2,6 +2,10 @@ Namespace('Labeling').Engine = do ->
 	_qset = null
 	_questions = null
 
+	# count the number of fakeout options
+	_fakeoutCount			= 0
+	_fakeoutID				= null
+
 	# cache element lookups
 	_domCache = {}
 
@@ -141,7 +145,15 @@ Namespace('Labeling').Engine = do ->
 			question.options.labelBoxX = parseInt(question.options.labelBoxX)
 			question.options.labelBoxY = parseInt(question.options.labelBoxY)
 
+			# update the fakeout count (fakeout elements are set to have a -1 for their points)
+			if question.options.endPointX == -1
+				_fakeoutCount++
+				_fakeoutID = question.id
+
 			_g('termlist').appendChild term
+
+		if _fakeoutCount
+			$('#fakeoutCount').html("There are " + _fakeoutCount + " extra terms.")
 
 		# defer such that it is run once the labels are ready in the DOM
 		setTimeout ->
@@ -256,8 +268,9 @@ Namespace('Labeling').Engine = do ->
 			_curPage--
 			_arrangeList()
 		else
+			termsLeft = $('div[id^="term_"].term:not(.placed)').length
 			# no more terms, we're done!
-			if not found and _curPage is 0
+			if termsLeft <= _fakeoutCount
 				_g('donearrow').style.opacity = '1'
 				_g('checkBtn').classList.add 'done'
 				_isPuzzleComplete = true
@@ -306,8 +319,8 @@ Namespace('Labeling').Engine = do ->
 		x = 40 if x < 40
 		x = 670 if x > 670
 		y = (e.clientY - 90)
-		y = 0 if y < 0
-		y = 500 if y > 500
+		y = -20 if y < -20
+		y = 480 if y > 480
 
 		# move the current term
 		_curterm.style.transform =
@@ -326,6 +339,9 @@ Namespace('Labeling').Engine = do ->
 		onlyUnfilled = true
 		for pass in [1..2]
 			for question in _questions
+				# don't try to match with a fakeout
+				if question.options.endPointX == -1
+					continue
 				# distance formula
 				dist = Math.sqrt(Math.pow((e.clientX - question.options.endPointX - _offsetX - 195),2) + Math.pow((e.clientY - question.options.endPointY - _offsetY - 50),2))
 
@@ -399,7 +415,7 @@ Namespace('Labeling').Engine = do ->
 			_curterm.style.webkitTransform =
 			_curterm.style.msTransform =
 			_curterm.style.transform =
-				'translate(' + (_curMatch.options.labelBoxX + 210 + _offsetX) + 'px,' + (_curMatch.options.labelBoxY + _offsetY - 20) + 'px)'
+				'translate(' + (_curMatch.options.labelBoxX + 210 + _offsetX) + 'px,' + (_curMatch.options.labelBoxY + _offsetY - 40) + 'px)'
 			_curterm.className += ' placed'
 
 			# identify this element with the question it is answering
@@ -467,6 +483,9 @@ Namespace('Labeling').Engine = do ->
 		ghost.style.opacity = 0
 
 		for question in _questions
+			# skip if it's a fakeout
+			if question.options.endPointX == -1
+				continue
 			# if the question has an answer placed, draw a solid line connecting it
 			# but only if the label is not replacing one that already exists
 			if _labelTextsByQuestionId[question.id] and not (_curMatch and _labelTextsByQuestionId[_curMatch.id] and question.id == _curMatch.id)
@@ -491,7 +510,7 @@ Namespace('Labeling').Engine = do ->
 				ghost.style.opacity = 0.5
 				_g('ghost').className = 'term'
 
-				_drawStrokedLine(question.options.endPointX, question.options.endPointY, mouseX - _offsetX - 240, mouseY - _offsetY - 80, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)')
+				_drawStrokedLine(question.options.endPointX, question.options.endPointY, mouseX - _offsetX - 240, mouseY - _offsetY - 55, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)')
 
 			_drawDot(question.options.endPointX + _offsetX,question.options.endPointY + _offsetY, 9, 3, _context, dotBorder, dotBackground)
 
@@ -521,8 +540,26 @@ Namespace('Labeling').Engine = do ->
 
 	# submit every question and the placed answer to Materia for scoring
 	_submitAnswersToMateria = ->
+		skipTexts = {}
+		# first, send the ones that are matched to a label
+		for label in Object.keys(_labelTextsByQuestionId)
+			# if you click and don't move a label, it'll create a null (string) reference
+			if label == 'null' or label == ''
+				continue
+			if skipTexts[_labelTextsByQuestionId[label]]?
+				skipTexts[_labelTextsByQuestionId[label]]++
+			else
+				skipTexts[_labelTextsByQuestionId[label]] = 1
+			Materia.Score.submitQuestionForScoring label, _labelTextsByQuestionId[label]
+
+		# then do the rest that haven't been matched
 		for question in _questions
-			Materia.Score.submitQuestionForScoring question.id, _labelTextsByQuestionId[question.id]
+			answer = question.answers[0].text
+			if not skipTexts[answer]? or not skipTexts[answer]
+				Materia.Score.submitQuestionForScoring _fakeoutID, answer
+			else
+				skipTexts[answer]--
+
 		Materia.Engine.end()
 
 	#public

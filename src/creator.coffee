@@ -129,15 +129,54 @@ Namespace('Labeling').Creator = do ->
 			Materia.CreatorCore.showMediaImporter()
 			true
 
+		# show the list of fakeouts and options
+		$('#btnViewFakeout').click ->
+			$('#fakeoutList').addClass 'show'
+			$('#backgroundcover').addClass 'show'
+
+		$('#doneFakeout, #fakeoutListClose').click ->
+			$('#fakeoutList').removeClass 'show'
+			$('#backgroundcover').removeClass 'show'
+
+		$('#addFakeout').click ->
+			$('#fakeoutDialog').addClass 'show'
+			$('#fakeoutList').removeClass 'show'
+			$('#newFakeoutBox').val ''
+			$('#saveFakeout').attr 'onclick', 'saveFakeout();return false;'
+			$('#fakeoutDialog span').html "<b>Add extra fakeout option</b>"
+
+		$('#closeFakeoutDialog').click ->
+			$('#fakeoutDialog').removeClass 'show'
+			$('#fakeoutList').addClass 'show'
+
 		$('#title').click _showMiniTitleEditor
 		$('#header .link').click _showMiniTitleEditor
 
 		window.setTitle = (title = document.getElementById("title").textContent) ->
-			title = title.replace(/</g, '').replace(/>/g, '');
 			$('#titlebox').removeClass 'show'
 			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
 			$('#title').html (title or 'My labeling widget')
+
+		# remove a the list item containing the given fakeout
+		window.removeFakeout = (e)->
+			e.closest('li').remove()
+
+		window.editFakeout = (e) ->
+			$('#fakeoutDialog').addClass 'show'
+			$('#fakeoutList').removeClass 'show'
+			$('#newFakeoutBox').val e.previousSibling.innerHTML
+			index = $('#fakeoutList li').index(e.closest('li'))
+			$('#saveFakeout').attr 'onclick', 'saveFakeout(' + index + ');return false;'
+			$('#fakeoutDialog span').html "<b>Edit fakeout option</b>"
+
+		window.saveFakeout = (index=-1) ->
+			$('#fakeoutList').addClass 'show'
+			$('#fakeoutDialog').removeClass 'show'
+			# if there's something in the box, we'll keep it
+			if $('#newFakeoutBox').val().length
+				_addFakeout($('#newFakeoutBox').val(), index)
+			$('#newFakeoutBox').val('')
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
@@ -237,7 +276,10 @@ Namespace('Labeling').Creator = do ->
 		if questions[0]? and questions[0].items
 			questions = questions[0].items
 		for item in questions
-			_makeTerm(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id)
+			if item.options.endPointX == -1
+				_addFakeout item.questions[0].text
+			else
+				_makeTerm(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id)
 
 	# draw lines on the board
 	_drawBoard = ->
@@ -280,7 +322,9 @@ Namespace('Labeling').Creator = do ->
 
 		term = document.createElement 'div'
 		term.id = 'term_' + Math.random(); # fake id for linking with dot
-		term.innerHTML = "<div class='label-input' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>"+text+"</div><div class='delete'></div>"
+
+		onfocus = "\"document.execCommand('selectAll', false, null)\""
+		term.innerHTML = "<div class='label-input' contenteditable='true' onfocus=" + onfocus + " onkeypress='return (this.innerText.length <= 400)'>"+text+"</div><div class='delete'></div>"
 		term.className = 'term'
 
 		# if we're generating a generic one, decide on a position
@@ -340,7 +384,6 @@ Namespace('Labeling').Creator = do ->
 		# edit on click
 		term.onclick = ->
 			term.childNodes[0].focus()
-			document.execCommand 'selectAll',false,null
 			if term.childNodes[0].innerHTML == _defaultLabel then term.childNodes[0].innerHTML = ''
 
 		# resize text on change
@@ -383,10 +426,34 @@ Namespace('Labeling').Creator = do ->
 		})
 		setTimeout ->
 			term.childNodes[0].focus()
-			document.execCommand 'selectAll',false,null
 		,10
 
 		_drawBoard()
+
+	_addFakeout = (text, index = -1) ->
+		if index != -1
+			$('#fakeoutList ul li:nth-child(' + (index + 1) + ') p').html text
+			return
+		fakeout = document.createElement 'p'
+		fakeout.innerHTML = text
+		fakeout.class = 'fakeoutItem'
+
+		editButton = document.createElement 'button'
+		editButton.innerHTML = 'edit'
+		editButton.classList.add 'editFakeout'
+		editButton.setAttribute 'onclick', 'editFakeout(this);return false;'
+
+		removeButton = document.createElement 'button'
+		removeButton.classList.add 'removeFakeout'
+		removeButton.innerHTML = '-'
+		removeButton.setAttribute 'onclick', 'removeFakeout(this);return false;'
+
+		fakeoutWrapper = document.createElement 'li'
+		fakeoutWrapper.append fakeout
+		fakeoutWrapper.append editButton
+		fakeoutWrapper.append removeButton
+
+		$('#fakeoutList ul').append fakeoutWrapper
 
 	# When typing on a term, resize the font accordingly
 	_termKeyUp = (e) ->
@@ -540,6 +607,31 @@ Namespace('Labeling').Creator = do ->
 				endPointY: parseInt(dot.getAttribute('data-y'))
 
 			items.push item
+
+		fakeouts = $('#fakeoutList li p')
+		for fakeout in fakeouts
+			item = {}
+			label = fakeout.innerHTML
+
+			if label != ''
+				answer =
+					text: label
+					value: 100
+					id: ''
+				item.answers = [answer]
+				item.assets = []
+				question =
+					text: label
+				item.questions = [question]
+				item.type = 'QA'
+				item.id = ''
+				item.options =
+					labelBoxX: -1
+					labelBoxY: -1
+					endPointX: -1
+					endPointY: -1
+
+				items.push item
 
 		_qset.items = items
 

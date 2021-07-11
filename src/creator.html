@@ -39,6 +39,7 @@
 			<div id='controls'>
 				<input type='button' value='Choose a different image' data-intro='Choose an image' id='btnChooseImage'>
 				<input type='button' value='Move &amp; resize image' id='btnMoveResize'>
+				<input type='button' value='View Fakeout Options' id='btnViewFakeout'>
 				<div class='helpbox' id='help_adding' style='display:none'>
 					<b>Adding labels:</b><br>
 					Click anywhere<br>on the image<br>
@@ -116,6 +117,31 @@
 					<input type='submit' value='Get Started' id='btn-enter-title'>
 				</form>
 			</div>
+
+			<div id='fakeoutList' class='box fade'>
+				<b>Extra fakeout options</b><br>
+				These options will be available in the left pannel when playing, but they won't have a point associated with them.
+				<a href='#' id="fakeoutListClose">
+					<b>X</b>
+				</a>
+				<ul>
+				</ul>
+				<input type='button' id='addFakeout' value='Add Fakeout'>
+				<input type='submit' id='doneFakeout' value='Done'>
+			</div>
+
+			<div id='fakeoutDialog' class='box fade'>
+				<span><b>Add extra fakeout option</b></span>
+				<form onsubmit='saveFakeout(-1);return false;'>
+					<div>
+						<input type='text' id="newFakeoutBox" placeholder='Unused Option' autofocus='1'>
+					</div>
+				</form>
+				<input type='button' id='closeFakeoutDialog' value='Cancel'>
+				<input type='submit' id='saveFakeout' value='Save' onclick='saveFakeout(-1);return false;'>
+
+			</div>
+
 		</div>
 		<!-- INITIALIZE -->
 		<script type="text/javascript">
