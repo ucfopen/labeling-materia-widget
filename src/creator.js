@@ -8,10 +8,7 @@ and another containing the mix of vanilla Labeling with the 3D code.
 	2) The mix of Vanilla and 3D stores its data in an Array of Class Vertex. The class
 		vertex's imported from FILE core3D.js.
 */
-
 Namespace('Labeling').Creator = (function () {
-
-	// import verticesCheckList from './core3D';
 
 	// variables for local use
 	let _context, _img, _offsetY, _qset;
@@ -35,6 +32,8 @@ Namespace('Labeling').Creator = (function () {
 	// one function parameter called spheres.
 	let listOfVertex = []; // contains each vertex.
 	let renderedSpheresGroup; // render group containing spheres of each vertex.
+	let areWeLabeling = true;
+	// let uvMapToMousePoint;
 
 	const _defaultLabel = '[label title]';
 
@@ -49,7 +48,7 @@ Namespace('Labeling').Creator = (function () {
 		document.querySelector('#backgroundcover').classList.add("show");
 
 		// hide the canvas so we can interact with it
-		document.querySelector('#canvas').style.display = 'none';
+		// document.querySelector('#canvas').style.display = 'none';
 
 		// make a scaffold qset object
 		_qset = {};
@@ -144,7 +143,6 @@ Namespace('Labeling').Creator = (function () {
 			})();
 		});
 
-		// removeEventListener('click', resizable);
 		document.querySelector('#btnMoveResize').addEventListener('click', resizable);
 		document.querySelector('#btnMoveResizeCancel').addEventListener('click', resizableCancel);
 		document.querySelector('#btnMoveResizeDone').addEventListener('click', resizableDone);
@@ -168,7 +166,10 @@ Namespace('Labeling').Creator = (function () {
 			return document.querySelector('#title').textContent = title || 'My labeling widget';
 		};
 
-		document.getElementById('canvas').addEventListener('click', _addTerm, false);
+		if (!flag3D) {
+			document.getElementById('canvas').addEventListener('click', _addTerm, false);
+		}
+
 
 		// update background
 		return $('#colorpicker').spectrum({
@@ -784,28 +785,21 @@ Namespace('Labeling').Creator = (function () {
 		btnEnterTitle.addEventListener('click', () => {
 
 			if (flag3D) {
-				document.querySelector('#image').remove();
-				document.querySelector('#imagewrapper').remove();
-
-				document.querySelector('#btnMoveResize').value = "Rotating Model";
+				removeFromUI();
+				centeringCameraBtn();
 
 				let loadCore3D = document.createElement("script");
 				loadCore3D.src = 'core3D.js';
 				loadCore3D.type = 'module';
 
 				document.getElementsByTagName('head')[0].appendChild(loadCore3D);
-
-				let centerCamera = document.createElement('input');
-				centerCamera.type = 'button';
-				centerCamera.value = 'Center Camera';
-				centerCamera.id = 'centerCamera';
-
-				let controlNodeList = document.getElementById('controls');
-				controlNodeList.insertBefore(centerCamera, controlNodeList.children[2]);
-
+				document.getElementById('canvas').style.pointerEvents = 'none';
+				document.querySelector('#btnMoveResize').value = "Rotating Model";
 				import('./core3D.js')
 					.then((module) => {
 						renderedSpheresGroup = module.renderedSpheresGroup;
+						// myPointer = module.myPointer;
+						// uvMapToMousePoint = module.uvMapToMousePoint()
 					})
 					.catch((err) => {
 						console.log(err);
@@ -817,6 +811,23 @@ Namespace('Labeling').Creator = (function () {
 		});
 	};
 
+	function removeFromUI() {
+		document.querySelector('#image').remove();
+		document.querySelector('#imagewrapper').remove();
+		document.querySelector('#opacity-toggle').remove();
+		document.querySelector('#maincontrols').remove();
+	}
+
+	function centeringCameraBtn() {
+		let centerCamera = document.createElement('input');
+		centerCamera.type = 'button';
+		centerCamera.value = 'Center Camera';
+		centerCamera.id = 'centerCamera';
+
+		let controlNodeList = document.getElementById('controls');
+		controlNodeList.insertBefore(centerCamera, controlNodeList.children[2]);
+	}
+
 	function disableEvents() {
 		document.querySelector('#btnMoveResize').removeEventListener('click', resizable);
 		document.querySelector('#btnMoveResizeCancel').removeEventListener('click', resizableCancel);
@@ -826,10 +837,42 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	function enable3DEvents() {
-		document.querySelector('#btnMoveResize').addEventListener('click', switchModes);
+		let btnMoveResize = document.querySelector('#btnMoveResize');
+		btnMoveResize.addEventListener('click', addingLabels, true);
+
+		// Method where the 2D canvas style.display = 'none'
+		// btnMoveResize.addEventListener('click', switchModes, true);
+	}
+
+	function addingLabels() {
+
+		let element = document.getElementById('canvas');
+		let btn = document.querySelector('#btnMoveResize');
+		console.log('%c ' + 'Event trigger', 'color:orange; font-weight:bold;');
+
+		if (areWeLabeling) {
+			console.log('%c ' + 'areWeLabeling:' + areWeLabeling, 'color:orange; font-weight:bold;');
+			btn.value = "Adding Labels";
+			btn.classList.toggle('orange');
+			areWeLabeling = false;
+			element.style.pointerEvents = 'auto';
+
+			element.addEventListener('click', _addTerm, false);
+
+		}
+		else {
+			console.log('%c ' + 'areWeLabeling:' + areWeLabeling, 'color:orange; font-weight:bold;');
+			btn.value = "Rotating Model";
+			btn.classList.toggle('orange');
+			areWeLabeling = true;
+
+			element.style.pointerEvents = 'none';
+			element.removeEventListener('click', _addTerm, false);
+		}
 	}
 
 	function switchModes() {
+
 		let element = document.querySelector('#canvas');
 		let btn = document.querySelector('#btnMoveResize');
 
@@ -849,6 +892,8 @@ Namespace('Labeling').Creator = (function () {
 		if (text == null) { text = _defaultLabel; }
 		if (id == null) { id = ''; }
 
+		console.log('_makeTerm3D [x: ' + x + ', y: ' + y + ']');
+
 		const term = document.createElement('div');
 		term.id = 'term_' + Math.random(); // fake id for linking with dot
 
@@ -863,7 +908,9 @@ Namespace('Labeling').Creator = (function () {
 					vertex.dotID = 'dot_' + term.id;
 					renderedSpheresGroup.add(vertex.sphere());
 					listOfVertex.push(vertex);
-					appendingOfMake3D(x, y, text, labelX = null, labelY = null, id, term, dot)
+					module.uvMapToMousePoint(vertex.point);
+					// uvMapToMousePoint(vertex.point);
+					appendingOfMake3D(x, y, text, labelX = null, labelY = null, id, term, dot);
 				}
 			}).catch((error) => {
 				console.log(error);
@@ -926,19 +973,10 @@ Namespace('Labeling').Creator = (function () {
 		dot.setAttribute('data-termid', term.id);
 
 		$('#terms').append(term);
-		$('#terms').append(dot);
-
-		// edit on click
-		term.onclick = function () {
-			term.childNodes[0].focus();
-			document.execCommand('selectAll', false, null);
-			if (term.childNodes[0].innerHTML === _defaultLabel) {
-				return term.childNodes[0].innerHTML = '';
-			}
-		};
 
 		// resize text on change
 		term.childNodes[0].onkeyup = _termKeyUp;
+
 		// set initial font size
 		term.childNodes[0].onkeyup({ target: term.childNodes[0] });
 
@@ -954,7 +992,6 @@ Namespace('Labeling').Creator = (function () {
 		// make delete button remove it from the list
 		term.childNodes[1].onclick = function () {
 			term.parentElement.removeChild(term);
-			dot.parentElement.removeChild(dot);
 			listOfVertex.forEach((element, index) => {
 
 				if (element.dataTermID == term.id) {
@@ -986,16 +1023,64 @@ Namespace('Labeling').Creator = (function () {
 			}
 		});
 
-		// make the dot movable
-		$(dot).draggable({
-			drag: _dotDragged
-		});
+		console.log(listOfVertex);
 
 		setTimeout(function () {
 			term.childNodes[0].focus();
 			return document.execCommand('selectAll', false, null);
 		}
 			, 10);
+
+		return _drawBoard();
+	}
+
+	function reRenderLines(vertexPoint) {
+
+		import('./core3D.js')
+			.then((module) => {
+				listOfVertex.forEach(element => {
+					let vector = module.uvMapToMousePoint(element.point);
+					reDrawLine(vector);
+				})
+			})
+	}
+
+	function reDrawLine(vector) {
+		const dotx = vector[0];
+		const doty = vector[1];
+
+		// if we're generating a generic one, decide on a position
+		if ((labelX === null) || (labelY === null)) {
+			y = (y - 200);
+
+			const labelAreaHalfWidth = 500 / 2;
+			const labelAreaHalfHeight = 500 / 2;
+
+			const labelStartOffsetX = 70;
+			const labelStartOffsetY = 50;
+
+			if (x < labelAreaHalfWidth) {
+				x -= labelStartOffsetX;
+				y < labelAreaHalfHeight ? y += labelStartOffsetY : y -= labelStartOffsetY;
+
+			} else {
+				x += labelStartOffsetX;
+				y < labelAreaHalfHeight ? y += labelStartOffsetY : y -= labelStartOffsetY;
+			}
+
+			if (y < 150) {
+				y = 150;
+			}
+
+			x < 100 ? x = 100
+				: x > 450 ? x = 450
+					: true;
+
+		} else {
+			x = labelX;
+			y = labelY;
+
+		}
 
 		return _drawBoard();
 	}
