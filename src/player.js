@@ -49,6 +49,7 @@ Namespace('Labeling').Engine = (function () {
 		let background;
 		if (version == null) { version = '1'; }
 		_qset = qset;
+		centeringCameraBtn();
 
 		_questions = _qset.items;
 		if (_questions[0].items) {
@@ -594,6 +595,43 @@ Namespace('Labeling').Engine = (function () {
 		}
 		return Materia.Engine.end();
 	};
+
+	// **** 3D VERSION *********************************************************
+	function chooseVer() {
+
+		btnEnterTitle.addEventListener('click', () => {
+
+			if (flag3D) {
+
+				removeFromUI();
+				centeringCameraBtn();
+				document.querySelector('#btnMoveResize').value = "Rotating Model";
+
+				let loadCore3D = document.createElement("script");
+				loadCore3D.src = 'core3D.js';
+				loadCore3D.type = 'module';
+
+				document.getElementsByTagName('head')[0].appendChild(loadCore3D);
+
+				disableEvents();
+				enable3DEvents();
+
+			}
+		});
+	};
+
+	function centeringCameraBtn() {
+		let centerCamera = document.createElement('input');
+		centerCamera.type = 'button';
+		centerCamera.value = 'Center Camera';
+		centerCamera.id = 'centerCamera';
+		centerCamera.className = 'edit_button orange';
+
+		let controlNodeList = document.getElementById('termlist');
+		controlNodeList.insertBefore(centerCamera, controlNodeList.firstChild);
+	}
+	// ***********************************************************************
+	// ///////////////////////
 
 	//public
 	return {

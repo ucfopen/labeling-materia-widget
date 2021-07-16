@@ -5,13 +5,13 @@ import { MTLLoader } from '../node_modules/three/examples/jsm/loaders/MTLLoader.
 import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.js';
 import Stats from '../node_modules/three/examples/jsm/libs/stats.module.js';
 
-let mtlFileStr = 'models3D/male02/male02.mtl';
+// let mtlFileStr = 'models3D/male02/male02.mtl';
 let objFileStr = 'models3D/male02/male02.obj';
 // let mtlFileStr = 'models3D/female02/female02.mtl';
 // let objFileStr = 'models3D/female02/female02.obj';
 // let mtlFileStr = 'models3D/vroom/Audi_R8_2017.mtl';
 // let objFileStr = 'models3D/vroom/Audi_R8_2017.obj';
-// let mtlFileStr;
+let mtlFileStr;
 // let objFileStr = 'models3D/cerberus/Cerberus.obj';
 // let objFileStr = 'models3D/tree.obj';
 
@@ -23,16 +23,17 @@ let showWireframe = true; // remove the texture to see the line connections betw
 // Variables that control the appearance of the sphere that displays the last position where
 // the user clicked on.
 let sphereColor = 0xffb84d;
-let sphereRadius = 6; // size of all spheres even in the CLASS Vertex.
+let sphereRadius = 3; // size of all spheres even in the CLASS Vertex.
 let myPointerSize = sphereRadius + 0.5; // size of last clicked sphere.
 let widthAndHeightSegments = 16;
-const myPointer = getSphere();
+let myPointer = getSphere();
 
 // Variable used to create and keep track of vertices ["data generated"] from user ones
 // they click to create a label.
 let vertex;
 let renderedSpheresGroup = new THREE.Group;
 renderedSpheresGroup.name = 'renderedSpheresGroup';
+let vector = new THREE.Vector3();
 
 // Get the HTML element where the scene will be appended to and render.
 const canvas = document.getElementById('board');
@@ -286,6 +287,9 @@ function getMousePosition(x, y) {
 	let xPosition = (x - canvasRect.left) / canvasRect.width;
 	let yPosition = (y - canvasRect.top) / canvasRect.height;
 
+	// console.log('x: ' + x + ', y: ' + y);
+	// console.log('xPosition: ' + xPosition + ', yPosition: ' + yPosition);
+
 	return [xPosition, yPosition];
 }
 
@@ -294,7 +298,21 @@ function getIntersects(point, objects) {
 	mousePosition.set((point.x * 2) - 1, - (point.y * 2) + 1);
 	raycaster.setFromCamera(mousePosition, camera);
 
+	// console.log('mousePosition: ');
+	// console.log(mousePosition);
+
+	// console.log(raycaster);
 	return raycaster.intersectObjects(objects);
+}
+
+function uvMapToMousePoint(vertexPoint) {
+	// Converts a point: Vector3 (x,y,z) to a 2D position on the screen.
+	vector.copy(vertexPoint);
+	vector.project(camera);
+	vector.x = Math.round((0.5 + vector.x / 2) * (renderer.domElement.width / window.devicePixelRatio));
+	vector.y = Math.round((0.5 - vector.y / 2) * (renderer.domElement.height / window.devicePixelRatio));
+	console.table(vector);
+	return [vector.x, vector.y];
 }
 
 // Class that contains all the vertex, labeling, and sphere data.
@@ -327,4 +345,4 @@ class Vertex {
 	}
 } // End of class Vertex
 
-export { vertex, intersects, renderedSpheresGroup }
+export { vertex, intersects, renderedSpheresGroup, uvMapToMousePoint }
