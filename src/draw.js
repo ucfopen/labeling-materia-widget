@@ -1,12 +1,8 @@
-/*
- * decaffeinate suggestions:
- * DS102: Remove unnecessary code created because of implicit returns
- * Full docs: https://github.com/decaffeinate/decaffeinate/blob/master/docs/suggestions.md
- */
-Namespace('Labeling').Draw = ((() => // draw a stylized line connecting to a term, with curvature
+// draw a stylized line connecting to a term, with curvature
 // shared between player and creator, since it MUST be consistent
 // between the two
-({
+
+Namespace('Labeling').Draw = ((() => ({
     drawLine(ctx, x1, y1, x2, y2, width, color) {
         ctx.beginPath();
 

@@ -231,8 +231,6 @@ let centeringCameraEvent = function () {
 	controls.update();
 }
 
-document.getElementById('centerCamera').addEventListener('click', centeringCameraEvent);
-
 // Function for testing purposes
 function printShotgun(str, data) {
 	console.log('%c ' + str, 'color:orange; font-weight:bold;');
@@ -306,13 +304,14 @@ function getIntersects(point, objects) {
 }
 
 function uvMapToMousePoint(vertexPoint) {
-	// Converts a point: Vector3 (x,y,z) to a 2D position on the screen.
+	// Converts a point: Vector3 (x,y,z) to a 2D (x,y) position on the screen.
+	// The return 2D position is similar to a mouse click event position.
+
 	vector.copy(vertexPoint);
 	vector.project(camera);
 	vector.x = Math.round((0.5 + vector.x / 2) * (renderer.domElement.width / window.devicePixelRatio));
 	vector.y = Math.round((0.5 - vector.y / 2) * (renderer.domElement.height / window.devicePixelRatio));
-	console.table(vector);
-	return [vector.x, vector.y];
+	return vector;
 }
 
 // Class that contains all the vertex, labeling, and sphere data.
@@ -345,4 +344,4 @@ class Vertex {
 	}
 } // End of class Vertex
 
-export { vertex, intersects, renderedSpheresGroup, uvMapToMousePoint }
+export { vertex, intersects, renderedSpheresGroup, uvMapToMousePoint, centeringCameraEvent }
