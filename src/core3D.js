@@ -23,7 +23,7 @@ let showWireframe = true; // remove the texture to see the line connections betw
 // Variables that control the appearance of the sphere that displays the last position where
 // the user clicked on.
 let sphereColor = 0xffb84d;
-let sphereRadius = 3; // size of all spheres even in the CLASS Vertex.
+let sphereRadius = 4; // size of all spheres even in the CLASS Vertex.
 let myPointerSize = sphereRadius + 0.5; // size of last clicked sphere.
 let widthAndHeightSegments = 16;
 let myPointer = getSphere();
@@ -54,9 +54,10 @@ const onClickPosition = new THREE.Vector2();
 // versus 3D world xyz-position. Look at function onMouseClick() and inside that
 // function getIntersects().
 const raycaster = new THREE.Raycaster();
+let intersects;
 
 let fov = 45;
-let aspect = canvasWidth / canvasHeight;
+const aspect = canvasWidth / canvasHeight;
 let near = 0.1;
 let far = 1000;
 
@@ -67,6 +68,8 @@ const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias });
 const controls = new OrbitControls(camera, renderer.domElement);
 // controls.enablePan = false;
+
+let url;
 
 // Loads in all the base requirements for properly displaying the 3D environment.
 main();
@@ -110,12 +113,14 @@ function main() {
 	scene.add(camera);
 
 	// use if obj provided  // use if mtl and obj provided
-	mtlFileStr == null ? getOBJRender(controls) : getMTLandOBJRender(controls);
+	mtlFileStr == null ? getOBJRender(objFileStr) : getMTLandOBJRender(controls);
 
 	window.addEventListener('resize', onWindowResize);
 	canvas.addEventListener('click', onMouseClick);
 
 	renderer.domElement.id = 'myCanvas';
+	console.log(urlStr);
+	console.log(scene);
 }// END OF MAIN()
 
 function render() {
@@ -170,22 +175,47 @@ function onError(error) {
 	console.log('ERROR: ' + error);
 }
 
-function getOBJRender(controls) {
+function getOBJRender(objFileStr) {
 
 	objLoader.load(objFileStr, (obj) => {
 		obj.name = 'myRender';
 		scene.add(obj);
 
-		// Create invisible box with dimensions of obj.
-		objBoxDimensions.setFromObject(obj);
-		objBoxSize = objBoxDimensions.getSize(new THREE.Vector3()).length();
-		objBoxCenter = objBoxDimensions.getCenter(new THREE.Vector3());
+		//************************************************************************ */
+		// getObjDimensions(obj);
+
+		// // If the dimensionsTotal.y is less than 10 units of we want to increase the scale.
+		// // This way we can make the pointer size be 10% of the dimensionsTotal.y which would
+		// // equate to 1 unit which it's also equal to the minimum allow radius.
+		// let dimensionsTotal = resizePointer();
+		// let smallestAxis = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.y : dimensionsTotal.x;
+		// let pointerRadius = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.x * 0.1 : dimensionsTotal.y * 0.1;
+
+		// console.log('smallestAxis: ', smallestAxis, ' pointerRadius: ', pointerRadius);
+
+		// for (; ((pointerRadius >= 1) && (smallestAxis >= 10));) {
+		// 	scaleUpObj(obj);
+
+		// 	getObjDimensions(obj);
+
+		// 	dimensionsTotal = resizePointer();
+		// 	smallestAxis = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.y : dimensionsTotal.x;
+		// 	pointerRadius = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.x * 0.1 : dimensionsTotal.y * 0.1;
+		// 	console.log('smallestAxis: ', smallestAxis, ' pointerRadius: ', pointerRadius);
+		// }
+
+		// sphereRadius = pointerRadius;
+		//************************************************************************ */
+
+		getObjDimensions(obj);
 
 		frameArea(objBoxSize * 1.2, objBoxSize, objBoxCenter);
-
 		controls.maxDistance = objBoxSize * 10;
 		controls.target.copy(objBoxCenter);
 		controls.update();
+
+		// console.table(objBoxDimensions);
+		// console.log('sphereRadius: ' + sphereRadius);
 	},
 		onProgress,
 		onError
@@ -203,6 +233,13 @@ function getMTLandOBJRender(controls) {
 	});
 
 } // End of getMTLandOBJRender()
+
+function getObjDimensions(obj) {
+	// Create invisible box with dimensions of obj.
+	objBoxDimensions.setFromObject(obj);
+	objBoxSize = objBoxDimensions.getSize(new THREE.Vector3()).length();
+	objBoxCenter = objBoxDimensions.getCenter(new THREE.Vector3());
+}
 
 function frameArea(sizeToFitOnScreen, objBoxSize, objBoxCenter) {
 	const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5;
@@ -223,13 +260,42 @@ function frameArea(sizeToFitOnScreen, objBoxSize, objBoxCenter) {
 	cameraInitialPosition.copy(camera.position);
 }
 
-let centeringCameraEvent = function () {
+function resizePointer() {
+	// Max will always be closer to the positive axis
+	let xMax = objBoxDimensions.max.x;
+	let yMax = objBoxDimensions.max.y;
+
+	// Min will always be closer to the negative axis
+	let xMin = objBoxDimensions.min.x;
+	let yMin = objBoxDimensions.min.y;
+
+	let xTotal = xMax - xMin;
+	let yTotal = yMax - yMin;
+
+	xTotal = xTotal > 0 ? xTotal : (-1 * xTotal);
+	yTotal = yTotal > 0 ? yTotal : (-1 * yTotal);
+
+	console.log('xTotal: ' + xTotal, 'yTotal: ' + yTotal);
+	// A sphere radius min is 1, so if model yTotal or xTotal is 2 then the pointer
+	// will end up covering half of the model.
+	return { x: xTotal, y: yTotal };
+}
+
+function scaleUpObj(obj) {
+	let scaler = obj.scale.x;
+	obj.scale.set(scaler + 1, scaler + 1, scaler + 1);
+}
+
+function centeringCameraEvent() {
+	console.log('trigger');
 	camera.position.copy(cameraInitialPosition);
 	camera.lookAt(objBoxCenter.x, objBoxCenter.y, objBoxCenter.z);
 	controls.maxDistance = objBoxSize * 10;
 	controls.target.copy(objBoxCenter);
 	controls.update();
 }
+
+// document.getElementById('centerCamera').addEventListener('click', centeringCameraEvent, true);
 
 // Function for testing purposes
 function printShotgun(str, data) {
@@ -250,7 +316,6 @@ function onWindowResize() {
 // Func that processes all the raycaster to determine where the user click.
 // Its achieve by using the mouse xy-position and calculating where that its with
 // reference to the camera seeing dimensions.
-let intersects;
 function onMouseClick(event) {
 
 	event.preventDefault();
@@ -306,12 +371,15 @@ function getIntersects(point, objects) {
 function uvMapToMousePoint(vertexPoint) {
 	// Converts a point: Vector3 (x,y,z) to a 2D (x,y) position on the screen.
 	// The return 2D position is similar to a mouse click event position.
-
 	vector.copy(vertexPoint);
 	vector.project(camera);
 	vector.x = Math.round((0.5 + vector.x / 2) * (renderer.domElement.width / window.devicePixelRatio));
 	vector.y = Math.round((0.5 - vector.y / 2) * (renderer.domElement.height / window.devicePixelRatio));
 	return vector;
+}
+
+function createVertex(dataTermID, dotID, faceIndex, point, uv) {
+	return new Vertex(dataTermID, dotID, faceIndex, point, uv);
 }
 
 // Class that contains all the vertex, labeling, and sphere data.
@@ -338,10 +406,25 @@ class Vertex {
 		};
 	} // End of constructor
 
+	// // Setters
+	// set dataTermID(_dataTermID) { this.dataTermID = _dataTermID; }
+	// set dotID(_dotID) { this.dotID = _dotID; }
+	// set faceIndex(_faceIndex) { this.faceIndex = _faceIndex; }
+	// set point(_point) { this.point = _point; }
+	// set uv(_uv) { this.uv = _uv; }
+
+	// // Getters
+	// get dataTermID() { return this.dataTermID; }
+	// get dotID() { return this.dotID; }
+	// get faceIndex() { return this.faceIndex; }
+	// get point() { return this.point; }
+	// get uv() { return this.uv; }
+	// get sphere() { return this.sphere; }
+
 	// STATIC
 	static isVariableNull(value) {
 		return value === null;
 	}
 } // End of class Vertex
 
-export { vertex, intersects, renderedSpheresGroup, uvMapToMousePoint, centeringCameraEvent }
+export { vertex, intersects, renderedSpheresGroup, uvMapToMousePoint, centeringCameraEvent, createVertex, getOBJRender }

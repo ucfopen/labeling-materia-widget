@@ -39,9 +39,6 @@ html, body {
 		left: 0px;
 		z-index: -1;
 	}
-	#3D {
-		// position: fixed;
-	}
 }
 
 #header {
@@ -233,6 +230,38 @@ div.term {
 		padding: 7px;
 		width: 130px;
 	}
+}
+
+.verBtn {
+	position: fixed;
+	width: 170px;
+	left: 12.5px;
+	font-size: 14px;
+	font-weight: 500;
+	font-family: Lato, arial, serif;
+	padding: 12px 7px;
+	color:#ffffff;
+	display:inline-block;
+	background-color: #70bd34;
+	cursor:pointer;
+}
+
+.orange {
+	background:#ff8f11;
+	background-image: -webkit-linear-gradient(top, #ffbc78, #ff8f11);
+	background-image: -o-linear-gradient(top, #ffbc78, #ff8f11);
+	background-image: -moz-linear-gradient(top, #ffbc78, #ff8f11);
+	background-image: -ms-linear-gradient(top, #ffbc78, #ff8f11);
+	border:#ff8f11 1px solid;
+}
+
+#btnDiv {
+	// width: 190px;
+	// height: 175px;
+	top: 50;
+	left: 100;
+	position: fixed;
+	z-index: 2000;
 }
 
 .fade {

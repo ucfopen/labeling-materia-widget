@@ -1,4 +1,5 @@
 
+
 Namespace('Labeling').Engine = (function () {
 
 	// ORIGINAL CODE FOR PLAYER
@@ -40,6 +41,17 @@ Namespace('Labeling').Engine = (function () {
 	// zIndex of the terms, incremented so that the dragged term is always on top
 	let _zIndex = 11000;
 
+	// Variables used to control the 3D functionality
+	let flag3D = null;
+	let listOfVertex = []; // contains each vertex.
+	var uvMapToMousePoint;
+	let centeringCameraEvent;
+	let renderedSpheresGroup; // render group containing spheres of each vertex.
+	let areWeLabeling = true;
+	let areLinesHided = true;
+
+	let modal3D;
+
 	// getElementById and cache it, for the sake of performance
 	const _g = id => _domCache[id] || (_domCache[id] = document.getElementById(id));
 
@@ -49,7 +61,10 @@ Namespace('Labeling').Engine = (function () {
 		let background;
 		if (version == null) { version = '1'; }
 		_qset = qset;
-		centeringCameraBtn();
+
+		flag3D = _qset.options.flag3D;
+
+		if (flag3D) { chooseVer(); }
 
 		_questions = _qset.items;
 		if (_questions[0].items) {
@@ -83,9 +98,11 @@ Namespace('Labeling').Engine = (function () {
 
 		// set background and header title
 		_g('board').style.background = background;
+
 		if ((instance.name === undefined) || null) {
 			instance.name = "Widget Title Goes Here";
 		}
+
 		_g('title').innerHTML = instance.name;
 		_g('title').style['font-size'] = ((20 - (instance.name.length / 30)) + 'px');
 
@@ -125,33 +142,8 @@ Namespace('Labeling').Engine = (function () {
 		_questions = _shuffle(_questions);
 
 		// create term divs
-		for (let question of Array.from(_questions)) {
-			if (!question.id) {
-				question.id = 'q' + Math.random();
-			}
-
-			question.mask = 'm' + Math.random();
-
-			const term = document.createElement('div');
-			term.id = 'term_' + question.mask;
-			term.className = 'term';
-			term.innerHTML = question.questions[0].text;
-			term.addEventListener('mousedown', _mouseDownEvent, false);
-			term.addEventListener('touchstart', _mouseDownEvent, false);
-			term.addEventListener('MSPointerDown', _mouseDownEvent, false);
-
-			let fontSize = (15 - (question.questions[0].text.length / 10));
-			if (fontSize < 12) { fontSize = 12; }
-			term.style.fontSize = fontSize + 'px';
-
-			// Some legacy qsets store these as strings, which we certainly don't want
-			question.options.endPointX = parseInt(question.options.endPointX);
-			question.options.endPointY = parseInt(question.options.endPointY);
-			question.options.labelBoxX = parseInt(question.options.labelBoxX);
-			question.options.labelBoxY = parseInt(question.options.labelBoxY);
-
-			_g('termlist').appendChild(term);
-		}
+		// setTimeout(flag3D == false ? appendLabels(_questions) : appendLabels3D(_questions), 3000);
+		flag3D == false ? appendLabels(_questions) : appendLabels3D(_questions);
 
 		// defer such that it is run once the labels are ready in the DOM
 		setTimeout(function () {
@@ -173,6 +165,83 @@ Namespace('Labeling').Engine = (function () {
 		// once everything is drawn, set the height of the player
 		return Materia.Engine.setHeight();
 	};
+
+	function appendLabels() {
+		let termList = document.getElementById('termlist');
+
+		for (let question of Array.from(_questions)) {
+			if (!question.id) { question.id = 'q' + Math.random(); }
+
+			question.mask = 'm' + Math.random();
+
+			const term = document.createElement('div');
+			term.id = 'term_' + question.mask;
+			term.className = 'term';
+			term.innerHTML = question.questions[0].text;
+			term.addEventListener('mousedown', _mouseDownEvent, false);
+			term.addEventListener('touchstart', _mouseDownEvent, false);
+			term.addEventListener('MSPointerDown', _mouseDownEvent, false);
+
+			let fontSize = (15 - (question.questions[0].text.length / 10));
+			if (fontSize < 12) { fontSize = 12; }
+			term.style.fontSize = fontSize + 'px';
+
+			// Some legacy qsets store these as strings, which we certainly don't want
+			question.options.endPointX = parseInt(question.options.endPointX);
+			question.options.endPointY = parseInt(question.options.endPointY);
+			question.options.labelBoxX = parseInt(question.options.labelBoxX);
+			question.options.labelBoxY = parseInt(question.options.labelBoxY);
+
+			termList.appendChild(term);
+		}
+	}
+
+	function appendLabels3D() {
+		let termList = document.getElementById('termlist');
+
+		for (let question of Array.from(_questions)) {
+
+			if (!question.id) { question.id = 'q' + Math.random(); }
+
+			question.mask = 'm' + Math.random();
+
+			const term = document.createElement('div');
+			term.id = 'term_' + question.mask;
+			term.className = 'term';
+			term.innerHTML = question.questions[0].text;
+			term.addEventListener('mousedown', _mouseDownEvent, false);
+			term.addEventListener('touchstart', _mouseDownEvent, false);
+			term.addEventListener('MSPointerDown', _mouseDownEvent, false);
+
+			let fontSize = (15 - (question.questions[0].text.length / 10));
+			if (fontSize < 12) { fontSize = 12; }
+			term.style.fontSize = fontSize + 'px';
+
+			// Some legacy qsets store these as strings, which we certainly don't want
+			question.options.endPointX = parseInt(question.options.endPointX);
+			question.options.endPointY = parseInt(question.options.endPointY);
+			question.options.labelBoxX = parseInt(question.options.labelBoxX);
+			question.options.labelBoxY = parseInt(question.options.labelBoxY);
+
+			import('./core3D.js')
+				.then((module) => {
+					let vertex = module.createVertex(
+						term.id,
+						'dot_' + term.id,
+						question.options.vertex.faceIndex,
+						question.options.vertex.point,
+						question.options.vertex.uv
+					);
+					listOfVertex.push(vertex);
+					renderedSpheresGroup.add(vertex.sphere());
+				})
+				.catch((err) => {
+					console.log(err);
+				});
+
+			termList.appendChild(term);
+		}
+	}
 
 	// https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
 	var _shuffle = function (array) {
@@ -527,10 +596,12 @@ Namespace('Labeling').Engine = (function () {
 				// if the question has an answer placed, draw a solid line connecting it
 				// but only if the label is not replacing one that already exists
 				var dotBackground, dotBorder;
-				if (_labelTextsByQuestionId[question.id] && !(_curMatch && _labelTextsByQuestionId[_curMatch.id] && (question.id === _curMatch.id))) {
+				if (_labelTextsByQuestionId[question.id] &&
+					!(_curMatch && _labelTextsByQuestionId[_curMatch.id] && (question.id === _curMatch.id))) {
 					_drawStrokedLine(question.options.endPointX, question.options.endPointY, question.options.labelBoxX, question.options.labelBoxY, '#fff', '#000');
 					dotBorder = 'rgba(255,255,255,' + _anchorOpacityValue + ')';
 					dotBackground = 'rgba(0,0,0,' + _anchorOpacityValue + ')';
+
 				} else {
 					dotBorder = 'rgba(0,0,0,' + _anchorOpacityValue + ')';
 					dotBackground = 'rgba(255,255,255,' + _anchorOpacityValue + ')';
@@ -599,37 +670,58 @@ Namespace('Labeling').Engine = (function () {
 	// **** 3D VERSION *********************************************************
 	function chooseVer() {
 
-		btnEnterTitle.addEventListener('click', () => {
+		let loadCore3D = document.createElement("script");
+		loadCore3D.src = 'core3D.js';
+		loadCore3D.type = 'module';
 
-			if (flag3D) {
+		document.getElementsByTagName('head')[0].appendChild(loadCore3D);
 
-				removeFromUI();
-				centeringCameraBtn();
-				document.querySelector('#btnMoveResize').value = "Rotating Model";
+		import('./core3D.js')
+			.then((module) => {
+				renderedSpheresGroup = module.renderedSpheresGroup;
+				uvMapToMousePoint = module.uvMapToMousePoint;
+				centeringCameraEvent = module.centeringCameraEvent;
+			})
+			.catch((err) => {
+				console.log(err);
+			});
 
-				let loadCore3D = document.createElement("script");
-				loadCore3D.src = 'core3D.js';
-				loadCore3D.type = 'module';
+		// document.getElementById('termlist').style.top = 200 + 'px';
+		// document.getElementById('prevbtn').style.top = 175 + 'px';
 
-				document.getElementsByTagName('head')[0].appendChild(loadCore3D);
+		// let btnDiv = document.createElement('div');
+		// btnDiv.id = 'btnDiv';
+		// document.body.appendChild(btnDiv);
 
-				disableEvents();
-				enable3DEvents();
+		// let hideLinesBtn = createBtn('showLinesBtn', 'Show Lines', 'btnDiv');
+		// hideLinesBtn.style.top = 55 + 'px';
 
-			}
-		});
+		// let centerCameraBtn = createBtn('centerCamera', 'Center Camera', 'btnDiv');
+		// centerCameraBtn.style.top = 110 + 'px';
+
+		// enable3DEvents();
 	};
 
-	function centeringCameraBtn() {
-		let centerCamera = document.createElement('input');
-		centerCamera.type = 'button';
-		centerCamera.value = 'Center Camera';
-		centerCamera.id = 'centerCamera';
-		centerCamera.className = 'edit_button orange';
+	function createBtn(btnID, btnValue, location) {
+		let btn = document.createElement('input');
+		btn.type = 'button';
+		btn.value = btnValue;
+		btn.id = btnID;
+		btn.className = 'verBtn';
 
-		let controlNodeList = document.getElementById('termlist');
-		controlNodeList.insertBefore(centerCamera, controlNodeList.firstChild);
+		let controlNodeList = document.getElementById(location);
+		controlNodeList.insertBefore(btn, controlNodeList.firstChild);
+
+		return btn;
 	}
+
+	function enable3DEvents() {
+		// document.getElementById('hideLines').addEventListener('click', hidingLines, true);
+		document.getElementById('centerCamera').addEventListener('click', centeringCameraEvent, false);
+	}
+
+
+
 	// ***********************************************************************
 	// ///////////////////////
 
