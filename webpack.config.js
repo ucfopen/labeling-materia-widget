@@ -56,9 +56,21 @@ const entries = {
 	]
 }
 
+const rules = widgetWebpack.getDefaultRules()
+
+const moduleRules = [
+	rules.loaderDoNothingToJs,
+	rules.loadAndCompileMarkdown,
+	rules.copyImages,
+	rules.loadHTMLAndReplaceMateriaScripts,
+	rules.loadAndPrefixCSS,
+	rules.loadAndPrefixSASS
+]
+
 const options = {
 	copyList: customCopy,
-	entries: entries
+	entries: entries,
+	moduleRules: moduleRules,
 }
 
 let buildConfig = widgetWebpack.getLegacyWidgetBuildConfig(options)

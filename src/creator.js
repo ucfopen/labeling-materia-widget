@@ -8,6 +8,7 @@ and another containing the mix of vanilla Labeling with the 3D code.
 	2) The mix of Vanilla and 3D stores its data in an Array of Class Vertex. The class
 		vertex's imported from FILE core3D.js.
 */
+
 Namespace('Labeling').Creator = (function () {
 
 	// variables for local use
@@ -27,7 +28,7 @@ Namespace('Labeling').Creator = (function () {
 	let _lastImgDimensions = {};
 
 	// variables used through the code to manage the 3D aspect of the code
-	let flag3D;
+	let flag3D = false;
 	// A Class Vertex construct can be seen in core3D.js, there are 5 parameters and one
 	// one function parameter called spheres.
 	let listOfVertex = []; // contains each vertex.
@@ -36,6 +37,7 @@ Namespace('Labeling').Creator = (function () {
 	let areLinesHided = true;
 	var uvMapToMousePoint;
 	let centeringCameraEvent;
+	urlStr = 'hello';
 
 	const _defaultLabel = '[label title]';
 
@@ -298,6 +300,12 @@ Namespace('Labeling').Creator = (function () {
 	};
 
 	const initExistingWidget = function (title, widget, qset, version, baseUrl) {
+
+		qset.options.flag3D === false ? initExisting2D(title, widget, qset, version, baseUrl)
+			: initExisting3D(title, widget, qset, version, baseUrl);
+	};
+
+	function initExisting2D(title, widget, qset, version, baseUrl) {
 		_qset = qset;
 
 		_setupCreator();
@@ -331,12 +339,39 @@ Namespace('Labeling').Creator = (function () {
 		// add qset terms to the list
 		// legacy support:
 		let questions = qset.items;
-		if ((questions[0] != null) && questions[0].items) {
-			questions = questions[0].items;
-		}
+		if ((questions[0] != null) && questions[0].items) { questions = questions[0].items; }
+
 		return Array.from(questions).map((item) =>
 			_makeTerm(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id));
-	};
+	}
+
+	function initExisting3D(title, widget, qset, version, baseUrl) {
+		console.log('3D');
+		_qset = qset;
+
+		_setupCreator();
+		_makeDraggable();
+
+		// get asset url from Materia API (baseUrl and all)
+		const url = Materia.CreatorCore.getMediaUrl(_qset.options.image.id);
+
+		// load the image resource via JavaScript for rendering later
+		_img.src = url;
+		urlStr = url;
+		console.log(urlStr);
+
+		// set the title from the qset
+		document.querySelector('#title').innerHTML = title;
+		_title = title;
+
+		// add qset terms to the list
+		// legacy support:
+		let questions = qset.items;
+		if ((questions[0] != null) && questions[0].items) { questions = questions[0].items; }
+
+		return Array.from(questions).map((item) =>
+			_makeTerm(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id));
+	}
 
 	// draw lines on the board
 	const _drawBoard = function () {
@@ -523,442 +558,6 @@ Namespace('Labeling').Creator = (function () {
 		return _drawBoard();
 	};
 
-	// When typing on a term, resize the font accordingly
-	var _termKeyUp = function (e) {
-		if ((e == null)) { e = window.event; }
-		let fontSize = (16 - (e.target.innerHTML.length / 10));
-		if (fontSize < 12) { fontSize = 12; }
-		return e.target.style.fontSize = fontSize + 'px';
-	};
-
-	// When typing on a term, resize the font accordingly
-	var _termKeyDown = function (e) {
-		if ((e == null)) { e = window.event; }
-
-		// Enter key
-		// block adding line returns
-		// consider Enter Key to mean 'done editing'
-		if (e.keyCode === 13) {
-			// Defocus
-			e.target.blur();
-			window.getSelection().removeAllRanges(); // needed for contenteditable blur
-			// put event in a sleeper hold
-			if (e.stopPropagation != null) { e.stopPropagation(); }
-			e.preventDefault();
-			return false;
-		}
-
-		// Escape
-		if (e.keyCode === 27) {
-			if (e.target.innerHTML.length < 1) {
-				$(document.getElementById('dot_' + e.target.parentElement.id)).remove();
-				$(e.target.parentElement).remove();
-				return _drawBoard();
-			} else {
-				// Defocus
-				e.target.blur();
-				return window.getSelection().removeAllRanges(); // needed for contenteditable blur
-			}
-		}
-	};
-
-	// If the term is blank, put dummy text in it
-	var _termBlurred = function (e) {
-		if ((e == null)) { e = window.event; }
-		if (e.target.innerHTML === '') { return e.target.innerHTML = _defaultLabel; }
-	};
-
-	// Convert anything on the clipboard into pure text before pasting it into the label
-	var _termPaste = function (e) {
-		let clipboardArgument, clipboardData, input;
-		if (e == null) { e = window.event; }
-		e.preventDefault();
-
-		// contenteditable divs will insert an empty <br/> when they're empty, this checks for and removes them on paste
-		if (e.target.tagName === 'BR') {
-			input = e.target.parentElement;
-			e.target.parentElement.removeChild(e.target);
-		} else {
-			input = e.target;
-		}
-		// ie11 has different arguments for clipboardData and makes it a method of window instead of the paste event
-		if (e.clipboardData != null) {
-			({
-				clipboardData
-			} = e);
-			clipboardArgument = 'text/plain';
-		} else {
-			({
-				clipboardData
-			} = window);
-			clipboardArgument = 'Text';
-		}
-
-		const sel = window.getSelection();
-		if (sel.rangeCount) {
-			const range = sel.getRangeAt(0);
-			range.deleteContents();
-
-			const newText = clipboardData.getData(clipboardArgument);
-			const newNode = document.createTextNode(newText);
-			range.insertNode(newNode);
-
-			const newRange = document.createRange();
-			newRange.selectNodeContents(newNode);
-			newRange.collapse(false);
-
-			sel.removeAllRanges();
-			return sel.addRange(newRange);
-		}
-	};
-
-	// a dot has been dragged, lock it in place if its within 10px
-	var _dotDragged = function (event, ui) {
-		let minDist = 9999;
-		let minDistEle = null;
-
-		for (let dot of Array.from($('.dot'))) {
-			if (dot === event.target) {
-				continue;
-			}
-			const dist = Math.sqrt(Math.pow((ui.position.left - $(dot).position().left), 2) + Math.pow((ui.position.top - $(dot).position().top), 2));
-			if (dist < minDist) {
-				minDist = dist;
-				minDistEle = dot;
-			}
-		}
-
-		// less than 10px away, put the dot where the other one is
-		// this is how duplicates are supported
-		if (minDist < 10) {
-			ui.position.left = $(minDistEle).position().left;
-			ui.position.top = $(minDistEle).position().top;
-		}
-
-		const term = document.getElementById(event.target.getAttribute('data-termid'));
-		term.setAttribute('data-x', ui.position.left);
-		term.setAttribute('data-y', ui.position.top);
-
-		return _drawBoard();
-	};
-
-	// called from Materia creator page
-	const onSaveClicked = function (mode) {
-		if (mode == null) { mode = 'save'; }
-		if (!_buildSaveData()) {
-			return Materia.CreatorCore.cancelSave('Widget needs a title and at least one term.');
-		}
-		return Materia.CreatorCore.save(_title, _qset);
-	};
-
-	const onSaveComplete = (title, widget, qset, version) => true;
-
-	// called from Materia creator page
-	// place the questions in an arbitrary location to be moved
-	const onQuestionImportComplete = items => Array.from(items).map((item) =>
-		_makeTerm(150, 300, item.questions[0].text, null, null, item.id));
-
-	// generate the qset
-	var _buildSaveData = function () {
-		if ((_qset == null)) { _qset = {}; }
-		if ((_qset.options == null)) { _qset.options = {}; }
-
-		const words = [];
-
-		_qset.assets = [];
-		_qset.rand = false;
-		_qset.name = '';
-		_title = $('#title').html();
-		let _okToSave = (_title != null) && (_title !== '') ? true : false;
-
-		const items = [];
-
-		const dots = $('.term');
-		for (let dot of Array.from(dots)) {
-			const item = {};
-			const label = dot.childNodes[0].innerHTML;
-
-			const answer = {
-				text: label,
-				value: 100,
-				id: ''
-			};
-			item.answers = [answer];
-			item.assets = [];
-			const question =
-				{ text: label };
-			item.questions = [question];
-			item.type = 'QA';
-			item.id = dot.getAttribute('data-id') || '';
-			item.options = {
-				labelBoxX: parseInt(dot.style.left.replace('px', '')),
-				labelBoxY: parseInt(dot.style.top.replace('px', '')),
-				endPointX: parseInt(dot.getAttribute('data-x')),
-				endPointY: parseInt(dot.getAttribute('data-y'))
-			};
-
-			items.push(item);
-		}
-
-		_qset.items = items;
-
-		if (items.length < 1) {
-			_okToSave = false;
-		}
-
-		if (_anchorOpacity.indexOf('frosted') > -1) {
-			_anchorOpacityValue = 0.5;
-		} else if (_anchorOpacity.indexOf('transparent') > -1) {
-			_anchorOpacityValue = 0.0;
-		}
-
-		flag3D ? qsetOption3D(_qset) : qsetOption(_qset);
-		_qset.version = "2";
-		return _okToSave;
-	};
-
-	// called from Materia creator page
-	// loads and sets appropriate data for loading image
-	const onMediaImportComplete = function (media) {
-
-		if (flag3D) {
-			document.querySelector('#imagewrapper').style.display = 'none';
-			return true
-		}
-
-		// $('#canvas').css('display', 'block');
-		document.getElementById('canvas').style.display = 'block';
-
-		const url = Materia.CreatorCore.getMediaUrl(media[0].id);
-		document.getElementById('chooseimage').style.display = 'none';
-		let image = document.getElementById('image');
-		image.style.display = '';
-		image.setAttribute('src', url);
-		image.setAttribute('data-imgid', media[0].id);
-		// $('#image').show();
-		// $('#image').attr('src', url);
-		// $('#image').attr('data-imgid', media[0].id);
-		_img.src = url;
-		_img.onload = function () {
-			let height, width;
-			const iw = $('#imagewrapper');
-			// const iw = document.getElementById('imagewrapper');
-
-			if (_img.width > _img.height) {
-				width = 570;
-				iw.css('width', width);
-				iw.css('height', ((_img.height * iw.width()) / _img.width));
-				// iw.style.width = width + 'px';
-				// iw.style.height = ((_img.height * iw.style.width) / _img.width) + 'px';
-			} else {
-				height = 470;
-				iw.css('height', height);
-				iw.css('width', ((_img.width * iw.height()) / _img.height));
-				// iw.style.height = height + 'px';
-				// iw.style.width = ((_img.width * iw.style.height) / _img.height) + 'px';
-
-			}
-
-			$('#imagewrapper').css('left', (600 / 2) - (iw.width() / 2));
-			return $('#imagewrapper').css('top', (550 / 2) - (iw.height() / 2));
-			// iw.style.left = (600 / 2) - (iw.style.width / 2) + 'px';
-			// return iw.style.top = (550 / 2) - (iw.style.height / 2) + 'px';
-		};
-
-		_makeDraggable();
-
-		return true;
-	};
-
-	function qsetOption(_qset) {
-		let _anchorOpacityValue = 1.0;
-		let imageWrapper = document.querySelector('#imagewrapper');
-		_qset.options = {
-			backgroundTheme: _qset.options.backgroundTheme,
-			backgroundColor: _qset.options.backgroundColor,
-			imageScale: parseFloat(getComputedStyle(imageWrapper, null).width.replace("px", "")) / _img.width,
-			image: {
-				id: $('#image').attr('data-imgid'),
-				materiaType: "asset"
-			},
-			imageX: imageWrapper.offsetLeft,
-			imageY: imageWrapper.offsetTop,
-			opacity: _anchorOpacityValue
-		}
-	}
-
-	// **** 3D VERSION *********************************************************
-
-	// Change UI based on the
-	function chooseVer() {
-		let btnEnterTitle = document.querySelector('#btn-enter-title');
-		let ver3D = document.querySelector('#ver3D');
-		let ver2D = document.querySelector('#ver2D');
-
-		ver2D.classList.toggle('orange');
-
-		ver2D.addEventListener('click', () => {
-
-			ver3D.classList.toggle('orange');
-			ver2D.classList.toggle('orange');
-			ver2D.classList.contains('orange')
-				? flag3D = false
-				: flag3D = true;
-
-		});
-
-		ver3D.addEventListener('click', () => {
-
-			ver3D.classList.toggle('orange');
-			ver2D.classList.toggle('orange');
-			ver2D.classList.contains('orange')
-				? flag3D = false
-				: flag3D = true;
-		});
-
-		btnEnterTitle.addEventListener('click', () => {
-
-			if (flag3D) {
-				removeFromUI();
-				centeringCameraBtn();
-				hideLinesBtn();
-
-				let loadCore3D = document.createElement("script");
-				loadCore3D.src = 'core3D.js';
-				loadCore3D.type = 'module';
-
-				document.getElementsByTagName('head')[0].appendChild(loadCore3D);
-				document.querySelector('#btnMoveResize').value = "Rotating Model";
-				document.getElementById('canvas').style.pointerEvents = 'none';
-
-				import('./core3D.js')
-					.then((module) => {
-						renderedSpheresGroup = module.renderedSpheresGroup;
-						uvMapToMousePoint = module.uvMapToMousePoint;
-						centeringCameraEvent = module.centeringCameraEvent;
-					})
-					.then(() => {
-						document.getElementById('myCanvas').addEventListener('mousemove', reRenderLines);
-					})
-					.catch((err) => {
-						console.log(err);
-					});
-
-				disableEvents();
-				enable3DEvents();
-			}
-		});
-	};
-
-	function removeFromUI() {
-		document.querySelector('#image').remove();
-		document.querySelector('#imagewrapper').remove();
-		document.querySelector('#opacity-toggle').remove();
-		document.querySelector('#maincontrols').remove();
-	}
-
-	function centeringCameraBtn() {
-		let btn = document.createElement('input');
-		btn.type = 'button';
-		btn.value = 'Center Camera';
-		btn.id = 'centerCamera';
-
-		let controlNodeList = document.getElementById('controls');
-		controlNodeList.insertBefore(btn, controlNodeList.children[2]);
-
-		reRenderLines();
-	}
-
-	function hideLinesBtn() {
-		let btn = document.createElement('input');
-		btn.type = 'button';
-		btn.value = 'Show Lines';
-		btn.id = 'hideLines';
-
-		let controlNodeList = document.getElementById('controls');
-		controlNodeList.insertBefore(btn, controlNodeList.children[2]);
-
-		reRenderLines();
-	}
-
-	function disableEvents() {
-		document.querySelector('#btnMoveResize').removeEventListener('click', resizable);
-		document.querySelector('#btnMoveResizeCancel').removeEventListener('click', resizableCancel);
-		document.querySelector('#btnMoveResizeDone').removeEventListener('click', resizableDone);
-		document.querySelector('#btnChooseImage').removeEventListener('click', btnChooseImage);
-		document.querySelector('#btn-enter-title').removeEventListener('click', btnTitle);
-	}
-
-	function enable3DEvents() {
-		document.getElementById('btnMoveResize').addEventListener('click', addingLabels, true);
-		document.getElementById('hideLines').addEventListener('click', hidingLines, true);
-		document.getElementById('centerCamera').addEventListener('click', centeringCameraEvent, true);
-	}
-
-	// function cameraBtnActions() {
-	// 	centeringCameraEvent;
-	// 	reRenderLines();
-	// }
-
-	function addingLabels() {
-
-		let element = document.getElementById('canvas');
-		let btn = document.getElementById('btnMoveResize');
-
-		if (areLinesHided) {
-			if (areWeLabeling) {
-				reRenderLines();
-				btn.value = "Adding Labels";
-				btn.classList.toggle('orange');
-				areWeLabeling = false;
-
-				// element.style.display = 'inline';
-				element.style.pointerEvents = 'auto';
-				element.addEventListener('click', _addTerm, false);
-
-			}
-			else {
-				reRenderLines();
-				btn.value = "Rotating Model";
-				btn.classList.toggle('orange');
-				areWeLabeling = true;
-
-				// element.style.display = 'none';
-				element.style.pointerEvents = 'none';
-				element.removeEventListener('click', _addTerm, false);
-			}
-		}
-
-	}
-
-	function hidingLines() {
-
-		let element = document.getElementById('canvas');
-		let btn = document.getElementById('hideLines');
-
-		if (areLinesHided) {
-			reRenderLines();
-
-			btn.value = 'Hide Lines';
-			btn.classList.toggle('orange');
-
-			element.style.display = 'none';
-
-			areLinesHided = false;
-
-		} else {
-			reRenderLines();
-
-			btn.value = 'Show Lines';
-			btn.classList.toggle('orange');
-
-			element.style.display = 'inline';
-
-			areLinesHided = true;
-		}
-
-	}
-
 	var _makeTerm3D = function (x, y, text, labelX = null, labelY = null, id) {
 		if (text == null) { text = _defaultLabel; }
 		if (id == null) { id = ''; }
@@ -977,6 +576,7 @@ Namespace('Labeling').Creator = (function () {
 					vertex.dotID = 'dot_' + term.id;
 					renderedSpheresGroup.add(vertex.sphere());
 					listOfVertex.push(vertex);
+					console.log(vertex)
 					appendingOfMake3D(x, y, text, labelX = null, labelY = null, id, term, dot);
 				}
 			}).catch((error) => {
@@ -984,7 +584,7 @@ Namespace('Labeling').Creator = (function () {
 			})
 	};
 
-	// Manages adding the label
+	// Manages adding the label for _makeTerm3D
 	function appendingOfMake3D(x, y, text, labelX = null, labelY = null, id, term, dot) {
 
 		const dotx = x;
@@ -1108,6 +708,496 @@ Namespace('Labeling').Creator = (function () {
 		return _drawBoard();
 	}
 
+	// When typing on a term, resize the font accordingly
+	var _termKeyUp = function (e) {
+		if ((e == null)) { e = window.event; }
+		let fontSize = (16 - (e.target.innerHTML.length / 10));
+		if (fontSize < 12) { fontSize = 12; }
+		return e.target.style.fontSize = fontSize + 'px';
+	};
+
+	// When typing on a term, resize the font accordingly
+	var _termKeyDown = function (e) {
+		if ((e == null)) { e = window.event; }
+
+		// Enter key
+		// block adding line returns
+		// consider Enter Key to mean 'done editing'
+		if (e.keyCode === 13) {
+			// Defocus
+			e.target.blur();
+			window.getSelection().removeAllRanges(); // needed for contenteditable blur
+			// put event in a sleeper hold
+			if (e.stopPropagation != null) { e.stopPropagation(); }
+			e.preventDefault();
+			return false;
+		}
+
+		// Escape
+		if (e.keyCode === 27) {
+			if (e.target.innerHTML.length < 1) {
+				$(document.getElementById('dot_' + e.target.parentElement.id)).remove();
+				$(e.target.parentElement).remove();
+				return _drawBoard();
+			} else {
+				// Defocus
+				e.target.blur();
+				return window.getSelection().removeAllRanges(); // needed for contenteditable blur
+			}
+		}
+	};
+
+	// If the term is blank, put dummy text in it
+	var _termBlurred = function (e) {
+		if ((e == null)) { e = window.event; }
+		if (e.target.innerHTML === '') { return e.target.innerHTML = _defaultLabel; }
+	};
+
+	// Convert anything on the clipboard into pure text before pasting it into the label
+	var _termPaste = function (e) {
+		let clipboardArgument, clipboardData, input;
+		if (e == null) { e = window.event; }
+		e.preventDefault();
+
+		// contenteditable divs will insert an empty <br/> when they're empty, this checks for and removes them on paste
+		if (e.target.tagName === 'BR') {
+			input = e.target.parentElement;
+			e.target.parentElement.removeChild(e.target);
+		} else {
+			input = e.target;
+		}
+		// ie11 has different arguments for clipboardData and makes it a method of window instead of the paste event
+		if (e.clipboardData != null) {
+			({
+				clipboardData
+			} = e);
+			clipboardArgument = 'text/plain';
+		} else {
+			({
+				clipboardData
+			} = window);
+			clipboardArgument = 'Text';
+		}
+
+		const sel = window.getSelection();
+		if (sel.rangeCount) {
+			const range = sel.getRangeAt(0);
+			range.deleteContents();
+
+			const newText = clipboardData.getData(clipboardArgument);
+			const newNode = document.createTextNode(newText);
+			range.insertNode(newNode);
+
+			const newRange = document.createRange();
+			newRange.selectNodeContents(newNode);
+			newRange.collapse(false);
+
+			sel.removeAllRanges();
+			return sel.addRange(newRange);
+		}
+	};
+
+	// a dot has been dragged, lock it in place if its within 10px
+	var _dotDragged = function (event, ui) {
+		let minDist = 9999;
+		let minDistEle = null;
+
+		for (let dot of Array.from($('.dot'))) {
+			if (dot === event.target) {
+				continue;
+			}
+			const dist = Math.sqrt(Math.pow((ui.position.left - $(dot).position().left), 2) + Math.pow((ui.position.top - $(dot).position().top), 2));
+			if (dist < minDist) {
+				minDist = dist;
+				minDistEle = dot;
+			}
+		}
+
+		// less than 10px away, put the dot where the other one is
+		// this is how duplicates are supported
+		if (minDist < 10) {
+			ui.position.left = $(minDistEle).position().left;
+			ui.position.top = $(minDistEle).position().top;
+		}
+
+		const term = document.getElementById(event.target.getAttribute('data-termid'));
+		term.setAttribute('data-x', ui.position.left);
+		term.setAttribute('data-y', ui.position.top);
+
+		return _drawBoard();
+	};
+
+	// called from Materia creator page
+	const onSaveClicked = function (mode) {
+		if (mode == null) { mode = 'save'; }
+
+		return !_buildSaveData()
+			? Materia.CreatorCore.cancelSave('Widget needs a title and at least one term.')
+			: Materia.CreatorCore.save(_title, _qset);
+	};
+
+	const onSaveComplete = (title, widget, qset, version) => true;
+
+	// called from Materia creator page
+	// place the questions in an arbitrary location to be moved
+	const onQuestionImportComplete = items => Array.from(items).map((item) =>
+		_makeTerm(150, 300, item.questions[0].text, null, null, item.id));
+
+
+	// generate the qset
+	var _buildSaveData = function () {
+		if ((_qset == null)) { _qset = {}; }
+		if ((_qset.options == null)) { _qset.options = {}; }
+
+		const words = [];
+
+		_qset.assets = [];
+		_qset.rand = false;
+		_qset.name = '';
+		_title = document.getElementById('title').innerHTML;
+		let _okToSave = (_title != null) && (_title !== '') ? true : false;
+
+		const items = [];
+		const dots = document.querySelectorAll('.term');
+		for (let dot of Array.from(dots)) {
+			const item = {};
+			const label = dot.childNodes[0].innerHTML;
+
+			const answer = {
+				text: label,
+				value: 100,
+				id: ''
+			};
+			item.answers = [answer];
+			item.assets = [];
+
+			const question = { text: label };
+			item.questions = [question];
+			item.type = 'QA';
+			item.id = dot.getAttribute('data-id') || '';
+
+			if (flag3D == false) {
+				item.options = {
+					labelBoxX: parseInt(dot.style.left.replace('px', '')),
+					labelBoxY: parseInt(dot.style.top.replace('px', '')),
+					endPointX: parseInt(dot.getAttribute('data-x')),
+					endPointY: parseInt(dot.getAttribute('data-y'))
+				};
+
+			} else {
+
+				let vertex;
+				listOfVertex.forEach((element) => {
+					if (element.dataTermID == dot.id) { vertex = element; }
+				});
+
+				// The sphere name is generated based on the dotID automatically, so
+				// there is no need to parse it.
+				item.options = {
+					labelBoxX: parseInt(dot.style.left.replace('px', '')),
+					labelBoxY: parseInt(dot.style.top.replace('px', '')),
+					endPointX: parseInt(dot.getAttribute('data-x')),
+					endPointY: parseInt(dot.getAttribute('data-y')),
+					vertex: {
+						dataTermID: vertex.dataTermID,
+						dotID: vertex.dotID,
+						faceIndex: vertex.faceIndex,
+						point: vertex.point,
+						uv: vertex.uv,
+					}
+				};
+			}
+
+			items.push(item);
+		}
+
+		_qset.items = items;
+
+		if (items.length < 1) { _okToSave = false; }
+
+		if (_anchorOpacity.indexOf('frosted') > -1) {
+			_anchorOpacityValue = 0.5;
+		} else if (_anchorOpacity.indexOf('transparent') > -1) {
+			_anchorOpacityValue = 0.0;
+		}
+
+		_qset.options.flag3D === false ? qsetOption(_qset) : qsetOption3D(_qset);
+		_qset.version = "2";
+		return _okToSave;
+	};
+
+	// called from Materia creator page
+	// loads and sets appropriate data for loading image
+	const onMediaImportComplete = function (media) {
+		_qset.options.flag3D === false ? onMediaImportComplete2D(media) : onMediaImportComplete3D(media);
+	};
+
+	function onMediaImportComplete2D(media) {
+
+		if (flag3D) {
+			document.querySelector('#imagewrapper').style.display = 'none';
+			return true
+		}
+
+		document.getElementById('canvas').style.display = 'block';
+		const url = Materia.CreatorCore.getMediaUrl(media[0].id);
+		document.getElementById('chooseimage').style.display = 'none';
+		console.log(media);
+		console.log(media[0].id);
+		console.log(url);
+		let image = document.getElementById('image');
+		image.style.display = '';
+		image.setAttribute('src', url);
+		image.setAttribute('data-imgid', media[0].id);
+		_img.src = url;
+		_img.onload = function () {
+			let height, width;
+			const iw = document.getElementById('imagewrapper');
+
+			if (_img.width > _img.height) {
+				width = 570 + 'px';
+				iw.style.width = width;
+				iw.style.height = ((_img.height * parseInt(iw.style.width)) / _img.width) + 'px';
+
+			} else {
+				height = 470 + 'px';
+				iw.style.height = height;
+				iw.style.width = ((_img.width * parseInt(iw.style.height)) / _img.height) + 'px';
+			}
+
+			iw.style.left = (600 / 2) - (parseInt(iw.style.width) / 2) + 'px';
+			return iw.style.top = (550 / 2) - (parseInt(iw.style.height) / 2) + 'px';
+		};
+
+		_makeDraggable();
+
+		return true;
+	}
+
+	function onMediaImportComplete3D(media) {
+		let _anchorOpacityValue = 1.0;
+		document.querySelector('#imagewrapper').style.display = 'none';
+		document.getElementById('canvas').style.display = 'block';
+		document.getElementById('chooseimage').style.display = 'none';
+
+		const url = Materia.CreatorCore.getMediaUrl(media[0].id);
+		urlStr = media[0].id;
+		// urlStr = url;
+		let image = document.getElementById('image');
+		image.style.display = '';
+		image.setAttribute('src', url);
+		image.setAttribute('data-imgid', media[0].id);
+		_img.src = url;
+		urlStr = media[0].id;
+
+		_makeDraggable();
+
+		console.log(media);
+		console.log(media[0].id);
+		console.log(url);
+
+		return true;
+	}
+
+	function qsetOption(_qset) {
+		let _anchorOpacityValue = 1.0;
+		let imageWrapper = document.querySelector('#imagewrapper');
+		_qset.options = {
+			backgroundTheme: _qset.options.backgroundTheme,
+			backgroundColor: _qset.options.backgroundColor,
+			imageScale: parseFloat(getComputedStyle(imageWrapper, null).width.replace("px", "")) / _img.width,
+			image: {
+				id: document.getElementById('image').getAttribute('data-imgid'),
+				materiaType: "asset"
+			},
+			imageX: imageWrapper.offsetLeft,
+			imageY: imageWrapper.offsetTop,
+			opacity: _anchorOpacityValue,
+			flag3D: flag3D,
+		}
+	}
+
+	function qsetOption3D(_qset) {
+		let _anchorOpacityValue = 1.0;
+		_qset.options = {
+			backgroundTheme: _qset.options.backgroundTheme,
+			backgroundColor: _qset.options.backgroundColor,
+			image: {
+				// id: ,	// Store in the id the model fileName.obj
+				materiaType: 'asset',
+			},
+			flag3D: flag3D,
+		}
+	}
+
+	// **** 3D VERSION *********************************************************
+
+	// Change UI based on the
+	function chooseVer() {
+		let btnEnterTitle = document.querySelector('#btn-enter-title');
+		let ver3D = document.querySelector('#ver3D');
+		let ver2D = document.querySelector('#ver2D');
+
+		ver2D.classList.toggle('orange');
+
+		ver2D.addEventListener('click', () => {
+
+			ver3D.classList.toggle('orange');
+			ver2D.classList.toggle('orange');
+			ver2D.classList.contains('orange')
+				? flag3D = false
+				: flag3D = true;
+
+		});
+
+		ver3D.addEventListener('click', () => {
+
+			ver3D.classList.toggle('orange');
+			ver2D.classList.toggle('orange');
+			ver2D.classList.contains('orange')
+				? flag3D = false
+				: flag3D = true;
+		});
+
+		btnEnterTitle.addEventListener('click', () => {
+
+			if (flag3D) {
+				removeFromUI();
+				centeringCameraBtn();
+				hideLinesBtn();
+
+				let loadCore3D = document.createElement("script");
+				loadCore3D.src = 'core3D.js';
+				loadCore3D.type = 'module';
+
+				document.getElementsByTagName('head')[0].appendChild(loadCore3D);
+				document.querySelector('#btnMoveResize').value = "Rotating Model";
+				document.getElementById('canvas').style.pointerEvents = 'none';
+
+				import('./core3D.js')
+					.then((module) => {
+						renderedSpheresGroup = module.renderedSpheresGroup;
+						uvMapToMousePoint = module.uvMapToMousePoint;
+						centeringCameraEvent = module.centeringCameraEvent;
+					})
+					.then(() => {
+						document.getElementById('myCanvas').addEventListener('mousemove', reRenderLines);
+					})
+					.catch((err) => {
+						console.log(err);
+					});
+
+				disableEvents();
+				enable3DEvents();
+
+			}
+		});
+	};
+
+	function removeFromUI() {
+		document.querySelector('#image').remove();
+		document.querySelector('#imagewrapper').remove();
+		document.querySelector('#opacity-toggle').remove();
+		document.querySelector('#maincontrols').remove();
+	}
+
+	function centeringCameraBtn() {
+		let btn = document.createElement('input');
+		btn.type = 'button';
+		btn.value = 'Center Camera';
+		btn.id = 'centerCamera';
+
+		let controlNodeList = document.getElementById('controls');
+		controlNodeList.insertBefore(btn, controlNodeList.children[2]);
+
+		reRenderLines();
+	}
+
+	function hideLinesBtn() {
+		let btn = document.createElement('input');
+		btn.type = 'button';
+		btn.value = 'Show Lines';
+		btn.id = 'hideLines';
+
+		let controlNodeList = document.getElementById('controls');
+		controlNodeList.insertBefore(btn, controlNodeList.children[2]);
+
+		reRenderLines();
+	}
+
+	function disableEvents() {
+		document.querySelector('#btnMoveResize').removeEventListener('click', resizable);
+		document.querySelector('#btnMoveResizeCancel').removeEventListener('click', resizableCancel);
+		document.querySelector('#btnMoveResizeDone').removeEventListener('click', resizableDone);
+		document.querySelector('#btnChooseImage').removeEventListener('click', btnChooseImage);
+		document.querySelector('#btn-enter-title').removeEventListener('click', btnTitle);
+	}
+
+	function enable3DEvents() {
+		document.getElementById('btnMoveResize').addEventListener('click', addingLabels, true);
+		document.getElementById('hideLines').addEventListener('click', hidingLines, true);
+		// document.getElementById('centerCamera').addEventListener('click', centeringCameraEvent, true);
+	}
+
+	function addingLabels() {
+
+		let element = document.getElementById('canvas');
+		let btn = document.getElementById('btnMoveResize');
+
+		if (areLinesHided) {
+			if (areWeLabeling) {
+				reRenderLines();
+				btn.value = "Adding Labels";
+				btn.classList.toggle('orange');
+				areWeLabeling = false;
+
+				// element.style.display = 'inline';
+				element.style.pointerEvents = 'auto';
+				element.addEventListener('click', _addTerm, false);
+
+			}
+			else {
+				reRenderLines();
+				btn.value = "Rotating Model";
+				btn.classList.toggle('orange');
+				areWeLabeling = true;
+
+				// element.style.display = 'none';
+				element.style.pointerEvents = 'none';
+				element.removeEventListener('click', _addTerm, false);
+			}
+		}
+
+	}
+
+	function hidingLines() {
+
+		let element = document.getElementById('canvas');
+		let btn = document.getElementById('hideLines');
+
+		if (areLinesHided) {
+			reRenderLines();
+
+			btn.value = 'Hide Lines';
+			btn.classList.toggle('orange');
+
+			element.style.display = 'none';
+
+			areLinesHided = false;
+
+		} else {
+			reRenderLines();
+
+			btn.value = 'Show Lines';
+			btn.classList.toggle('orange');
+
+			element.style.display = 'inline';
+
+			areLinesHided = true;
+		}
+
+	}
+
 	// Updates every term attribute data-x and data-y values.
 	function reRenderLines() {
 
@@ -1121,14 +1211,6 @@ Namespace('Labeling').Creator = (function () {
 
 		return _drawBoard();
 	}
-
-	function qsetOption3D(_qset) {
-		let _anchorOpacityValue = 1.0;
-		_qset.options = {
-			backgroundTheme: _qset.options.backgroundTheme,
-			backgroundColor: _qset.options.backgroundColor,
-		}
-	}
 	// ***********************************************************************
 	// ///////////////////////
 
@@ -1141,4 +1223,5 @@ Namespace('Labeling').Creator = (function () {
 		onQuestionImportComplete,
 		onSaveComplete,
 	};
+
 })();
