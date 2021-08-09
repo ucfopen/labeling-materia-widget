@@ -169,7 +169,8 @@
         "imageScale": 0.56255813953488,
         "imageX": 20.35,
         "imageY": 125,
-        "backgroundTheme": "themeCorkBoard"
+        "backgroundTheme": "themeCorkBoard",
+        "flag3D": "false"
       }
     }
   }

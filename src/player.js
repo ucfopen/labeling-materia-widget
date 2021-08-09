@@ -1,5 +1,11 @@
 
+// Create a new set of functions to calculate the uv and xyz maps.
+// Current functions causes a shenanigans where
 
+// Edit function reRenderLines. Data for the terms is not being taken
+// from the same location. Might have to update lines in a different manner.
+
+// Original top position for all term is 50px.
 Namespace('Labeling').Engine = (function () {
 
 	// ORIGINAL CODE FOR PLAYER
@@ -45,11 +51,14 @@ Namespace('Labeling').Engine = (function () {
 	let flag3D = null;
 	let listOfVertex = []; // contains each vertex.
 	var uvMapToMousePoint;
-	let centeringCameraEvent;
 	let renderedSpheresGroup; // render group containing spheres of each vertex.
-	let areWeLabeling = true;
 	let areLinesHided = true;
 
+	let spacing = 10;
+	let termWidth = 48;
+	// Default 10 terms display on termList.
+	let numberOfTerms = 10;
+	let numberOfTermsRemove = 3;
 	let modal3D;
 
 	// getElementById and cache it, for the sake of performance
@@ -62,9 +71,9 @@ Namespace('Labeling').Engine = (function () {
 		if (version == null) { version = '1'; }
 		_qset = qset;
 
-		flag3D = _qset.options.flag3D;
+		console.log(_qset.options.flag3D === true);
 
-		if (flag3D) { chooseVer(); }
+		if (_qset.options.flag3D === true) { chooseVer(); }
 
 		_questions = _qset.items;
 		if (_questions[0].items) {
@@ -107,17 +116,19 @@ Namespace('Labeling').Engine = (function () {
 		_g('title').style['font-size'] = ((20 - (instance.name.length / 30)) + 'px');
 
 		// set events
+		_g('cancelbtn').addEventListener('click', _hideAlert);
+		_g('backgroundcover').addEventListener('click', _hideAlert);
+		_g('checkBtn').addEventListener('click', () => _submitAnswers());
+
 		_g('nextbtn').addEventListener('mousedown', function () {
 			_curPage++;
 			return _arrangeList();
 		});
+
 		_g('prevbtn').addEventListener('mousedown', function () {
 			_curPage--;
 			return _arrangeList();
 		});
-		_g('checkBtn').addEventListener('click', () => _submitAnswers());
-		_g('cancelbtn').addEventListener('click', _hideAlert);
-		_g('backgroundcover').addEventListener('click', _hideAlert);
 
 		// get canvas context
 		_canvas = _g('image');
@@ -127,6 +138,7 @@ Namespace('Labeling').Engine = (function () {
 		if (navigator.userAgent.indexOf("IE 9") === -1) {
 			_g('backgroundcover').classList.add('show');
 			_drawPreviewBoard();
+
 		} else {
 			_g('previewbox').style.display = 'none';
 		}
@@ -141,23 +153,22 @@ Namespace('Labeling').Engine = (function () {
 
 		_questions = _shuffle(_questions);
 
-		// create term divs
-		// setTimeout(flag3D == false ? appendLabels(_questions) : appendLabels3D(_questions), 3000);
-		flag3D == false ? appendLabels(_questions) : appendLabels3D(_questions);
+		// appendLabels(_questions)
+		_qset.options.flag3D === false ? appendLabels(_questions) : setTimeout(appendLabels3D(_questions), 5000);
+
 
 		// defer such that it is run once the labels are ready in the DOM
 		setTimeout(function () {
 			_arrangeList();
 			return Array.from(document.getElementsByClassName('term')).map((node) =>
 				node.classList.add('ease'));
-		}
-			, 0);
+		}, 0);
 
 		// attach document listeners
 		document.addEventListener('touchend', _mouseUpEvent, false);
 		document.addEventListener('mouseup', _mouseUpEvent, false);
 		document.addEventListener('MSPointerUp', _mouseUpEvent, false);
-		document.addEventListener('mouseup', _mouseUpEvent, false);
+
 		document.addEventListener('touchmove', _mouseMoveEvent, false);
 		document.addEventListener('MSPointerMove', _mouseMoveEvent, false);
 		document.addEventListener('mousemove', _mouseMoveEvent, false);
@@ -167,6 +178,7 @@ Namespace('Labeling').Engine = (function () {
 	};
 
 	function appendLabels() {
+		console.log('player +--> appendLabels trigger.');
 		let termList = document.getElementById('termlist');
 
 		for (let question of Array.from(_questions)) {
@@ -197,6 +209,7 @@ Namespace('Labeling').Engine = (function () {
 	}
 
 	function appendLabels3D() {
+		console.log('player +--> appendLabels3D trigger.');
 		let termList = document.getElementById('termlist');
 
 		for (let question of Array.from(_questions)) {
@@ -225,13 +238,15 @@ Namespace('Labeling').Engine = (function () {
 
 			import('./core3D.js')
 				.then((module) => {
-					let vertex = module.createVertex(
+					return module.createVertex(
 						term.id,
 						'dot_' + term.id,
 						question.options.vertex.faceIndex,
 						question.options.vertex.point,
 						question.options.vertex.uv
 					);
+				})
+				.then((vertex) => {
 					listOfVertex.push(vertex);
 					renderedSpheresGroup.add(vertex.sphere());
 				})
@@ -285,20 +300,30 @@ Namespace('Labeling').Engine = (function () {
 	var _arrangeList = function () {
 		// the maximum height the terms can pass before we overflow onto another page
 		let offScreen;
-		const MAX_HEIGHT = 490;
+
+		// const MAX_HEIGHT = 490; // = (48 * 10) + 10 // (heightOfTerm * #OfTerms) + 10
+		const MAX_HEIGHT = spacing + (termWidth * numberOfTerms);
 
 		// if we went too far back, go to the 0th page
 		if (_curPage < 0) { _curPage = 0; }
 
 		// position of the terms
-		let y = 10 + (-440 * _curPage);
+		// let y = spacing + (-440 * _curPage);
+
+		let y
+		(_qset.options.flag3D === false) ? y = spacing + (-440 * _curPage)
+			: (_curPage == 0) ? y = spacing + (termWidth * numberOfTermsRemove)
+				: y = spacing + ((-440 + (termWidth * numberOfTermsRemove)) * _curPage);
+
 
 		// state sentinels
 		let maxY = 0;
 		let found = false;
+		let cnt = 1;
 
 		// move all the terms to their correct location
-		for (let question of Array.from(_questions)) {
+		console.log(_questions[_questions.length - 1].mask);
+		for (let question of _questions) {
 			const node = _g('term_' + question.mask);
 
 			// if it's not placed, put it in the left list
@@ -309,20 +334,29 @@ Namespace('Labeling').Engine = (function () {
 
 				// too high up, put it on the previous page
 				if (y < 10) {
+					console.log(cnt + ') ', node.innerHTML, y, 'if (y < 10) => ' + (y < 10));
 					node.style.zIndex = -1;
 					offScreen = true;
+
 					// too far down, put it on the next page
 				} else if (y >= MAX_HEIGHT) {
+					console.log(cnt + ') ', node.innerHTML, y, 'else if (y >= MAX_HEIGHT) => ' + (y >= MAX_HEIGHT));
 					node.style.zIndex = -1;
+
 					// just right goldilocks
 				} else {
+					console.log(cnt + ') ', node.innerHTML, y);
 					node.style.zIndex = '';
 					node.style.opacity = 1;
 					found = true;
-				}
 
+					question.mask === _questions[_questions.length - 1].mask
+						? document.getElementById('nextbtn').style.pointerEvents = 'none'
+						: document.getElementById('nextbtn').style.pointerEvents = 'auto';
+				}
+				cnt++;
 				maxY = y;
-				y += node.getBoundingClientRect().height + 10;
+				y += node.getBoundingClientRect().height + spacing; // increments of 48px
 			}
 		}
 
@@ -332,21 +366,15 @@ Namespace('Labeling').Engine = (function () {
 		_g('prevbtn').style['z-index'] = offScreen ? '9999' : '0';
 
 		// these covers provide padding to the terms during tweening
-		if (maxY >= MAX_HEIGHT) {
-			_g('blockbottom').classList.remove('hide');
-		} else {
-			_g('blockbottom').classList.add('hide');
-		}
-		if (offScreen) {
-			_g('blocktop').classList.remove('hide');
-		} else {
-			_g('blocktop').classList.add('hide');
-		}
+		maxY >= MAX_HEIGHT ? _g('blockbottom').classList.remove('hide') : _g('blockbottom').classList.add('hide');
+
+		offScreen ? _g('blocktop').classList.remove('hide') : _g('blocktop').classList.add('hide');
 
 		// if nothing was found, the page is empty and we should go back automagically
 		if (!found && (_curPage > 0)) {
 			_curPage--;
 			return _arrangeList();
+
 		} else {
 			// no more terms, we're done!
 			if (!found && (_curPage === 0)) {
@@ -354,6 +382,7 @@ Namespace('Labeling').Engine = (function () {
 				_g('checkBtn').classList.add('done');
 				return _isPuzzleComplete = true;
 				// jk, reset the state
+
 			} else {
 				_g('donearrow').style.opacity = '0';
 				_g('checkBtn').classList.remove('done');
@@ -379,6 +408,8 @@ Namespace('Labeling').Engine = (function () {
 		// if it's been placed, remove that association
 		if (_curterm.getAttribute('data-placed')) {
 			_labelTextsByQuestionId[_curterm.getAttribute('data-placed')] = '';
+			// console.log(_labelTextsByQuestionId);
+			// console.log(_labelTextsByQuestionId[_curterm.getAttribute('data-placed')]);
 			_curterm.setAttribute('data-placed', '');
 		}
 
@@ -389,6 +420,7 @@ Namespace('Labeling').Engine = (function () {
 
 	// when the widget area has a cursor or finger move
 	var _mouseMoveEvent = function (e) {
+
 		// if no term is being dragged, we don't care
 		let fadeOutCurMatch, question;
 		if ((_curterm == null)) { return; }
@@ -402,23 +434,24 @@ Namespace('Labeling').Engine = (function () {
 		}
 
 		let x = (e.clientX - 30);
-		if (x < 40) { x = 40; }
-		if (x > 670) { x = 670; }
+		if (x < 40) { x = 40; } // left window limit
+		if (x > 670) { x = 670; }	// right window limit
+
 		let y = (e.clientY - 90);
-		if (y < 0) { y = 0; }
-		if (y > 500) { y = 500; }
+		if (y < 0) { y = 0; } // top limit
+		if (y > 500) { y = 500; } // bottom limit
 
 		// move the current term
 		_curterm.style.transform =
 			(_curterm.style.msTransform =
-				(_curterm.style.webkitTransform = 'translate(' + x + 'px,' + y + 'px)'));
+				(_curterm.style.webkitTransform = 'translate(' + x + 'px,' + y + 'px)'))
 
 		const _lastID = (_curMatch != null) && (_curMatch.id != null) ? _curMatch.id : 0;
 
 		// check proximity against available drop points
 		let minDist = Number.MAX_VALUE;
 		_curMatch = null;
-		let i = 0;
+		// let i = 0;
 
 		// first look for ones that aren't filled, then try replacing ones with a label filling them
 		// this is a two-pass process
@@ -430,18 +463,15 @@ Namespace('Labeling').Engine = (function () {
 
 				// we want the closest one
 				if ((dist < minDist) && (dist < 200)) {
-					if (onlyUnfilled && _labelTextsByQuestionId[question.id]) {
-						continue;
-					}
+					if (onlyUnfilled && _labelTextsByQuestionId[question.id]) { continue; }
+
 					minDist = dist;
 					_curMatch = question;
 				}
-				i++;
+				// i++;
 			}
-			// if we didnt find anything, accept filled ones
-			if (!_curMatch) {
-				onlyUnfilled = false;
-			}
+			// if we didn't find anything, accept filled ones
+			if (!_curMatch) { onlyUnfilled = false; }
 		}
 
 		if ((_curMatch != null) && (_curMatch.id != null) && (_curMatch.id !== _lastID)) {
@@ -449,20 +479,18 @@ Namespace('Labeling').Engine = (function () {
 			ripple.style.transform =
 				(ripple.style.msTransform =
 					(ripple.style.webkitTransform = 'translate(' + (_curMatch.options.endPointX + _offsetX) + 'px,' + (_curMatch.options.endPointY + _offsetY) + 'px)'));
-			ripple.className = '';
-			ripple.offsetWidth = ripple.offsetWidth;
 			ripple.className = 'play';
 		}
 
-		if (_curMatch && (_labelTextsByQuestionId[_curMatch.id] !== '')) {
-			fadeOutCurMatch = true;
-		}
+		if (_curMatch && (_labelTextsByQuestionId[_curMatch.id] !== '')) { fadeOutCurMatch = true; }
 
 		for (question of Array.from(_questions)) {
 			const node = _g('term_' + question.mask);
+
 			if (fadeOutCurMatch && (node.getAttribute('data-placed') === _curMatch.id)) {
 				_g('term_' + question.mask).style.opacity = 0.5;
 				_curterm.style.zIndex = ++_zIndex;
+
 			} else {
 				_g('term_' + question.mask).style.opacity = 1;
 			}
@@ -477,8 +505,8 @@ Namespace('Labeling').Engine = (function () {
 
 	// when we let go of a term
 	var _mouseUpEvent = function (e) {
-		// we don't care if nothing is selected
-		let matched;
+
+		let matched; // we don't care if nothing is selected
 		if ((_curterm == null)) { return; }
 
 		// apply easing (for snap back animation)
@@ -494,6 +522,7 @@ Namespace('Labeling').Engine = (function () {
 				// find the node and put it back in the terms list
 				for (let question of Array.from(_questions)) {
 					const node = _g('term_' + question.mask);
+
 					if (node.getAttribute('data-placed') === _curMatch.id) {
 						node.className = 'term ease';
 						node.setAttribute('data-placed', '');
@@ -513,11 +542,13 @@ Namespace('Labeling').Engine = (function () {
 			_curterm.style.webkitTransform =
 				(_curterm.style.msTransform =
 					(_curterm.style.transform =
-						'translate(' + (_curMatch.options.labelBoxX + 210 + _offsetX) + 'px,' + ((_curMatch.options.labelBoxY + _offsetY) - 20) + 'px)'));
+						'translate(' + (_curMatch.options.labelBoxX + 210 + _offsetX) + 'px,' + ((_curMatch.options.labelBoxY + _offsetY) - 20) + 'px)'))
+
 			_curterm.className += ' placed';
 
 			// identify this element with the question it is answering
 			_curterm.setAttribute('data-placed', _curMatch.id);
+
 		} else {
 			// not matched with a dot, reset the place it was placed
 			_labelTextsByQuestionId[_curterm.getAttribute('data-placed')] = '';
@@ -534,12 +565,9 @@ Namespace('Labeling').Engine = (function () {
 		// render changes
 		_drawBoard();
 
-		if (matched) {
-			// keep ghost on screen
-			_g('ghost').style.opacity = 0.5;
-		} else {
-			_g('ghost').style.opacity = 0;
-		}
+		// keep ghost on screen
+		matched ? _g('ghost').style.opacity = 0.5 : _g('ghost').style.opacity = 0;
+
 		_g('ghost').className = 'term hide';
 
 		// prevent iPad/etc from scrolling
@@ -554,13 +582,16 @@ Namespace('Labeling').Engine = (function () {
 		context.fill();
 		context.lineWidth = border;
 		context.strokeStyle = borderColor;
-		return context.stroke();
+		if (_qset.options.flag3D === false) {
+			return context.stroke();
+		}
+
 	};
 
 	// draw a stroked line (one big line, one smaller on top)
 	var _drawStrokedLine = function (x1, y1, x2, y2, color1, color2, context) {
 		if (context == null) { context = _context; }
-		// Labeling.Draw3D.drawLine3D(x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 6, color1);
+
 		Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 6, color1);
 		return Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 2, color2);
 	};
@@ -582,7 +613,10 @@ Namespace('Labeling').Engine = (function () {
 			_context.shadowColor = 'rgba(0,0,0,0.5)';
 		}
 
-		_context.drawImage(_img, _qset.options.imageX, _qset.options.imageY, (_img.width * _qset.options.imageScale), (_img.height * _qset.options.imageScale));
+		if (_qset.options.flag3D === false) {
+			_context.drawImage(_img, _qset.options.imageX, _qset.options.imageY, (_img.width * _qset.options.imageScale), (_img.height * _qset.options.imageScale));
+		}
+
 		_context.shadowColor = '';
 		_context.shadowBlur = 0;
 
@@ -596,6 +630,7 @@ Namespace('Labeling').Engine = (function () {
 				// if the question has an answer placed, draw a solid line connecting it
 				// but only if the label is not replacing one that already exists
 				var dotBackground, dotBorder;
+
 				if (_labelTextsByQuestionId[question.id] &&
 					!(_curMatch && _labelTextsByQuestionId[_curMatch.id] && (question.id === _curMatch.id))) {
 					_drawStrokedLine(question.options.endPointX, question.options.endPointY, question.options.labelBoxX, question.options.labelBoxY, '#fff', '#000');
@@ -610,7 +645,6 @@ Namespace('Labeling').Engine = (function () {
 				// if the question has a match dragged near it, draw a ghost line
 				if ((_curMatch != null) && (_curMatch.id === question.id)) {
 					_drawStrokedLine(question.options.endPointX, question.options.endPointY, question.options.labelBoxX, question.options.labelBoxY, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)');
-
 					dotBorder = 'rgba(255,255,255,' + _anchorOpacityValue + ')';
 					dotBackground = 'rgba(0,0,0,' + _anchorOpacityValue + ')';
 
@@ -624,7 +658,9 @@ Namespace('Labeling').Engine = (function () {
 					_drawStrokedLine(question.options.endPointX, question.options.endPointY, mouseX - _offsetX - 240, mouseY - _offsetY - 80, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)');
 				}
 
-				result.push(_drawDot(question.options.endPointX + _offsetX, question.options.endPointY + _offsetY, 9, 3, _context, dotBorder, dotBackground));
+				if (_qset.options.flag3D === false) {
+					result.push(_drawDot(question.options.endPointX + _offsetX, question.options.endPointY + _offsetY, 9, 3, _context, dotBorder, dotBackground));
+				}
 			}
 			return result;
 		})();
@@ -669,37 +705,60 @@ Namespace('Labeling').Engine = (function () {
 
 	// **** 3D VERSION *********************************************************
 	function chooseVer() {
+		console.log('player +--> chooseVer() trigger.');
+		// removeFromUI();
+
+		let btnDiv = document.createElement('div');
+		btnDiv.id = 'btnDiv';
+		btnDiv.style.display = 'inline';
+		btnDiv.style.background = 'url(assets/checker.png)';
+		btnDiv.style.zIndex = 1;
+		btnDiv.style.top = '50px';
+		btnDiv.style.height = '105px';
+		btnDiv.style.width = '195px';
+
+		document.body.appendChild(btnDiv);
+
+		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'btnDiv');
+		btnToggleLines.style.top = 55 + 'px';
+
+		let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'btnDiv');
+		btnCenterCamera.style.top = 110 + 'px';
 
 		let loadCore3D = document.createElement("script");
 		loadCore3D.src = 'core3D.js';
 		loadCore3D.type = 'module';
-
 		document.getElementsByTagName('head')[0].appendChild(loadCore3D);
 
 		import('./core3D.js')
 			.then((module) => {
 				renderedSpheresGroup = module.renderedSpheresGroup;
 				uvMapToMousePoint = module.uvMapToMousePoint;
-				centeringCameraEvent = module.centeringCameraEvent;
+				return module;
+			})
+			.then((module) => {
+				btnCenterCamera.addEventListener('click', module.centeringCameraEvent);
+				btnToggleLines.addEventListener('click', hidingLinesBtnEffect, true);
+				document.getElementById('myCanvas').addEventListener('mousemove', reRenderLines);
 			})
 			.catch((err) => {
 				console.log(err);
 			});
 
+		let imageCanvas = document.getElementById('image');
+		imageCanvas.style.zIndex = 2;
+		imageCanvas.style.pointerEvents = 'none';
+
+		let blockTop = document.getElementById('blocktop');
+		blockTop.style.top = (numberOfTermsRemove * termWidth + spacing) + 'px';
+		blockTop.style.height = termWidth + 'px';
+
+		let prevBtn = document.getElementById('prevbtn');
+		prevBtn.style.top = (parseInt(blockTop.style.top.replace('px', '')) + 6) + 'px';
+
 		// document.getElementById('termlist').style.top = 200 + 'px';
-		// document.getElementById('prevbtn').style.top = 175 + 'px';
 
-		// let btnDiv = document.createElement('div');
-		// btnDiv.id = 'btnDiv';
-		// document.body.appendChild(btnDiv);
-
-		// let hideLinesBtn = createBtn('showLinesBtn', 'Show Lines', 'btnDiv');
-		// hideLinesBtn.style.top = 55 + 'px';
-
-		// let centerCameraBtn = createBtn('centerCamera', 'Center Camera', 'btnDiv');
-		// centerCameraBtn.style.top = 110 + 'px';
-
-		// enable3DEvents();
+		//// enable3DEvents(btnToggleLines);
 	};
 
 	function createBtn(btnID, btnValue, location) {
@@ -708,6 +767,9 @@ Namespace('Labeling').Engine = (function () {
 		btn.value = btnValue;
 		btn.id = btnID;
 		btn.className = 'verBtn';
+		btn.style.width = '162px';
+		// btn.style.height = '38.2px'
+		btn.style.left = '22px'
 
 		let controlNodeList = document.getElementById(location);
 		controlNodeList.insertBefore(btn, controlNodeList.firstChild);
@@ -715,12 +777,47 @@ Namespace('Labeling').Engine = (function () {
 		return btn;
 	}
 
-	function enable3DEvents() {
-		// document.getElementById('hideLines').addEventListener('click', hidingLines, true);
-		document.getElementById('centerCamera').addEventListener('click', centeringCameraEvent, false);
+	function removeFromUI() {
+		document.querySelector('#image').remove();
+		document.querySelector('#imagewrapper').remove();
+		document.querySelector('#opacity-toggle').remove();
+		document.querySelector('#maincontrols').remove();
 	}
 
+	function hidingLinesBtnEffect() {
+		console.log('player +--> hidingLinesBtnEffect trigger.');
+		let element = document.getElementById('image');
+		let btn = document.getElementById('toggleLines');
 
+		if (element.style.zIndex == 2) {
+			reRenderLines();
+			btn.classList.toggle('orange');
+
+			element.style.display = 'none';
+			element.style.zIndex = -1;
+		} else {
+			reRenderLines();
+			btn.classList.toggle('orange');
+
+			element.style.display = 'inline';
+
+			element.style.zIndex = 2;
+		}
+
+	}
+
+	function reRenderLines() {
+
+		listOfVertex.forEach(element => {
+			let vector = uvMapToMousePoint(element.point);
+
+			let label = document.getElementById(element.dataTermID);
+			label.setAttribute('data-x', vector.x);
+			label.setAttribute('data-y', vector.y);
+		})
+
+		return _drawBoard();
+	}
 
 	// ***********************************************************************
 	// ///////////////////////
