@@ -1,3 +1,5 @@
+// Great guide for starting and finding understanding.
+// https://threejsfundamentals.org/
 
 import * as THREE from '../node_modules/three/build/three.module.js';
 import { OrbitControls } from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
@@ -118,9 +120,9 @@ function main() {
 	window.addEventListener('resize', onWindowResize);
 	canvas.addEventListener('click', onMouseClick);
 
-	renderer.domElement.id = 'myCanvas';
-	console.log(urlStr);
-	console.log(scene);
+	renderer.domElement.id = 'my3DCanvas';
+	// console.log(urlStr);
+	// console.log(scene);
 }// END OF MAIN()
 
 function render() {
@@ -287,7 +289,7 @@ function scaleUpObj(obj) {
 }
 
 function centeringCameraEvent() {
-	console.log('trigger');
+	console.log('core3D +--> centeringCameraEvent trigger.');
 	camera.position.copy(cameraInitialPosition);
 	camera.lookAt(objBoxCenter.x, objBoxCenter.y, objBoxCenter.z);
 	controls.maxDistance = objBoxSize * 10;
