@@ -150,10 +150,14 @@ Namespace('Labeling').Creator = (function () {
 			})();
 		});
 
-		document.querySelector('#btnMoveResize').addEventListener('click', resizable);
-		document.querySelector('#btnMoveResizeCancel').addEventListener('click', resizableCancel);
-		document.querySelector('#btnMoveResizeDone').addEventListener('click', resizableDone);
 		document.querySelector('#btnChooseImage').addEventListener('click', btnChooseImage);
+
+		// Events pertaining to resize.
+		document.querySelector('#btnMoveResize').addEventListener('click', resizable);
+		document.querySelector('#btnMoveResizeDone').addEventListener('click', resizableDone);
+		document.querySelector('#btnMoveResizeCancel').addEventListener('click', resizableCancel);
+
+		// Events pertaining to the title.
 		document.querySelector('#btn-enter-title').addEventListener('click', btnTitle);
 		document.querySelector('#title').addEventListener('click', _showMiniTitleEditor);
 		document.querySelector('#header .link').addEventListener('click', _showMiniTitleEditor);
@@ -1062,7 +1066,7 @@ Namespace('Labeling').Creator = (function () {
 				removeFromUI();
 
 				let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'controls');
-				let btnHideLines = createBtn('hideLines', 'Show Lines', 'controls');
+				let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'controls');
 
 				let loadCore3D = document.createElement("script");
 				loadCore3D.src = 'core3D.js';
@@ -1079,7 +1083,11 @@ Namespace('Labeling').Creator = (function () {
 						return module;
 					})
 					.then((module) => {
-						document.getElementById('my3DCanvas').addEventListener('mousemove', reRenderLines);
+						let my3DCanvas = document.getElementById('my3DCanvas');
+						my3DCanvas.addEventListener('wheel', reRenderLines);
+						my3DCanvas.addEventListener('mousemove', reRenderLines);
+						my3DCanvas.addEventListener('touchmove', reRenderLines);
+
 						btnCenterCamera.addEventListener('click', module.centeringCameraEvent);
 					})
 					.catch((err) => {
@@ -1122,11 +1130,10 @@ Namespace('Labeling').Creator = (function () {
 
 	function enable3DEvents() {
 		document.getElementById('btnMoveResize').addEventListener('click', addingLabelsBtnEffect, true);
-		document.getElementById('hideLines').addEventListener('click', hidingLinesBtnEffect, true);
+		document.getElementById('toggleLines').addEventListener('click', toggleLinesBtnEffect, true);
 	}
 
 	function addingLabelsBtnEffect() {
-
 		let element = document.getElementById('canvas');
 		let btn = document.getElementById('btnMoveResize');
 
@@ -1136,58 +1143,43 @@ Namespace('Labeling').Creator = (function () {
 				btn.value = "Adding Labels";
 				btn.classList.toggle('orange');
 				areWeLabeling = false;
-
-				// element.style.display = 'inline';
 				element.style.pointerEvents = 'auto';
 				element.addEventListener('click', _addTerm, false);
 
-			}
-			else {
+			} else {
 				reRenderLines();
 				btn.value = "Rotating Model";
 				btn.classList.toggle('orange');
 				areWeLabeling = true;
-
-				// element.style.display = 'none';
 				element.style.pointerEvents = 'none';
 				element.removeEventListener('click', _addTerm, false);
 			}
 		}
-
 	}
 
-	function hidingLinesBtnEffect() {
+	// Depending on the btn toggle status drawn lines may be display.
+	function toggleLinesBtnEffect() {
 
 		let element = document.getElementById('canvas');
-		let btn = document.getElementById('hideLines');
+		let btn = document.getElementById('toggleLines');
 
 		if (areLinesHided) {
 			reRenderLines();
-
-			btn.value = 'Hide Lines';
 			btn.classList.toggle('orange');
-
 			element.style.display = 'none';
-
 			areLinesHided = false;
 
 		} else {
 			reRenderLines();
-
-			btn.value = 'Show Lines';
 			btn.classList.toggle('orange');
-
 			element.style.display = 'inline';
-
 			areLinesHided = true;
 		}
-
 	}
 
-	// Updates every term attribute data-x and data-y values.
+	// Updates every term attribute data-x and data-y values. This allows for the lines
+	// on the model to be updated and follow it.
 	function reRenderLines() {
-		console.log('creator +--> reRenderLines trigger.');
-
 		listOfVertex.forEach(element => {
 			let vector = uvMapToMousePoint(element.point);
 

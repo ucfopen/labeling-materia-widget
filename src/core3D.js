@@ -289,15 +289,12 @@ function scaleUpObj(obj) {
 }
 
 function centeringCameraEvent() {
-	console.log('core3D +--> centeringCameraEvent trigger.');
 	camera.position.copy(cameraInitialPosition);
 	camera.lookAt(objBoxCenter.x, objBoxCenter.y, objBoxCenter.z);
 	controls.maxDistance = objBoxSize * 10;
 	controls.target.copy(objBoxCenter);
 	controls.update();
 }
-
-// document.getElementById('centerCamera').addEventListener('click', centeringCameraEvent, true);
 
 // Function for testing purposes
 function printShotgun(str, data) {
