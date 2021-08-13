@@ -71,7 +71,7 @@ const renderer = new THREE.WebGLRenderer({ antialias: setAntialias });
 const controls = new OrbitControls(camera, renderer.domElement);
 // controls.enablePan = false;
 
-let url;
+// let url;
 
 // Loads in all the base requirements for properly displaying the 3D environment.
 main();
@@ -99,30 +99,18 @@ function main() {
 	stats.dom.style.top = canvasRect.bottom - 48 + 'px';
 	canvas.appendChild(stats.dom);
 
-	// controls.enableKeys = true;
-
-	// WASD for movement
-	// controls.keys = {
-	// 	LEFT: 68, //left arrow
-	// 	UP: 87, // up arrow
-	// 	RIGHT: 65, // right arrow
-	// 	BOTTOM: 83 // down arrow
-	// }
-
-
 	scene.add(renderedSpheresGroup);
 	scene.add(myPointer);
 	scene.add(camera);
 
+	urlStr = objFileStr;
 	// use if obj provided  // use if mtl and obj provided
-	mtlFileStr == null ? getOBJRender(objFileStr) : getMTLandOBJRender(controls);
+	mtlFileStr == null ? getOBJRender(urlStr) : getMTLandOBJRender(mtlFileStr, urlStr);
 
 	window.addEventListener('resize', onWindowResize);
 	canvas.addEventListener('click', onMouseClick);
 
 	renderer.domElement.id = 'my3DCanvas';
-	// console.log(urlStr);
-	// console.log(scene);
 }// END OF MAIN()
 
 function render() {
@@ -178,7 +166,6 @@ function onError(error) {
 }
 
 function getOBJRender(objFileStr) {
-
 	objLoader.load(objFileStr, (obj) => {
 		obj.name = 'myRender';
 		scene.add(obj);
@@ -215,16 +202,13 @@ function getOBJRender(objFileStr) {
 		controls.maxDistance = objBoxSize * 10;
 		controls.target.copy(objBoxCenter);
 		controls.update();
-
-		// console.table(objBoxDimensions);
-		// console.log('sphereRadius: ' + sphereRadius);
 	},
 		onProgress,
 		onError
 	);
 } // End of getOBJRender()
 
-function getMTLandOBJRender(controls) {
+function getMTLandOBJRender(mtlFileStr, objFileStr) {
 
 	mtlLoader.load(mtlFileStr, (mtl) => {
 		mtl.preload();
@@ -262,6 +246,8 @@ function frameArea(sizeToFitOnScreen, objBoxSize, objBoxCenter) {
 	cameraInitialPosition.copy(camera.position);
 }
 
+// A sphere radius min is 1, so if model yTotal or xTotal is 2 then the pointer
+// will end up covering half of the model.
 function resizePointer() {
 	// Max will always be closer to the positive axis
 	let xMax = objBoxDimensions.max.x;
@@ -277,9 +263,6 @@ function resizePointer() {
 	xTotal = xTotal > 0 ? xTotal : (-1 * xTotal);
 	yTotal = yTotal > 0 ? yTotal : (-1 * yTotal);
 
-	console.log('xTotal: ' + xTotal, 'yTotal: ' + yTotal);
-	// A sphere radius min is 1, so if model yTotal or xTotal is 2 then the pointer
-	// will end up covering half of the model.
 	return { x: xTotal, y: yTotal };
 }
 
@@ -344,32 +327,24 @@ function onMouseClick(event) {
 } // End of onMouseClick()
 
 function getMousePosition(x, y) {
-
 	let canvasRect = canvas.getBoundingClientRect();
 	let xPosition = (x - canvasRect.left) / canvasRect.width;
 	let yPosition = (y - canvasRect.top) / canvasRect.height;
-
-	// console.log('x: ' + x + ', y: ' + y);
-	// console.log('xPosition: ' + xPosition + ', yPosition: ' + yPosition);
 
 	return [xPosition, yPosition];
 }
 
 function getIntersects(point, objects) {
-
 	mousePosition.set((point.x * 2) - 1, - (point.y * 2) + 1);
 	raycaster.setFromCamera(mousePosition, camera);
 
-	// console.log('mousePosition: ');
-	// console.log(mousePosition);
-
-	// console.log(raycaster);
 	return raycaster.intersectObjects(objects);
 }
 
+// Converts a point: Vector3 (x,y,z) to a 2D (x,y) position on the screen.
+// The return 2D position is similar to a mouse click event position.
 function uvMapToMousePoint(vertexPoint) {
-	// Converts a point: Vector3 (x,y,z) to a 2D (x,y) position on the screen.
-	// The return 2D position is similar to a mouse click event position.
+
 	vector.copy(vertexPoint);
 	vector.project(camera);
 	vector.x = Math.round((0.5 + vector.x / 2) * (renderer.domElement.width / window.devicePixelRatio));
@@ -404,21 +379,6 @@ class Vertex {
 			return mesh;
 		};
 	} // End of constructor
-
-	// // Setters
-	// set dataTermID(_dataTermID) { this.dataTermID = _dataTermID; }
-	// set dotID(_dotID) { this.dotID = _dotID; }
-	// set faceIndex(_faceIndex) { this.faceIndex = _faceIndex; }
-	// set point(_point) { this.point = _point; }
-	// set uv(_uv) { this.uv = _uv; }
-
-	// // Getters
-	// get dataTermID() { return this.dataTermID; }
-	// get dotID() { return this.dotID; }
-	// get faceIndex() { return this.faceIndex; }
-	// get point() { return this.point; }
-	// get uv() { return this.uv; }
-	// get sphere() { return this.sphere; }
 
 	// STATIC
 	static isVariableNull(value) {

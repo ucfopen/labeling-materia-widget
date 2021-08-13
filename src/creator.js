@@ -41,7 +41,7 @@ Namespace('Labeling').Creator = (function () {
 	let areLinesHided = true;
 	let createVertex;
 	var uvMapToMousePoint;
-	urlStr = 'hello'; // Change this to the url value.
+	urlStr = null; // Change this to the url value.
 
 	const _defaultLabel = '[label title]';
 
@@ -329,13 +329,14 @@ Namespace('Labeling').Creator = (function () {
 		let imageWrapper = document.querySelector('#imagewrapper');
 
 		_img.onload = function () {
-			imageWrapper.style.height = _img.height * _qset.options.imageScale;
-			return imageWrapper.style.width = _img.width * _qset.options.imageScale;
+			imageWrapper.style.height = (_img.height * _qset.options.imageScale) + 'px';
+			return imageWrapper.style.width = (_img.width * _qset.options.imageScale) + 'px';
 		};
 
 		// set the resizable image wrapper to the size and pos from qset
-		imageWrapper.style.left = _qset.options.imageX;
-		imageWrapper.style.top = _qset.options.imageY;
+		console.log(_qset.options.imageX);
+		imageWrapper.style.left = _qset.options.imageX + 'px';
+		imageWrapper.style.top = _qset.options.imageY + 'px';
 
 		// set the title from the qset
 		document.querySelector('#title').innerHTML = title;
@@ -363,7 +364,7 @@ Namespace('Labeling').Creator = (function () {
 		// load the image resource via JavaScript for rendering later
 		_img.src = url;
 		urlStr = url;
-		console.log(urlStr);
+		// console.log(urlStr);
 
 		// set the title from the qset
 		document.querySelector('#title').innerHTML = title;
@@ -960,12 +961,10 @@ Namespace('Labeling').Creator = (function () {
 			_anchorOpacityValue = 0.0;
 		}
 
-		if (_qset.options.flag3D === true) {
-			qsetOption3D(_qset);
+		_qset.options.flag3D === true ? qsetOption3D(_qset)
+			: flag3D === true ? qsetOption3D(_qset)
+				: qsetOption(_qset);
 
-		} else {
-			flag3D === false ? qsetOption(_qset) : qsetOption3D(_qset);
-		}
 		_qset.version = "2";
 		return _okToSave;
 	};
