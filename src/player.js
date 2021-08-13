@@ -367,8 +367,8 @@ Namespace('Labeling').Engine = (function () {
 					offScreen = true;
 
 					// too far down, put it on the next page
-				} else if (y >= MAX_HEIGHT) {
-					// console.log(cnt + ') ', node.innerHTML, y, 'else if (y >= MAX_HEIGHT) => ' + (y >= MAX_HEIGHT));
+					// } else if (y >= MAX_HEIGHT) {
+					// 	console.log(cnt + ') ', node.innerHTML, y, 'else if (y >= MAX_HEIGHT) => ' + (y >= MAX_HEIGHT));
 					node.style.zIndex = -1;
 
 					// just right goldilocks
@@ -785,11 +785,6 @@ Namespace('Labeling').Engine = (function () {
 
 		let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'btnDiv');
 		btnCenterCamera.style.top = 110 + 'px';
-
-		let loadCore3D = document.createElement("script");
-		loadCore3D.src = 'core3D.js';
-		loadCore3D.type = 'module';
-		document.getElementsByTagName('head')[0].appendChild(loadCore3D);
 
 		import('./core3D.js')
 			.then((module) => {

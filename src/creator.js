@@ -39,6 +39,7 @@ Namespace('Labeling').Creator = (function () {
 	let renderedSpheresGroup; // render group containing spheres of each vertex.
 	let areWeLabeling = true;
 	let areLinesHided = true;
+	let createVertex;
 	var uvMapToMousePoint;
 	urlStr = 'hello'; // Change this to the url value.
 
@@ -46,7 +47,6 @@ Namespace('Labeling').Creator = (function () {
 
 	// have to change function to async/await to be able read flag3D
 	const initNewWidget = async function () {
-
 		document.querySelector('#image').display = 'none';
 		document.querySelector('#chooseimage').display = 'block';
 
@@ -177,10 +177,7 @@ Namespace('Labeling').Creator = (function () {
 			return document.querySelector('#title').textContent = title || 'My labeling widget';
 		};
 
-		if (!flag3D) {
-			document.getElementById('canvas').addEventListener('click', _addTerm, false);
-		}
-
+		document.getElementById('canvas').addEventListener('click', _addTerm, false);
 
 		// update background
 		return $('#colorpicker').spectrum({
@@ -192,7 +189,7 @@ Namespace('Labeling').Creator = (function () {
 
 	function resizable() {
 		_resizeMode(true);
-		console.log('active');
+
 		let resizable = document.querySelector('.resizable');
 
 		_qset.options.backgroundTheme === "themeGraphPaper"
@@ -313,7 +310,7 @@ Namespace('Labeling').Creator = (function () {
 	};
 
 	function initExisting2D(title, widget, qset, version, baseUrl) {
-		console.log('creator +--> initExisting2D trigger.');
+
 		_qset = qset;
 
 		_setupCreator();
@@ -354,7 +351,7 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	function initExisting3D(title, widget, qset, version, baseUrl) {
-		console.log('creator +--> initExisting3D trigger.');
+
 		_qset = qset;
 
 		_setupCreator();
@@ -372,13 +369,20 @@ Namespace('Labeling').Creator = (function () {
 		document.querySelector('#title').innerHTML = title;
 		_title = title;
 
+		setUp3DEnvironment();
+		flag3D = true;
 		// add qset terms to the list
 		// legacy support:
 		let questions = qset.items;
 		if ((questions[0] != null) && questions[0].items) { questions = questions[0].items; }
 
-		return Array.from(questions).map((item) =>
-			_makeTerm3D(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id));
+		// try placing the return in a setTimeout
+		return setTimeout(() => {
+			Array.from(questions).map((item) =>
+				reloadingLabels(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id,
+					item.options.vertex.faceIndex, item.options.vertex.point, item.options.vertex.uv));
+		},
+			1 * 500);
 	}
 
 	// draw lines on the board
@@ -409,14 +413,15 @@ Namespace('Labeling').Creator = (function () {
 
 	// Add term to the list, called by the click event
 	var _addTerm = function (e) {
-		// draw a dot on the canvas for the question location
+
 		flag3D
 			? _makeTerm3D(e.pageX - document.getElementById('frame').offsetLeft - document.getElementById('board').offsetLeft, e.pageY - 50)
 			: _makeTerm(e.pageX - document.getElementById('frame').offsetLeft - document.getElementById('board').offsetLeft, e.pageY - 50);
 
-		document.querySelector('#help_adding').style.display = 'none';
 		document.querySelector('#boardcover').style.display = 'none';
-		if (!flag3D) {
+		document.querySelector('#help_adding').style.display = 'none';
+
+		if (flag3D === false) {
 			document.querySelector('#imagewrapper').classList.remove('faded');
 		}
 
@@ -430,7 +435,6 @@ Namespace('Labeling').Creator = (function () {
 
 	// generate a term div
 	var _makeTerm = function (x, y, text, labelX = null, labelY = null, id) {
-		console.log('creator +--> _makeTerm trigger.');
 		if (text == null) { text = _defaultLabel; }
 		if (id == null) { id = ''; }
 
@@ -568,7 +572,7 @@ Namespace('Labeling').Creator = (function () {
 	};
 
 	var _makeTerm3D = function (x, y, text, labelX = null, labelY = null, id) {
-		console.log('creator +--> _makeTerm3D trigger.');
+
 		if (text == null) { text = _defaultLabel; }
 		if (id == null) { id = ''; }
 
@@ -586,13 +590,39 @@ Namespace('Labeling').Creator = (function () {
 					vertex.dotID = 'dot_' + term.id;
 					renderedSpheresGroup.add(vertex.sphere());
 					listOfVertex.push(vertex);
-					console.log(vertex)
+
 					appendingOfMake3D(x, y, text, labelX = null, labelY = null, id, term, dot);
 				}
 			}).catch((error) => {
 				console.log(error);
 			})
 	};
+
+	function reloadingLabels(x, y, text, labelX = null, labelY = null, id, faceIndex, point, uv) {
+		if (text == null) { text = _defaultLabel; }
+		if (id == null) { id = ''; }
+
+		const term = document.createElement('div');
+		term.id = 'term_' + Math.random(); // fake id for linking with dot
+
+		const dot = document.createElement('div');
+		dot.id = "dot_" + term.id;
+
+		import('./core3D.js')
+			.then((module) => {
+				return module.createVertex(term.id, dot.id, faceIndex, point, uv);
+			})
+			.then((vertex) => {
+				listOfVertex.push(vertex);
+				renderedSpheresGroup.add(vertex.sphere());
+			})
+			.then(() => {
+				appendingOfMake3D(x, y, text, labelX = null, labelY = null, id, term, dot);
+			})
+			.catch((error) => {
+				console.log(error);
+			})
+	}
 
 	// Manages adding the label for _makeTerm3D
 	function appendingOfMake3D(x, y, text, labelX = null, labelY = null, id, term, dot) {
@@ -930,7 +960,12 @@ Namespace('Labeling').Creator = (function () {
 			_anchorOpacityValue = 0.0;
 		}
 
-		flag3D === false ? qsetOption(_qset) : qsetOption3D(_qset);
+		if (_qset.options.flag3D === true) {
+			qsetOption3D(_qset);
+
+		} else {
+			flag3D === false ? qsetOption(_qset) : qsetOption3D(_qset);
+		}
 		_qset.version = "2";
 		return _okToSave;
 	};
@@ -942,10 +977,10 @@ Namespace('Labeling').Creator = (function () {
 	};
 
 	function onMediaImportComplete2D(media) {
-		console.log('creator +--> onMediaImportComplete2D trigger.');
 		document.getElementById('canvas').style.display = 'block';
-		const url = Materia.CreatorCore.getMediaUrl(media[0].id);
 		document.getElementById('chooseimage').style.display = 'none';
+
+		const url = Materia.CreatorCore.getMediaUrl(media[0].id);
 
 		let image = document.getElementById('image');
 		image.style.display = '';
@@ -977,7 +1012,6 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	function onMediaImportComplete3D(media) {
-		console.log('creator +--> onMediaImportComplete3D trigger.');
 		let _anchorOpacityValue = 1.0;
 		document.querySelector('#imagewrapper').style.display = 'none';
 		document.getElementById('canvas').style.display = 'block';
@@ -989,15 +1023,10 @@ Namespace('Labeling').Creator = (function () {
 
 		_makeDraggable();
 
-		console.log(media);
-		console.log(media[0].id);
-		console.log(url);
-
 		return true;
 	}
 
 	function qsetOption(_qset) {
-		console.log('creator +--> qsetOption trigger.');
 		let _anchorOpacityValue = 1.0;
 		let imageWrapper = document.querySelector('#imagewrapper');
 
@@ -1017,7 +1046,6 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	function qsetOption3D(_qset) {
-		console.log('creator +--> qsetOption3D trigger.');
 		let _anchorOpacityValue = 1.0;
 		_qset.options = {
 			backgroundTheme: _qset.options.backgroundTheme,
@@ -1041,64 +1069,57 @@ Namespace('Labeling').Creator = (function () {
 		ver2D.classList.toggle('orange');
 
 		ver2D.addEventListener('click', () => {
-
-			ver3D.classList.toggle('orange');
 			ver2D.classList.toggle('orange');
-			ver2D.classList.contains('orange')
-				? flag3D = false
-				: flag3D = true;
-
+			ver3D.classList.toggle('orange');
+			ver2D.classList.contains('orange') ? flag3D = false : flag3D = true;
 		});
 
 		ver3D.addEventListener('click', () => {
-
-			ver3D.classList.toggle('orange');
 			ver2D.classList.toggle('orange');
-			ver2D.classList.contains('orange')
-				? flag3D = false
-				: flag3D = true;
+			ver3D.classList.toggle('orange');
+			ver2D.classList.contains('orange') ? flag3D = false : flag3D = true;
 		});
 
 		btnEnterTitle.addEventListener('click', () => {
-
-			if (flag3D) {
-				_qset.options.flag3D = flag3D;
-				removeFromUI();
-
-				let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'controls');
-				let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'controls');
-
-				let loadCore3D = document.createElement("script");
-				loadCore3D.src = 'core3D.js';
-				loadCore3D.type = 'module';
-
-				document.getElementsByTagName('head')[0].appendChild(loadCore3D);
-				document.querySelector('#btnMoveResize').value = "Rotating Model";
-				document.getElementById('canvas').style.pointerEvents = 'none';
-
-				import('./core3D.js')
-					.then((module) => {
-						renderedSpheresGroup = module.renderedSpheresGroup;
-						uvMapToMousePoint = module.uvMapToMousePoint;
-						return module;
-					})
-					.then((module) => {
-						let my3DCanvas = document.getElementById('my3DCanvas');
-						my3DCanvas.addEventListener('wheel', reRenderLines);
-						my3DCanvas.addEventListener('mousemove', reRenderLines);
-						my3DCanvas.addEventListener('touchmove', reRenderLines);
-
-						btnCenterCamera.addEventListener('click', module.centeringCameraEvent);
-					})
-					.catch((err) => {
-						console.log(err);
-					});
-
-				disableEvents();
-				enable3DEvents();
-			}
+			if (flag3D === true) { setUp3DEnvironment(); }
 		});
 	};
+
+	function setUp3DEnvironment() {
+		removeFromUI();
+
+		let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'controls');
+		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'controls');
+
+		let loadCore3D = document.createElement("script");
+		loadCore3D.src = 'core3D.js';
+		loadCore3D.type = 'module';
+
+		document.getElementsByTagName('head')[0].appendChild(loadCore3D);
+		document.querySelector('#btnMoveResize').value = "Rotating Model";
+		document.getElementById('canvas').style.pointerEvents = 'none';
+
+		import('./core3D.js')
+			.then((module) => {
+				renderedSpheresGroup = module.renderedSpheresGroup;
+				uvMapToMousePoint = module.uvMapToMousePoint;
+				return module;
+			})
+			.then((module) => {
+				let my3DCanvas = document.getElementById('my3DCanvas');
+				my3DCanvas.addEventListener('wheel', reRenderLines);
+				my3DCanvas.addEventListener('mousemove', reRenderLines);
+				my3DCanvas.addEventListener('touchmove', reRenderLines);
+
+				btnCenterCamera.addEventListener('click', module.centeringCameraEvent);
+			})
+			.catch((err) => {
+				console.log(err);
+			});
+
+		disableEvents();
+		enable3DEvents();
+	}
 
 	function removeFromUI() {
 		document.querySelector('#image').remove();
