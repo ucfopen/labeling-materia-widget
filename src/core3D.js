@@ -8,7 +8,7 @@ import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.
 import Stats from '../node_modules/three/examples/jsm/libs/stats.module.js';
 
 // let mtlFileStr = 'models3D/male02/male02.mtl';
-let objFileStr = 'models3D/male02/male02.obj';
+// let objFileStr = 'models3D/male02/male02.obj';
 // let mtlFileStr = 'models3D/female02/female02.mtl';
 // let objFileStr = 'models3D/female02/female02.obj';
 // let mtlFileStr = 'models3D/vroom/Audi_R8_2017.mtl';
@@ -16,6 +16,8 @@ let objFileStr = 'models3D/male02/male02.obj';
 let mtlFileStr;
 // let objFileStr = 'models3D/cerberus/Cerberus.obj';
 // let objFileStr = 'models3D/tree.obj';
+// let objFileStr = 'models3D/mesh_bed.obj';
+let objFileStr = 'models3D/untitled.obj';
 
 // Variables that can
 let sceneColor = 0xdddddd; // control the background color of a scene,
@@ -170,34 +172,25 @@ function getOBJRender(objFileStr) {
 		obj.name = 'myRender';
 		scene.add(obj);
 
-		//************************************************************************ */
-		// getObjDimensions(obj);
+		// If the smallest total length of an axis is less than 32 units of spacing, loop
+		// until the scale grows enough that it is equal to 32 and pointerRadius equal or greater than 4
+		getObjDimensions(obj);
+		let dimensionsTotal = resizePointer();
+		let smallestAxis = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.y : dimensionsTotal.x;
+		let pointerRadius = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.x * 0.1 : dimensionsTotal.y * 0.1;
+		let properSize = (smallestAxis >= 60 && pointerRadius >= 4) ? false : true;
 
-		// // If the dimensionsTotal.y is less than 10 units of we want to increase the scale.
-		// // This way we can make the pointer size be 10% of the dimensionsTotal.y which would
-		// // equate to 1 unit which it's also equal to the minimum allow radius.
-		// let dimensionsTotal = resizePointer();
-		// let smallestAxis = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.y : dimensionsTotal.x;
-		// let pointerRadius = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.x * 0.1 : dimensionsTotal.y * 0.1;
+		for (let index = 1; properSize; index++) {
+			scaleUpObj(obj);
+			getObjDimensions(obj);
 
-		// console.log('smallestAxis: ', smallestAxis, ' pointerRadius: ', pointerRadius);
-
-		// for (; ((pointerRadius >= 1) && (smallestAxis >= 10));) {
-		// 	scaleUpObj(obj);
-
-		// 	getObjDimensions(obj);
-
-		// 	dimensionsTotal = resizePointer();
-		// 	smallestAxis = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.y : dimensionsTotal.x;
-		// 	pointerRadius = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.x * 0.1 : dimensionsTotal.y * 0.1;
-		// 	console.log('smallestAxis: ', smallestAxis, ' pointerRadius: ', pointerRadius);
-		// }
-
-		// sphereRadius = pointerRadius;
-		//************************************************************************ */
+			dimensionsTotal = resizePointer();
+			smallestAxis = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.y : dimensionsTotal.x;
+			pointerRadius = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.x * 0.1 : dimensionsTotal.y * 0.1;
+			properSize = (smallestAxis >= 60 && pointerRadius >= 4) ? false : true;
+		}
 
 		getObjDimensions(obj);
-
 		frameArea(objBoxSize * 1.2, objBoxSize, objBoxCenter);
 		controls.maxDistance = objBoxSize * 10;
 		controls.target.copy(objBoxCenter);
@@ -249,6 +242,8 @@ function frameArea(sizeToFitOnScreen, objBoxSize, objBoxCenter) {
 // A sphere radius min is 1, so if model yTotal or xTotal is 2 then the pointer
 // will end up covering half of the model.
 function resizePointer() {
+	let xTotal
+	let yTotal
 	// Max will always be closer to the positive axis
 	let xMax = objBoxDimensions.max.x;
 	let yMax = objBoxDimensions.max.y;
@@ -257,8 +252,8 @@ function resizePointer() {
 	let xMin = objBoxDimensions.min.x;
 	let yMin = objBoxDimensions.min.y;
 
-	let xTotal = xMax - xMin;
-	let yTotal = yMax - yMin;
+	xTotal = xMax > 0 ? (xMax - xMin) : (xMin - xMax);
+	yTotal = yMax > 0 ? (yMax - yMin) : (yMin - yMax);
 
 	xTotal = xTotal > 0 ? xTotal : (-1 * xTotal);
 	yTotal = yTotal > 0 ? yTotal : (-1 * yTotal);
