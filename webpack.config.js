@@ -1,27 +1,10 @@
 const fs = require('fs')
 const path = require('path')
-const widgetWebpack = require('materia-widget-development-kit/webpack-widget')
-const copy = widgetWebpack.getDefaultCopyList()
-
 const outputPath = path.join(process.cwd(), 'build')
 
-const customCopy = copy.concat([
-	{
-		from: path.join(__dirname, 'src', '_guides', 'assets'),
-		to: path.join(outputPath, 'guides', 'assets'),
-		toType: 'dir'
-	},
-	{
-		from: path.join(__dirname, 'src', 'models3D'),
-		to: path.join(outputPath, 'models3D'),
-		toType: 'dir'
-	},
-	{
-		from: path.join(__dirname, 'node_modules', 'three'),
-		to: path.join(outputPath, 'node_modules', 'three'),
-		toType: 'dir'
-	},
-])
+const widgetWebpack = require('materia-widget-development-kit/webpack-widget')
+const copy = widgetWebpack.getDefaultCopyList()
+const rules = widgetWebpack.getDefaultRules()
 
 const entries = {
 	'creator.js': [
@@ -56,7 +39,34 @@ const entries = {
 	]
 }
 
-const rules = widgetWebpack.getDefaultRules()
+const customCopy = copy.concat([
+	{
+		from: path.join(__dirname, 'src', '_guides', 'assets'),
+		to: path.join(outputPath, 'guides', 'assets'),
+		toType: 'dir'
+	},
+	{
+		from: path.join(__dirname, 'src', 'models3D'),
+		to: path.join(outputPath, 'models3D'),
+		toType: 'dir'
+	},
+	{
+		from: path.join(__dirname, 'node_modules', 'three'),
+		to: path.join(outputPath, 'node_modules', 'three'),
+		toType: 'dir'
+	},
+])
+
+// const babelLoaderWithPolyfillRule = {
+// 	test: /\.js$/,
+// 	exclude: /node_modules/,
+// 	use: {
+// 		loader: 'babel-loader',
+// 		options: {
+// 			presets: ['@babel/preset-env']
+// 		}
+// 	}
+// }
 
 const moduleRules = [
 	rules.loaderDoNothingToJs,
@@ -64,12 +74,13 @@ const moduleRules = [
 	rules.copyImages,
 	rules.loadHTMLAndReplaceMateriaScripts,
 	rules.loadAndPrefixCSS,
-	rules.loadAndPrefixSASS
+	rules.loadAndPrefixSASS,
+	// babelLoaderWithPolyfillRule
 ]
 
 const options = {
-	copyList: customCopy,
 	entries: entries,
+	copyList: customCopy,
 	moduleRules: moduleRules,
 }
 
@@ -77,3 +88,25 @@ let buildConfig = widgetWebpack.getLegacyWidgetBuildConfig(options)
 module.exports = buildConfig
 
 // module.exports = widgetWebpack.getLegacyWidgetBuildConfig(options)
+
+// WEBPACK starter example
+// const path = require('path');
+
+// const config = {
+// 	entry: './path/to/my/entry/file.js',
+// 	output: {
+// 		path: path.resolve(__dirname, 'dist'),
+// 		filename: 'my-first-webpack.bundle.js'
+// 	},
+// 	module: {
+// 		rules: [
+// 			{ test: /\.txt$/, use: 'raw-loader' }
+// 		]
+// 	},
+// 	plugins: [
+// 		new webpack.optimize.UglifyJsPlugin(),
+// 		new HtmlWebpackPlugin({ template: './src/index.html' })
+// 	]
+// };
+
+// module.exports = config;
