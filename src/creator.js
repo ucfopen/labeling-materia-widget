@@ -1,18 +1,13 @@
 
 // ISSUES to tackle in the future
-/*
-There are 2 types of data structure one that is an array containing vanilla Labeling,
-and another containing the mix of vanilla Labeling with the 3D code.
-	1) Vanilla Labeling stores its data as HTML documents.
-
-	2) The mix of Vanilla and 3D stores its data in an Array of Class Vertex. The class
-		vertex's imported from FILE core3D.js.
-*/
 
 // +--> EMANUEL
 // Have to pass the string for the model url to player.
 // Make sure that urlStr is updated to the url string before core3D.js is called.
 // If not updated in time it can make etOBJRender(objFileStr) render garbage.
+
+// *** Lines 402 and 403 ***
+// *** Labeling.Draw.Line has been change to Labeling.Draw due to webpack shenanigans. ***
 Namespace('Labeling').Creator = (function () {
 
 	// variables for local use
@@ -405,8 +400,8 @@ Namespace('Labeling').Creator = (function () {
 
 				// drawLine handles the curves and such; run it for inner
 				// and outer stroke
-				Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff');
-				result.push(Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000'));
+				Labeling.Draw(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff');
+				result.push(Labeling.Draw(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000'));
 			}
 			return result;
 		})();

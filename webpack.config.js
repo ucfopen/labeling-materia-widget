@@ -57,6 +57,16 @@ const customCopy = copy.concat([
 	},
 ])
 
+const moduleRules = [
+	rules.loaderDoNothingToJs,
+	rules.loadAndCompileMarkdown,
+	rules.copyImages,
+	rules.loadHTMLAndReplaceMateriaScripts,
+	rules.loadAndPrefixCSS,
+	rules.loadAndPrefixSASS,
+	// noMinification
+]
+
 // const babelLoaderWithPolyfillRule = {
 // 	test: /\.js$/,
 // 	exclude: /node_modules/,
@@ -68,15 +78,21 @@ const customCopy = copy.concat([
 // 	}
 // }
 
-const moduleRules = [
-	rules.loaderDoNothingToJs,
-	rules.loadAndCompileMarkdown,
-	rules.copyImages,
-	rules.loadHTMLAndReplaceMateriaScripts,
-	rules.loadAndPrefixCSS,
-	rules.loadAndPrefixSASS,
-	// babelLoaderWithPolyfillRule
-]
+// const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+
+// const noMinification = {
+// 	optimization: {
+// 		minimize: false
+// 	}
+// }
+
+
+// const UglifyJS = require("uglify-js");
+// const result = UglifyJS.minify(entries);
+// console.log(result);
+
+
+
 
 const options = {
 	entries: entries,
@@ -85,28 +101,17 @@ const options = {
 }
 
 let buildConfig = widgetWebpack.getLegacyWidgetBuildConfig(options)
+
+// buildConfig.externals = {
+// 	noMinification
+// }
+// console.log(buildConfig.externals)
+
+
+// module.exports = {
+// 	optimization: {
+// 		minimizer: false
+// 	}
+// }
 module.exports = buildConfig
-
 // module.exports = widgetWebpack.getLegacyWidgetBuildConfig(options)
-
-// WEBPACK starter example
-// const path = require('path');
-
-// const config = {
-// 	entry: './path/to/my/entry/file.js',
-// 	output: {
-// 		path: path.resolve(__dirname, 'dist'),
-// 		filename: 'my-first-webpack.bundle.js'
-// 	},
-// 	module: {
-// 		rules: [
-// 			{ test: /\.txt$/, use: 'raw-loader' }
-// 		]
-// 	},
-// 	plugins: [
-// 		new webpack.optimize.UglifyJsPlugin(),
-// 		new HtmlWebpackPlugin({ template: './src/index.html' })
-// 	]
-// };
-
-// module.exports = config;
