@@ -16,8 +16,8 @@ import Stats from '../node_modules/three/examples/jsm/libs/stats.module.js';
 let mtlFileStr;
 // let objFileStr = 'models3D/cerberus/Cerberus.obj';
 // let objFileStr = 'models3D/tree.obj';
-// let objFileStr = 'models3D/mesh_bed.obj';
-let objFileStr = 'models3D/untitled.obj';
+let objFileStr = 'models3D/mesh_bed.obj';
+// let objFileStr = 'models3D/untitled.obj';
 
 // Variables that can
 let sceneColor = 0xdddddd; // control the background color of a scene,
