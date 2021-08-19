@@ -67,32 +67,34 @@ const moduleRules = [
 	// noMinification
 ]
 
-// const babelLoaderWithPolyfillRule = {
-// 	test: /\.js$/,
-// 	exclude: /node_modules/,
-// 	use: {
-// 		loader: 'babel-loader',
-// 		options: {
-// 			presets: ['@babel/preset-env']
-// 		}
-// 	}
-// }
+// In API documentation
+const UglifyJS = require("uglify-js");
+const code = fs.readFileSync('./draw.js', { mangle: { toplevel: true } }).code;
 
-// const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-
-// const noMinification = {
-// 	optimization: {
-// 		minimize: false
-// 	}
-// }
-
-
-// const UglifyJS = require("uglify-js");
-// const result = UglifyJS.minify(entries);
-// console.log(result);
+// Or this
+const uglifyApiOptions = {
+	mangle: { properties: true, },
+}
 
 
 
+// WebPack documentation
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const UglifyJsPluginOptions = {
+	optimization: {
+		minimizer: [
+			new UglifyJsPlugin({
+				uglifyOptions: {
+					mangle: true, // Default set to false
+				}
+			})
+		]
+	}
+}
+
+
+// In websites
+let uglifyOptions = { mangle: true }
 
 const options = {
 	entries: entries,
