@@ -625,8 +625,8 @@ Namespace('Labeling').Engine = (function () {
 	var _drawStrokedLine = function (x1, y1, x2, y2, color1, color2, context) {
 		if (context == null) { context = _context; }
 
-		Labeling.Draw(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 6, color1);
-		return Labeling.Draw(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 2, color2);
+		Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 6, color1);
+		return Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 2, color2);
 	};
 
 	// render the canvas frame
