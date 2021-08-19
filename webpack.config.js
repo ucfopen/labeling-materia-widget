@@ -57,6 +57,17 @@ const customCopy = copy.concat([
 	},
 ])
 
+const useBabelLoader = {
+	test: /\.js$/,
+	exclude: /node_modules/,
+	use: {
+		loader: 'babel-loader',
+		options: {
+			plugins: ['@babel/plugin-transform-modules-commonjs']
+		}
+	}
+}
+
 const moduleRules = [
 	rules.loaderDoNothingToJs,
 	rules.loadAndCompileMarkdown,
@@ -64,37 +75,8 @@ const moduleRules = [
 	rules.loadHTMLAndReplaceMateriaScripts,
 	rules.loadAndPrefixCSS,
 	rules.loadAndPrefixSASS,
-	// noMinification
+	useBabelLoader
 ]
-
-// In API documentation
-const UglifyJS = require("uglify-js");
-const code = fs.readFileSync('./draw.js', { mangle: { toplevel: true } }).code;
-
-// Or this
-const uglifyApiOptions = {
-	mangle: { properties: true, },
-}
-
-
-
-// WebPack documentation
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
-const UglifyJsPluginOptions = {
-	optimization: {
-		minimizer: [
-			new UglifyJsPlugin({
-				uglifyOptions: {
-					mangle: true, // Default set to false
-				}
-			})
-		]
-	}
-}
-
-
-// In websites
-let uglifyOptions = { mangle: true }
 
 const options = {
 	entries: entries,
@@ -104,8 +86,13 @@ const options = {
 
 let buildConfig = widgetWebpack.getLegacyWidgetBuildConfig(options)
 
+// possible CDN future, would require an intermediate 'loading resources' screen due to long load times
 // buildConfig.externals = {
-// 	noMinification
+// 	'https://unpkg.com/three@0.124.0/build/three.module.js': 'https://unpkg.com/three@0.124.0/build/three.module.js',
+// 	'https://unpkg.com/three@0.124.0/examples/jsm/controls/OrbitControls.js': 'https://unpkg.com/three@0.124.0/examples/jsm/controls/OrbitControls.js',
+// 	'https://unpkg.com/three@0.124.0/examples/jsm/loaders/MTLLoader.js': 'https://unpkg.com/three@0.124.0/examples/jsm/loaders/MTLLoader.js',
+// 	'https://unpkg.com/three@0.124.0/examples/jsm/loaders/OBJLoader.js': 'https://unpkg.com/three@0.124.0/examples/jsm/loaders/OBJLoader.js',
+// 	'https://unpkg.com/three@0.124.0/examples/jsm/libs/stats.module.js': 'https://unpkg.com/three@0.124.0/examples/jsm/libs/stats.module.js'
 // }
 // console.log(buildConfig.externals)
 

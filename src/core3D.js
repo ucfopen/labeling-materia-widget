@@ -7,6 +7,13 @@ import { MTLLoader } from '../node_modules/three/examples/jsm/loaders/MTLLoader.
 import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.js';
 import Stats from '../node_modules/three/examples/jsm/libs/stats.module.js';
 
+// possible CDN future, would require an intermediate 'loading resources' screen due to long load times
+// import * as THREE from 'https://unpkg.com/three@0.124.0/build/three.module.js';
+// import { OrbitControls } from 'https://unpkg.com/three@0.124.0/examples/jsm/controls/OrbitControls.js';
+// import { MTLLoader } from 'https://unpkg.com/three@0.124.0/examples/jsm/loaders/MTLLoader.js';
+// import { OBJLoader } from 'https://unpkg.com/three@0.124.0/examples/jsm/loaders/OBJLoader.js';
+// import Stats from 'https://unpkg.com/three@0.124.0/examples/jsm/libs/stats.module.js';
+
 // let mtlFileStr = 'models3D/male02/male02.mtl';
 // let objFileStr = 'models3D/male02/male02.obj';
 // let mtlFileStr = 'models3D/female02/female02.mtl';
