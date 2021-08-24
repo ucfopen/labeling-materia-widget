@@ -41,7 +41,7 @@ Namespace('Labeling').Creator = (function () {
 	const _defaultLabel = '[label title]';
 
 	// have to change function to async/await to be able read flag3D
-	const initNewWidget = async function () {
+	const initNewWidget = function () {
 		document.querySelector('#image').display = 'none';
 		document.querySelector('#chooseimage').display = 'block';
 
@@ -400,8 +400,8 @@ Namespace('Labeling').Creator = (function () {
 
 				// drawLine handles the curves and such; run it for inner
 				// and outer stroke
-				Labeling.Draw(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff');
-				result.push(Labeling.Draw(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000'));
+				Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff');
+				result.push(Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000'));
 			}
 			return result;
 		})();

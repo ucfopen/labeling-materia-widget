@@ -1,11 +1,17 @@
 {
+
+  // Work's on babel 7.13.0 and up
+  // "assumptions": {
+  //   "enumerableModuleMeta": true
+  // },
   "presets": [
     [
       "@babel/env", {
         "targets": {
           "browsers": [
             "ie >= 11"
-          ]
+          ],
+          "enumerableModuleMeta": true
         }
       }
     ]

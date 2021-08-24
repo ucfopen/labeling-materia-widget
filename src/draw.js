@@ -4,6 +4,7 @@
 
 Namespace('Labeling').Draw = (() => ({
 	drawLine: (ctx, x1, y1, x2, y2, width, color) => {
+
 		ctx.beginPath();
 		ctx.moveTo(x1, y1);
 

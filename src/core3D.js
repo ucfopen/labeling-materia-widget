@@ -2,6 +2,7 @@
 // https://threejsfundamentals.org/
 
 import * as THREE from '../node_modules/three/build/three.module.js';
+// import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.module.js';
 import { OrbitControls } from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
 import { MTLLoader } from '../node_modules/three/examples/jsm/loaders/MTLLoader.js';
 import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.js';
