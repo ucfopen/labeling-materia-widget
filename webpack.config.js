@@ -63,10 +63,19 @@ const useBabelLoader = {
 	use: {
 		loader: 'babel-loader',
 		options: {
-			plugins: ['@babel/plugin-transform-modules-commonjs']
+			presets: ['@babel/preset-env'],
+			plugins: [
+				['@babel/plugin-transform-modules-commonjs', {
+					// "allowTopLevelThis": true,
+					// "importInterop": "node",
+					"enumerableModuleMeta": true
+				}],
+			]
 		}
 	}
 }
+
+// '@babel/plugin-proposal-dynamic-import',
 
 const moduleRules = [
 	rules.loaderDoNothingToJs,
@@ -96,11 +105,5 @@ let buildConfig = widgetWebpack.getLegacyWidgetBuildConfig(options)
 // }
 // console.log(buildConfig.externals)
 
-
-// module.exports = {
-// 	optimization: {
-// 		minimizer: false
-// 	}
-// }
 module.exports = buildConfig
 // module.exports = widgetWebpack.getLegacyWidgetBuildConfig(options)
