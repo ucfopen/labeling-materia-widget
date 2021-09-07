@@ -1,13 +1,4 @@
 
-// ISSUES to tackle in the future
-
-// +--> EMANUEL
-// Have to pass the string for the model url to player.
-// Make sure that urlStr is updated to the url string before core3D.js is called.
-// If not updated in time it can make etOBJRender(objFileStr) render garbage.
-
-// *** Lines 402 and 403 ***
-// *** Labeling.Draw.Line has been change to Labeling.Draw due to webpack shenanigans. ***
 Namespace('Labeling').Creator = (function () {
 
 	// variables for local use
@@ -34,8 +25,8 @@ Namespace('Labeling').Creator = (function () {
 	let renderedSpheresGroup; // render group containing spheres of each vertex.
 	let areWeLabeling = true;
 	let areLinesHided = true;
-	let createVertex;
 	var uvMapToMousePoint;
+	window.model = { url: "modelUrl" };
 	// Change this to the url value.
 
 	const _defaultLabel = '[label title]';
@@ -358,8 +349,7 @@ Namespace('Labeling').Creator = (function () {
 
 		// load the image resource via JavaScript for rendering later
 		_img.src = url;
-		urlStr = url;
-		// console.log(urlStr);
+		window.model.url = url;
 
 		// set the title from the qset
 		document.querySelector('#title').innerHTML = title;
@@ -1012,7 +1002,7 @@ Namespace('Labeling').Creator = (function () {
 		document.getElementById('chooseimage').style.display = 'none';
 
 		const url = Materia.CreatorCore.getMediaUrl(media[0].id);
-		urlStr = url;
+		window.model.url = url;
 		_img.src = url;
 
 		_makeDraggable();
@@ -1090,14 +1080,13 @@ Namespace('Labeling').Creator = (function () {
 		loadCore3D.type = 'module';
 
 		document.getElementsByTagName('head')[0].appendChild(loadCore3D);
-		console.log(document.getElementsByTagName('head')[0]);
 		document.querySelector('#btnMoveResize').value = "Rotating Model";
 		document.getElementById('canvas').style.pointerEvents = 'none';
 
 		import('./core3D.js')
 			.then((module) => {
-				renderedSpheresGroup = module.renderedSpheresGroup;
 				uvMapToMousePoint = module.uvMapToMousePoint;
+				renderedSpheresGroup = module.renderedSpheresGroup;
 				return module;
 			})
 			.then((module) => {

@@ -1,29 +1,22 @@
 // Great guide for starting and finding understanding.
 // https://threejsfundamentals.org/
 
-// import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/three.module.min.js';
-// import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/controls/OrbitControls.js';
-// import { MTLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/MTLLoader.js';
-// import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/OBJLoader.js';
-// import Stats from 'https://unpkg.com/three@0.124.0/examples/jsm/libs/stats.module.js';
+import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/three.module.min.js';
+import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/controls/OrbitControls.js';
+import { MTLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/MTLLoader.js';
+import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/OBJLoader.js';
+import Stats from 'https://unpkg.com/three@0.124.0/examples/jsm/libs/stats.module.js';
 
-// let mtlFileStr = 'models3D/male02/male02.mtl';
+// let objFileStr = 'models3D/cube.obj';
+// let mtlFileStr = 'models3D/cube.mtl';
+
 // let objFileStr = 'models3D/male02/male02.obj';
-// let mtlFileStr = 'models3D/female02/female02.mtl';
-// let objFileStr = 'models3D/female02/female02.obj';
-// let mtlFileStr = 'models3D/vroom/Audi_R8_2017.mtl';
-// let objFileStr = 'models3D/vroom/Audi_R8_2017.obj';
+// let mtlFileStr = 'models3D/male02/male02.mtl';
+
 let mtlFileStr;
-// let objFileStr = 'models3D/cerberus/Cerberus.obj';
 // let objFileStr = 'models3D/tree.obj';
 let objFileStr = 'models3D/mesh_bed.obj';
-// let objFileStr = 'models3D/untitled.obj';
-
-let THREE = window.THREE;
-let OrbitControls = window.OrbitControls;
-let MTLLoader = window.MTLLoader;
-let OBJLoader = window.OBJLoader;
-let Stats = window.Stats;
+// let objFileStr = 'models3D/cerberus/Cerberus.obj';
 
 // Variables that can
 let sceneColor = 0xdddddd; // control the background color of a scene,
@@ -111,9 +104,11 @@ function main() {
 	scene.add(myPointer);
 	scene.add(camera);
 
-	urlStr = objFileStr;
+	window.model.url = objFileStr;
+	console.log(window.model.url);
+
 	// use if obj provided  // use if mtl and obj provided
-	mtlFileStr == null ? getOBJRender(urlStr) : getMTLandOBJRender(mtlFileStr, urlStr);
+	mtlFileStr == null ? getOBJRender(window.model.url) : getMTLandOBJRender(mtlFileStr, urlStr);
 
 	window.addEventListener('resize', onWindowResize);
 	canvas.addEventListener('click', onMouseClick);
@@ -387,15 +382,4 @@ class Vertex {
 	}
 } // End of class Vertex
 
-// module.exports =
-
-export default { vertex, intersects, renderedSpheresGroup, uvMapToMousePoint, centeringCameraEvent, createVertex };
-
-// module.exports = {
-// 	vertex: vertex,
-// 	intersects: intersects,
-// 	renderedSpheresGroup: renderedSpheresGroup,
-// 	uvMapToMousePoint: uvMapToMousePoint,
-// 	centeringCameraEvent: centeringCameraEvent,
-// 	createVertex: createVertex
-// }
+export { vertex, intersects, renderedSpheresGroup, uvMapToMousePoint, centeringCameraEvent, createVertex };
