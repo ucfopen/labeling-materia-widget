@@ -36,7 +36,7 @@ Namespace('Labeling').Creator = (function () {
 	let areLinesHided = true;
 	let createVertex;
 	var uvMapToMousePoint;
-	urlStr = null; // Change this to the url value.
+	// Change this to the url value.
 
 	const _defaultLabel = '[label title]';
 
@@ -1090,6 +1090,7 @@ Namespace('Labeling').Creator = (function () {
 		loadCore3D.type = 'module';
 
 		document.getElementsByTagName('head')[0].appendChild(loadCore3D);
+		console.log(document.getElementsByTagName('head')[0]);
 		document.querySelector('#btnMoveResize').value = "Rotating Model";
 		document.getElementById('canvas').style.pointerEvents = 'none';
 

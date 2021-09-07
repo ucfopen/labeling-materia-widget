@@ -1,18 +1,10 @@
 // Great guide for starting and finding understanding.
 // https://threejsfundamentals.org/
 
-import * as THREE from '../node_modules/three/build/three.module.js';
-// import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/109/three.module.js';
-import { OrbitControls } from '../node_modules/three/examples/jsm/controls/OrbitControls.js';
-import { MTLLoader } from '../node_modules/three/examples/jsm/loaders/MTLLoader.js';
-import { OBJLoader } from '../node_modules/three/examples/jsm/loaders/OBJLoader.js';
-import Stats from '../node_modules/three/examples/jsm/libs/stats.module.js';
-
-// possible CDN future, would require an intermediate 'loading resources' screen due to long load times
-// import * as THREE from 'https://unpkg.com/three@0.124.0/build/three.module.js';
-// import { OrbitControls } from 'https://unpkg.com/three@0.124.0/examples/jsm/controls/OrbitControls.js';
-// import { MTLLoader } from 'https://unpkg.com/three@0.124.0/examples/jsm/loaders/MTLLoader.js';
-// import { OBJLoader } from 'https://unpkg.com/three@0.124.0/examples/jsm/loaders/OBJLoader.js';
+// import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/three.module.min.js';
+// import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/controls/OrbitControls.js';
+// import { MTLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/MTLLoader.js';
+// import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/OBJLoader.js';
 // import Stats from 'https://unpkg.com/three@0.124.0/examples/jsm/libs/stats.module.js';
 
 // let mtlFileStr = 'models3D/male02/male02.mtl';
@@ -26,6 +18,12 @@ let mtlFileStr;
 // let objFileStr = 'models3D/tree.obj';
 let objFileStr = 'models3D/mesh_bed.obj';
 // let objFileStr = 'models3D/untitled.obj';
+
+let THREE = window.THREE;
+let OrbitControls = window.OrbitControls;
+let MTLLoader = window.MTLLoader;
+let OBJLoader = window.OBJLoader;
+let Stats = window.Stats;
 
 // Variables that can
 let sceneColor = 0xdddddd; // control the background color of a scene,
@@ -389,4 +387,15 @@ class Vertex {
 	}
 } // End of class Vertex
 
-export { vertex, intersects, renderedSpheresGroup, uvMapToMousePoint, centeringCameraEvent, createVertex, getOBJRender }
+// module.exports =
+
+export default { vertex, intersects, renderedSpheresGroup, uvMapToMousePoint, centeringCameraEvent, createVertex };
+
+// module.exports = {
+// 	vertex: vertex,
+// 	intersects: intersects,
+// 	renderedSpheresGroup: renderedSpheresGroup,
+// 	uvMapToMousePoint: uvMapToMousePoint,
+// 	centeringCameraEvent: centeringCameraEvent,
+// 	createVertex: createVertex
+// }
