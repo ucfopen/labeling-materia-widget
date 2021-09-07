@@ -17,9 +17,22 @@
 		<script src='//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js'></script>
 
 		<!-- MAIN CREATOR SCRIPT -->
-		<script>
-			window.urlStr = null;
+		<script type="module">
 			var exports = {};
+			import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/three.module.min.js';
+			import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/controls/OrbitControls.js';
+			import { MTLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/MTLLoader.js';
+			import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/OBJLoader.js';
+			import Stats from 'https://unpkg.com/three@0.124.0/examples/jsm/libs/stats.module.js';
+
+			window.exports = exports;
+			window.THREE = THREE;
+			window.OrbitControls = OrbitControls;
+			window.MTLLoader = MTLLoader;
+			window.OBJLoader = OBJLoader;
+			window.Stats = Stats;
+
+			window.urlStr = null;
 		</script>
 		<script type="module"  src="creator.js"></script>
 
