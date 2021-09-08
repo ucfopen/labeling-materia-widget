@@ -170,7 +170,7 @@
         "imageX": 20.35,
         "imageY": 125,
         "backgroundTheme": "themeCorkBoard",
-        "flag3D": "false"
+        "flag3D": false
       }
     }
   }

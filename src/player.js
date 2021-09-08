@@ -3,6 +3,19 @@
 
 Namespace('Labeling').Engine = (function () {
 
+	/*
+	// Different models for testing.
+		'models3D/cube.obj';
+		'models3D/cube.mtl';
+
+		'models3D/male02/male02.obj';
+		'models3D/male02/male02.mtl';
+
+		'models3D/tree.obj';
+		'models3D/mesh_bed.obj';
+		'models3D/cerberus/Cerberus.obj';
+	*/
+
 	// ORIGINAL CODE FOR PLAYER
 	let _qset = null;
 	let _questions = null;
@@ -43,11 +56,8 @@ Namespace('Labeling').Engine = (function () {
 	let _zIndex = 11000;
 
 	// Variables used to control the 3D functionality
-	let flag3D = null;
-	let listOfVertex = []; // contains each vertex.
 	var uvMapToMousePoint;
 	let renderedSpheresGroup; // render group containing spheres of each vertex.
-	let areLinesHided = true;
 
 	let spacing = 10;
 	let termWidth = 48;
@@ -55,7 +65,9 @@ Namespace('Labeling').Engine = (function () {
 	let numberOfTerms = 10;
 	let numberOfTermsRemove = 3;
 	let listOfTerms = [];
-	let modal3D;
+
+	window.model = { url: null, mtlUrl: null };
+	window.model.url = 'models3D/mesh_bed.obj';
 
 	// getElementById and cache it, for the sake of performance
 	const _g = id => _domCache[id] || (_domCache[id] = document.getElementById(id));
@@ -66,8 +78,6 @@ Namespace('Labeling').Engine = (function () {
 		let background;
 		if (version == null) { version = '1'; }
 		_qset = qset;
-
-		console.log(_qset.options.flag3D === true);
 
 		if (_qset.options.flag3D === true) { chooseVer(); }
 
@@ -147,8 +157,9 @@ Namespace('Labeling').Engine = (function () {
 		_img.src = Materia.Engine.getImageAssetUrl((
 			_qset.options.image ? _qset.options.image.id : _qset.assets[0]));
 
-		_questions = _shuffle(_questions);
+		window.model.url = _img.src;
 
+		_questions = _shuffle(_questions);
 
 		if (_qset.options.flag3D === false) { appendLabels(_questions) }
 
@@ -195,15 +206,6 @@ Namespace('Labeling').Engine = (function () {
 			term.className = 'term';
 			term.innerHTML = question.questions[0].text;
 
-			// attach document listeners
-			// term.addEventListener('mouseup', _mouseUpEvent, false);
-			// term.addEventListener('touchend', _mouseUpEvent, false);
-			// term.addEventListener('MSPointerUp', _mouseUpEvent, false);
-
-			// term.addEventListener('mousemove', _mouseMoveEvent, false);
-			// term.addEventListener('touchmove', _mouseMoveEvent, false);
-			// term.addEventListener('MSPointerMove', _mouseMoveEvent, false);
-
 			term.addEventListener('mousedown', _mouseDownEvent, false);
 			term.addEventListener('touchstart', _mouseDownEvent, false);
 			term.addEventListener('MSPointerDown', _mouseDownEvent, false);
@@ -236,15 +238,6 @@ Namespace('Labeling').Engine = (function () {
 			term.className = 'term';
 			term.innerHTML = question.questions[0].text;
 
-			// attach document listeners
-			// term.addEventListener('mouseup', _mouseUpEvent, false);
-			// term.addEventListener('touchend', _mouseUpEvent, false);
-			// term.addEventListener('MSPointerUp', _mouseUpEvent, false);
-
-			// term.addEventListener('mousemove', _mouseMoveEvent, false);
-			// term.addEventListener('touchmove', _mouseMoveEvent, false);
-			// term.addEventListener('MSPointerMove', _mouseMoveEvent, false);
-
 			term.addEventListener('mousedown', _mouseDownEvent, false);
 			term.addEventListener('touchstart', _mouseDownEvent, false);
 			term.addEventListener('MSPointerDown', _mouseDownEvent, false);
@@ -270,7 +263,6 @@ Namespace('Labeling').Engine = (function () {
 					);
 				})
 				.then((vertex) => {
-					console.log(renderedSpheresGroup);
 					renderedSpheresGroup.add(vertex.sphere());
 				})
 				.catch((err) => {
@@ -305,9 +297,6 @@ Namespace('Labeling').Engine = (function () {
 
 		// the initial board has all dots
 		let context = _g('previewimg0').getContext('2d');
-		// for (let dot of Array.from(dots)) {
-		// 	_drawDot(dot[0], dot[1], 6, 2, context, 'rgba(0,0,0,' + _anchorOpacityValue + ')', 'rgba(255,255,255,' + _anchorOpacityValue + ')');
-		// }
 
 		dots.forEach((dot) => {
 			_drawDot(dot[0], dot[1], 6, 2, context, 'rgba(0,0,0,' + _anchorOpacityValue + ')', 'rgba(255,255,255,' + _anchorOpacityValue + ')');
@@ -325,8 +314,7 @@ Namespace('Labeling').Engine = (function () {
 
 	// arrange the items in the left list
 	var _arrangeList = function () {
-		// the maximum height the terms can pass before we overflow onto another page
-		let offScreen;
+		let offScreen; // the maximum height the terms can pass before we overflow onto another page
 
 		// const MAX_HEIGHT = 490; // = (48 * 10) + 10 // (heightOfTerm * #OfTerms) + 10
 		const MAX_HEIGHT = spacing + (termWidth * numberOfTerms);
@@ -334,22 +322,17 @@ Namespace('Labeling').Engine = (function () {
 		// if we went too far back, go to the 0th page
 		if (_curPage < 0) { _curPage = 0; }
 
-		// position of the terms
-		// let y = spacing + (-440 * _curPage);
-
 		let y
 		_qset.options.flag3D === false ? y = spacing + (-440 * _curPage)
 			: _curPage == 0 ? y = spacing + (termWidth * numberOfTermsRemove)
 				: y = spacing + ((-440 + (termWidth * numberOfTermsRemove)) * _curPage);
 
-
 		// state sentinels
 		let maxY = 0;
 		let found = false;
-		let cnt = 0;
 
+		console.log('_questions', _questions)
 		// move all the terms to their correct location
-		console.log(_questions[_questions.length - 1].mask);
 
 		for (let question of _questions) {
 			const node = _g('term_' + question.mask);
@@ -362,18 +345,15 @@ Namespace('Labeling').Engine = (function () {
 
 				// too high up, put it on the previous page
 				if (y < 10) {
-					// console.log(cnt + ') ', node.innerHTML, y, 'if (y < 10) => ' + (y < 10));
 					node.style.zIndex = -1;
 					offScreen = true;
 
 					// too far down, put it on the next page
-					// } else if (y >= MAX_HEIGHT) {
-					// 	console.log(cnt + ') ', node.innerHTML, y, 'else if (y >= MAX_HEIGHT) => ' + (y >= MAX_HEIGHT));
+				} else if (y >= MAX_HEIGHT) {
 					node.style.zIndex = -1;
 
 					// just right goldilocks
 				} else {
-					// console.log(cnt + ') ', node.innerHTML, y);
 					node.style.zIndex = '';
 					node.style.opacity = 1;
 					found = true;
@@ -385,13 +365,11 @@ Namespace('Labeling').Engine = (function () {
 
 				listOfTerms.push(node);
 
-				cnt++;
 				maxY = y;
 				y += node.getBoundingClientRect().height + spacing; // increments of 48px
 			}
 		}
 
-		console.log(cnt);
 		// hide buttons if they should not be visible
 		_g('nextbtn').style.opacity = maxY >= MAX_HEIGHT ? 1 : 0;
 		_g('prevbtn').style.opacity = offScreen ? 1 : 0;
@@ -660,11 +638,9 @@ Namespace('Labeling').Engine = (function () {
 		return (() => {
 			const result = [];
 
-			// for (let question of Array.from(_questions)) {
-
 			let flag3D = _qset.options.flag3D;
 
-			_questions.forEach((question, index) => {
+			_questions.forEach((question) => {
 				var dotBackground, dotBorder;
 
 				// if the question has an answer placed, draw a solid line connecting it
@@ -766,8 +742,6 @@ Namespace('Labeling').Engine = (function () {
 
 	// **** 3D VERSION *********************************************************
 	function chooseVer() {
-		console.log('player +--> chooseVer() trigger.');
-		// removeFromUI();
 
 		let btnDiv = document.createElement('div');
 		btnDiv.id = 'btnDiv';

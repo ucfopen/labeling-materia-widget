@@ -1,6 +1,19 @@
 
 Namespace('Labeling').Creator = (function () {
 
+	/*
+	// Different models for testing.
+		'models3D/cube.obj';
+		'models3D/cube.mtl';
+
+		'models3D/male02/male02.obj';
+		'models3D/male02/male02.mtl';
+
+		'models3D/tree.obj';
+		'models3D/mesh_bed.obj';
+		'models3D/cerberus/Cerberus.obj';
+	*/
+
 	// variables for local use
 	let _context, _img, _offsetY, _qset;
 	let _title = (_qset = null);
@@ -26,8 +39,9 @@ Namespace('Labeling').Creator = (function () {
 	let areWeLabeling = true;
 	let areLinesHided = true;
 	var uvMapToMousePoint;
-	window.model = { url: "modelUrl" };
-	// Change this to the url value.
+
+	window.model = { url: null, mtlUrl: null };
+	window.model.url = 'models3D/mesh_bed.obj';
 
 	const _defaultLabel = '[label title]';
 
@@ -39,9 +53,6 @@ Namespace('Labeling').Creator = (function () {
 		// prompt the user for a widget title
 		document.querySelector('#titlebox').classList.add("show");
 		document.querySelector('#backgroundcover').classList.add("show");
-
-		// hide the canvas so we can interact with it
-		// document.querySelector('#canvas').style.display = 'none';
 
 		// make a scaffold qset object
 		_qset = {};
@@ -1043,7 +1054,6 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	// **** 3D VERSION *********************************************************
-
 	// Change UI based on the
 	function chooseVer() {
 		let btnEnterTitle = document.querySelector('#btn-enter-title');
@@ -1195,8 +1205,6 @@ Namespace('Labeling').Creator = (function () {
 
 		return _drawBoard();
 	}
-	// ***********************************************************************
-	// ///////////////////////
 
 	// Public members
 	return {
