@@ -7,17 +7,6 @@ import { MTLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/j
 import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/OBJLoader.js';
 import Stats from 'https://unpkg.com/three@0.124.0/examples/jsm/libs/stats.module.js';
 
-// let objFileStr = 'models3D/cube.obj';
-// let mtlFileStr = 'models3D/cube.mtl';
-
-// let objFileStr = 'models3D/male02/male02.obj';
-// let mtlFileStr = 'models3D/male02/male02.mtl';
-
-let mtlFileStr;
-// let objFileStr = 'models3D/tree.obj';
-let objFileStr = 'models3D/mesh_bed.obj';
-// let objFileStr = 'models3D/cerberus/Cerberus.obj';
-
 // Variables that can
 let sceneColor = 0xdddddd; // control the background color of a scene,
 let setAntialias = true; // increase or decrease performance,
@@ -49,8 +38,8 @@ let mtlLoader = new MTLLoader();
 let objLoader = new OBJLoader();
 let cameraInitialPosition = new THREE.Vector3();
 const objBoxDimensions = new THREE.Box3();
-let objBoxCenter;
 let objBoxSize;
+let objBoxCenter;
 const mousePosition = new THREE.Vector2();
 const onClickPosition = new THREE.Vector2();
 // raycaster is used for interpolating the mouse's xy-position on click
@@ -70,9 +59,6 @@ const scene = new THREE.Scene();
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias });
 const controls = new OrbitControls(camera, renderer.domElement);
-// controls.enablePan = false;
-
-// let url;
 
 // Loads in all the base requirements for properly displaying the 3D environment.
 main();
@@ -104,11 +90,8 @@ function main() {
 	scene.add(myPointer);
 	scene.add(camera);
 
-	window.model.url = objFileStr;
-	console.log(window.model.url);
-
 	// use if obj provided  // use if mtl and obj provided
-	mtlFileStr == null ? getOBJRender(window.model.url) : getMTLandOBJRender(mtlFileStr, urlStr);
+	window.model.mtlUrl == null ? getOBJRender(window.model.url) : getMTLandOBJRender(window.model.mtlUrl, window.model.url);
 
 	window.addEventListener('resize', onWindowResize);
 	canvas.addEventListener('click', onMouseClick);
@@ -207,11 +190,8 @@ function getMTLandOBJRender(mtlFileStr, objFileStr) {
 	mtlLoader.load(mtlFileStr, (mtl) => {
 		mtl.preload();
 		objLoader.setMaterials(mtl);
-
-		getOBJRender(controls);
-
+		getOBJRender(objFileStr);
 	});
-
 } // End of getMTLandOBJRender()
 
 function getObjDimensions(obj) {
