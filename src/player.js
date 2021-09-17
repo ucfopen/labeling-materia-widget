@@ -67,7 +67,6 @@ Namespace('Labeling').Engine = (function () {
 	let listOfTerms = [];
 
 	window.model = { url: null, mtlUrl: null };
-	window.model.url = 'models3D/mesh_bed.obj';
 
 	// getElementById and cache it, for the sake of performance
 	const _g = id => _domCache[id] || (_domCache[id] = document.getElementById(id));
@@ -193,7 +192,6 @@ Namespace('Labeling').Engine = (function () {
 	};
 
 	function appendLabels() {
-		console.log('player +--> appendLabels trigger.');
 		let termList = document.getElementById('termlist');
 
 		for (let question of Array.from(_questions)) {
@@ -225,7 +223,6 @@ Namespace('Labeling').Engine = (function () {
 	}
 
 	function appendLabels3D() {
-		console.log('player +--> appendLabels3D trigger.');
 		let termList = document.getElementById('termlist');
 
 		_questions.forEach((question) => {
@@ -331,9 +328,7 @@ Namespace('Labeling').Engine = (function () {
 		let maxY = 0;
 		let found = false;
 
-		console.log('_questions', _questions)
 		// move all the terms to their correct location
-
 		for (let question of _questions) {
 			const node = _g('term_' + question.mask);
 
@@ -794,10 +789,6 @@ Namespace('Labeling').Engine = (function () {
 
 		let prevBtn = document.getElementById('prevbtn');
 		prevBtn.style.top = (parseInt(blockTop.style.top.replace('px', '')) + 6) + 'px';
-
-		// document.getElementById('termlist').style.top = 200 + 'px';
-
-		//// enable3DEvents(btnToggleLines);
 	};
 
 	function createBtn(btnID, btnValue, location) {
@@ -824,7 +815,6 @@ Namespace('Labeling').Engine = (function () {
 	}
 
 	function hidingLinesBtnEffect() {
-		console.log('player +--> hidingLinesBtnEffect trigger.');
 		let element = document.getElementById('image');
 		let btn = document.getElementById('toggleLines');
 
@@ -839,9 +829,6 @@ Namespace('Labeling').Engine = (function () {
 			element.style.zIndex = 2;
 		}
 	}
-
-	// ***********************************************************************
-	// ///////////////////////
 
 	//public
 	return {

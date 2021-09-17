@@ -7,6 +7,7 @@ import { MTLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/j
 import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/OBJLoader.js';
 import Stats from 'https://unpkg.com/three@0.124.0/examples/jsm/libs/stats.module.js';
 
+let oneSecond = 1000;
 // Variables that can
 let sceneColor = 0xdddddd; // control the background color of a scene,
 let setAntialias = true; // increase or decrease performance,
@@ -60,12 +61,20 @@ const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias });
 const controls = new OrbitControls(camera, renderer.domElement);
 
-// Loads in all the base requirements for properly displaying the 3D environment.
-main();
+console.log('CORE document.URL => ', document.URL);
+console.log('CORE window.location.href => ', window.location.href);
 
-// Recursive function that render and controls the 3D environment every
-// time a frame is renderer.
-render();
+console.log('CORE window.model.url', window.model.url);
+setTimeout(() => {
+	main();
+	render();
+}, 1 * oneSecond);
+// Loads in all the base requirements for properly displaying the 3D environment.
+// main();
+
+// // Recursive function that render and controls the 3D environment every
+// // time a frame is renderer.
+// render();
 
 function main() {
 
@@ -91,6 +100,8 @@ function main() {
 	scene.add(camera);
 
 	// use if obj provided  // use if mtl and obj provided
+	let test = 'https://threejsfundamentals.org/threejs/resources/models/windmill/windmill.obj'
+	getOBJRender(test);
 	window.model.mtlUrl == null ? getOBJRender(window.model.url) : getMTLandOBJRender(window.model.mtlUrl, window.model.url);
 
 	window.addEventListener('resize', onWindowResize);
@@ -152,7 +163,9 @@ function onError(error) {
 }
 
 function getOBJRender(objFileStr) {
+	console.log('CORE objFileStr => ', objFileStr);
 	objLoader.load(objFileStr, (obj) => {
+
 		obj.name = 'myRender';
 		scene.add(obj);
 

@@ -18,6 +18,7 @@ Namespace('Labeling').Creator = (function () {
 	let _context, _img, _offsetY, _qset;
 	let _title = (_qset = null);
 
+
 	// canvas, context, and image to render to it
 	let _canvas = (_context = (_img = null));
 
@@ -39,12 +40,16 @@ Namespace('Labeling').Creator = (function () {
 	let areWeLabeling = true;
 	let areLinesHided = true;
 	var uvMapToMousePoint;
+	let oneSecond = 1000;
 
 	window.model = { url: null, mtlUrl: null };
-	window.model.url = 'models3D/mesh_bed.obj';
+
+	let mediaFileType = [];
+	// let mediaFileType = ['jpg', 'jpeg', 'gif', 'png', 'obj']
 
 	const _defaultLabel = '[label title]';
 
+	console.log('CREATOR document.URL =>', document.URL)
 	// have to change function to async/await to be able read flag3D
 	const initNewWidget = function () {
 		document.querySelector('#image').display = 'none';
@@ -222,11 +227,11 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	function btnChooseImage() {
-		Materia.CreatorCore.showMediaImporter();
+		Materia.CreatorCore.showMediaImporter(mediaFileType);
 	}
 
 	function btnTitle() {
-		Materia.CreatorCore.showMediaImporter();
+		Materia.CreatorCore.showMediaImporter(mediaFileType);
 		return true;
 	}
 
@@ -315,6 +320,7 @@ Namespace('Labeling').Creator = (function () {
 
 		// get asset url from Materia API (baseUrl and all)
 		const url = Materia.CreatorCore.getMediaUrl(_qset.options.image.id);
+		console.log('Materia url =>', Materia.CreatorCore.getMediaUrl());
 
 		// render the image inside of the imagewrapper
 		let imageDon = document.querySelector('#image');
@@ -323,6 +329,7 @@ Namespace('Labeling').Creator = (function () {
 
 		// load the image resource via JavaScript for rendering later
 		_img.src = url;
+
 		let imageWrapper = document.querySelector('#imagewrapper');
 
 		_img.onload = function () {
@@ -331,7 +338,6 @@ Namespace('Labeling').Creator = (function () {
 		};
 
 		// set the resizable image wrapper to the size and pos from qset
-		console.log(_qset.options.imageX);
 		imageWrapper.style.left = _qset.options.imageX + 'px';
 		imageWrapper.style.top = _qset.options.imageY + 'px';
 
@@ -357,7 +363,7 @@ Namespace('Labeling').Creator = (function () {
 
 		// get asset url from Materia API (baseUrl and all)
 		const url = Materia.CreatorCore.getMediaUrl(_qset.options.image.id);
-
+		console.log('Materia url =>', Materia.CreatorCore.getMediaUrl());
 		// load the image resource via JavaScript for rendering later
 		_img.src = url;
 		window.model.url = url;
@@ -366,7 +372,6 @@ Namespace('Labeling').Creator = (function () {
 		document.querySelector('#title').innerHTML = title;
 		_title = title;
 
-		setUp3DEnvironment();
 		flag3D = true;
 		// add qset terms to the list
 		// legacy support:
@@ -379,7 +384,7 @@ Namespace('Labeling').Creator = (function () {
 				reloadingLabels(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id,
 					item.options.vertex.faceIndex, item.options.vertex.point, item.options.vertex.uv));
 		},
-			1 * 500);
+			1 * (oneSecond / 2));
 	}
 
 	// draw lines on the board
@@ -427,7 +432,7 @@ Namespace('Labeling').Creator = (function () {
 			document.querySelector('#btnMoveResize').style.display = 'block';
 			return document.querySelector('#btnChooseImage').style.display = 'block';
 		}
-			, 400);
+			, 1 * (oneSecond / 2));
 	};
 
 	// generate a term div
@@ -563,7 +568,7 @@ Namespace('Labeling').Creator = (function () {
 			term.childNodes[0].focus();
 			return document.execCommand('selectAll', false, null);
 		}
-			, 10);
+			, 1 * (oneSecond / 100));
 
 		return _drawBoard();
 	};
@@ -740,7 +745,7 @@ Namespace('Labeling').Creator = (function () {
 			term.childNodes[0].focus();
 			return document.execCommand('selectAll', false, null);
 		}
-			, 10);
+			, 1 * (oneSecond / 100));
 
 		return _drawBoard();
 	}
@@ -972,16 +977,18 @@ Namespace('Labeling').Creator = (function () {
 	};
 
 	function onMediaImportComplete2D(media) {
+
 		document.getElementById('canvas').style.display = 'block';
 		document.getElementById('chooseimage').style.display = 'none';
 
 		const url = Materia.CreatorCore.getMediaUrl(media[0].id);
-
+		console.log('Materia url =>', Materia.CreatorCore.getMediaUrl());
 		let image = document.getElementById('image');
 		image.style.display = '';
 		image.setAttribute('src', url);
 		image.setAttribute('data-imgid', media[0].id);
 		_img.src = url;
+
 		_img.onload = function () {
 			let height, width;
 			const iw = document.getElementById('imagewrapper');
@@ -1007,14 +1014,19 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	function onMediaImportComplete3D(media) {
+		console.log(media);
 		let _anchorOpacityValue = 1.0;
 		document.querySelector('#imagewrapper').style.display = 'none';
 		document.getElementById('canvas').style.display = 'block';
 		document.getElementById('chooseimage').style.display = 'none';
 
 		const url = Materia.CreatorCore.getMediaUrl(media[0].id);
-		window.model.url = url;
+		console.log('Materia url =>', Materia.CreatorCore.getMediaUrl());
 		_img.src = url;
+		window.model.url = url;
+
+		// setTimeout(setUp3DEnvironment, 1 * 1000);
+		setUp3DEnvironment();
 
 		_makeDraggable();
 
@@ -1075,7 +1087,7 @@ Namespace('Labeling').Creator = (function () {
 		});
 
 		btnEnterTitle.addEventListener('click', () => {
-			if (flag3D === true) { setUp3DEnvironment(); }
+			flag3D == true ? mediaFileType.push('obj') : mediaFileType.push('jpg', 'jpeg', 'gif', 'png');
 		});
 	};
 
@@ -1100,10 +1112,13 @@ Namespace('Labeling').Creator = (function () {
 				return module;
 			})
 			.then((module) => {
-				let my3DCanvas = document.getElementById('my3DCanvas');
-				my3DCanvas.addEventListener('wheel', reRenderLines);
-				my3DCanvas.addEventListener('mousemove', reRenderLines);
-				my3DCanvas.addEventListener('touchmove', reRenderLines);
+				setTimeout(() => {
+					let my3DCanvas = document.getElementById('my3DCanvas');
+					my3DCanvas.addEventListener('wheel', reRenderLines);
+					my3DCanvas.addEventListener('mousemove', reRenderLines);
+					my3DCanvas.addEventListener('touchmove', reRenderLines);
+				}, 1 * oneSecond);
+
 
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent);
 			})
@@ -1131,7 +1146,6 @@ Namespace('Labeling').Creator = (function () {
 		let controlNodeList = document.getElementById(btnParent);
 		controlNodeList.insertBefore(btn, controlNodeList.children[2]);
 
-		reRenderLines();
 		return btn;
 	}
 
@@ -1139,8 +1153,7 @@ Namespace('Labeling').Creator = (function () {
 		document.querySelector('#btnMoveResize').removeEventListener('click', resizable);
 		document.querySelector('#btnMoveResizeCancel').removeEventListener('click', resizableCancel);
 		document.querySelector('#btnMoveResizeDone').removeEventListener('click', resizableDone);
-		document.querySelector('#btnChooseImage').removeEventListener('click', btnChooseImage);
-		document.querySelector('#btn-enter-title').removeEventListener('click', btnTitle);
+		// document.querySelector('#btn-enter-title').removeEventListener('click', btnTitle);
 	}
 
 	function enable3DEvents() {
