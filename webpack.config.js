@@ -49,11 +49,6 @@ const customCopy = copy.concat([
 		to: path.join(outputPath, 'models3D'),
 		toType: 'dir'
 	},
-	{
-		from: path.join(__dirname, 'node_modules', 'three'),
-		to: path.join(outputPath, 'node_modules', 'three'),
-		toType: 'dir'
-	},
 ])
 
 const moduleRules = [
