@@ -29,7 +29,6 @@ Namespace('Labeling').Creator = (function () {
 	let oneSecond = 1000
 
 	let mediaFileType = []
-	// let mediaFileType = ['jpg', 'jpeg', 'gif', 'png', 'obj']
 
 	const _defaultLabel = '[label title]'
 
@@ -210,6 +209,7 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	function btnChooseImage() {
+		remove3DLoadedAssets()
 		Materia.CreatorCore.showMediaImporter(mediaFileType)
 	}
 
@@ -346,7 +346,9 @@ Namespace('Labeling').Creator = (function () {
 		// get asset url from Materia API (baseUrl and all)
 		const url = Materia.CreatorCore.getMediaUrl(_qset.options.image.id)
 		_img.src = url
-		setUp3DEnvironment(_img.src)
+
+		setUp3DEnvironment()
+		load3DAsset(url)
 
 		// set the title from the qset
 		document.querySelector('#title').innerHTML = title
@@ -993,14 +995,14 @@ Namespace('Labeling').Creator = (function () {
 	function onMediaImportComplete3D(media) {
 
 		let _anchorOpacityValue = 1.0
-		document.querySelector('#imagewrapper').style.display = 'none'
-		document.getElementById('canvas').style.display = 'block'
-		document.getElementById('chooseimage').style.display = 'none'
+		// document.querySelector('#imagewrapper').style.display = 'none'
+		// document.getElementById('canvas').style.display = 'block'
+		// document.getElementById('chooseimage').style.display = 'none'
 
 		const url = Materia.CreatorCore.getMediaUrl(media[0].id)
 		_img.src = url
 
-		setUp3DEnvironment(_img.src)
+		load3DAsset(url)
 		_makeDraggable()
 
 		return true
@@ -1060,20 +1062,16 @@ Namespace('Labeling').Creator = (function () {
 
 		btnEnterTitle.addEventListener('click', () => {
 			flag3D == true ? mediaFileType.push('obj') : mediaFileType.push('jpg', 'jpeg', 'gif', 'png')
-			// if (flag3D) { setUp3DEnvironment() } // Temporarily used while on MWDK
+			setUp3DEnvironment()// Temporarily used while on MWDK
 		})
 	}
 
 	// set the 3D UI.
-	function setUp3DEnvironment(media) {
+	function setUp3DEnvironment() {
 		removeFromUI()
 
 		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'controls')
 		let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'controls')
-		btnCenterCamera.addEventListener('click', reRenderLines)
-		// created for only for adding the btn.
-		let btnDeleteData = createBtn('deleteData', 'Delete Data', 'controls')
-		btnDeleteData.addEventListener('click', removeSpheres)
 
 		let loadCore3D = document.createElement("script")
 		loadCore3D.src = 'core3D.js'
@@ -1083,12 +1081,10 @@ Namespace('Labeling').Creator = (function () {
 		document.querySelector('#btnMoveResize').value = "Rotating Model"
 		document.getElementById('canvas').style.pointerEvents = 'none'
 
-		let raymanUrl = "https://static.observableusercontent.com/files/c1fc0d2fbf2bed5669afae79d4c0e896701b9e7257924c92a873b376bb2e65d7c217aeb899c11088d648cf89535a89089cdabff9da336ba7e6a739dd5e20a5cf"
 		import('./core3D.js')
 			.then((module) => {
 				uvMapToMousePoint = module.uvMapToMousePoint
 				renderedSpheresGroup = module.renderedSpheresGroup
-				module.getOBJRender(media)
 				return module
 			})
 			.then((module) => {
@@ -1098,16 +1094,27 @@ Namespace('Labeling').Creator = (function () {
 				my3DCanvas.addEventListener('touchmove', reRenderLines)
 
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
-
+				btnCenterCamera.addEventListener('click', reRenderLines)
 			})
 			.catch((err) => {
 				console.log(err)
 			})
 
+		// load3DAsset(media)
 		disableEvents()
 		enable3DEvents()
 
 	} // End of Environment3D
+
+	function load3DAsset(assetUrl) {
+		import('./core3D.js')
+			.then((module) => {
+				module.getOBJRender(assetUrl)
+			})
+			.catch((err) => {
+				console.log(err)
+			})
+	}
 
 	function removeFromUI() {
 		document.querySelector('#image').remove()
@@ -1197,7 +1204,7 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	// removes labels, lines, spheres, and model from the canvas.
-	function removeSpheres() {
+	function remove3DLoadedAssets() {
 
 		for (let index = 0; index != 2; index++) {
 			let termsList = document.getElementById('terms').childNodes
@@ -1211,22 +1218,13 @@ Namespace('Labeling').Creator = (function () {
 
 		reRenderLines()
 
-		let house = 'https://static.observableusercontent.com/files/14dacf4b987e19356033495dfccd39174591cf07a57168946e51ac82c84fc7c6a46c1d86aabb3bbcc5b14fdf4b6f19052bde7af14d77c4639c4fb437b2f0a2a5'
-
 		import('./core3D.js')
 			.then((module) => {
 				module.removeModel()
-				module.getOBJRender(house)
 			})
 			.catch((err) => {
 				console.log(err)
 			})
-	}
-
-	function requestCORSIfNotSameOrigin(img, url) {
-		if ((new URL(url, window.location.href)).origin !== window.location.origin) {
-			img.crossOrigin = "";
-		}
 	}
 
 	// Public members
