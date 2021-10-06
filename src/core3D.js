@@ -147,6 +147,7 @@ function onError(error) {
 }
 
 function getOBJRender(objFileStr) {
+	objLoader.crossOrigin = ''
 	objLoader.load(objFileStr, (obj) => {
 		obj.name = 'myModel'
 		scene.add(obj)
