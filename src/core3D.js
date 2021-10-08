@@ -243,6 +243,8 @@ function scaleUpObj(obj) {
 	obj.scale.set(scaler + 1, scaler + 1, scaler + 1)
 }
 
+// func breaks on creator reload.
+// MAY BE DO TO OBJ NOT LOADED IN.
 function centeringCameraEvent() {
 	camera.position.copy(cameraInitialPosition)
 	camera.lookAt(objBoxCenter.x, objBoxCenter.y, objBoxCenter.z)
