@@ -209,7 +209,7 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	function btnChooseImage() {
-		remove3DLoadedAssets()
+		if (flag3D === true) { remove3DLoadedAssets() }
 		Materia.CreatorCore.showMediaImporter(mediaFileType)
 	}
 
@@ -345,10 +345,18 @@ Namespace('Labeling').Creator = (function () {
 
 		// get asset url from Materia API (baseUrl and all)
 		const url = Materia.CreatorCore.getMediaUrl(_qset.options.image.id)
-		_img.src = url
+		let realURL = 'https://'
+		let reverseSplitURL = url.split('/').reverse()
+		let httpsIndex = reverseSplitURL.findIndex(element => element === 'https:')
+
+		for (let index = httpsIndex - 2; index > -1; index--) {
+			let temp = realURL.concat(reverseSplitURL[index], '/')
+			realURL = temp
+		}
 
 		setUp3DEnvironment()
-		load3DAsset(url)
+		load3DAsset(realURL)
+		_img.src = realURL
 
 		// set the title from the qset
 		document.querySelector('#title').innerHTML = title
@@ -360,6 +368,7 @@ Namespace('Labeling').Creator = (function () {
 		let questions = qset.items
 		if ((questions[0] != null) && questions[0].items) { questions = questions[0].items }
 
+		reRenderLines()
 		// try placing the return in a setTimeout
 		return setTimeout(() => {
 			Array.from(questions).map((item) =>
@@ -998,9 +1007,11 @@ Namespace('Labeling').Creator = (function () {
 		// document.querySelector('#imagewrapper').style.display = 'none'
 		// document.getElementById('canvas').style.display = 'block'
 		// document.getElementById('chooseimage').style.display = 'none'
-
+		mediaFileType.push('obj')
 		const url = Materia.CreatorCore.getMediaUrl(media[0].id)
+
 		_img.src = url
+		console.log('onMediaImportComplete3D url:', url)
 
 		load3DAsset(url)
 		_makeDraggable()
@@ -1061,8 +1072,12 @@ Namespace('Labeling').Creator = (function () {
 		})
 
 		btnEnterTitle.addEventListener('click', () => {
-			flag3D == true ? mediaFileType.push('obj') : mediaFileType.push('jpg', 'jpeg', 'gif', 'png')
-			setUp3DEnvironment()// Temporarily used while on MWDK
+			if (flag3D == true) {
+				mediaFileType.push('obj')
+				setUp3DEnvironment()
+			} else {
+				mediaFileType.push('jpg', 'jpeg', 'gif', 'png')
+			}
 		})
 	}
 
@@ -1100,13 +1115,13 @@ Namespace('Labeling').Creator = (function () {
 				console.log(err)
 			})
 
-		// load3DAsset(media)
 		disableEvents()
 		enable3DEvents()
 
 	} // End of Environment3D
 
 	function load3DAsset(assetUrl) {
+		mediaFileType.push('obj')
 		import('./core3D.js')
 			.then((module) => {
 				module.getOBJRender(assetUrl)

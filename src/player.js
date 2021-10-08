@@ -136,10 +136,21 @@ Namespace('Labeling').Engine = (function () {
 		_img = new Image()
 		_img.onload = _drawBoard
 
-		_img.src = Materia.Engine.getImageAssetUrl((
+		let url = Materia.Engine.getImageAssetUrl((
 			_qset.options.image ? _qset.options.image.id : _qset.assets[0]))
 
-		if (_qset.options.flag3D === true) { chooseVer(_img.src) }
+		let realURL = 'https://'
+		let reverseSplitURL = url.split('/').reverse()
+		let httpsIndex = reverseSplitURL.findIndex(element => element === 'https:')
+
+		for (let index = httpsIndex - 2; index > -1; index--) {
+			let temp = realURL.concat(reverseSplitURL[index], '/')
+			realURL = temp
+		}
+
+		_img.src = realURL
+
+		if (_qset.options.flag3D === true) { chooseVer(realURL) }
 
 		_questions = _shuffle(_questions)
 
@@ -723,31 +734,23 @@ Namespace('Labeling').Engine = (function () {
 	}
 
 	// **** 3D VERSION *********************************************************
-	function chooseVer(modelURL) {
+	function chooseVer(assetUrl) {
 
-		let btnDiv = document.createElement('div')
-		btnDiv.id = 'btnDiv'
-		btnDiv.style.display = 'inline'
-		btnDiv.style.background = 'url(assets/checker.png)'
-		btnDiv.style.zIndex = 1
-		btnDiv.style.top = '50px'
-		btnDiv.style.height = '105px'
-		btnDiv.style.width = '195px'
-
-		document.body.appendChild(btnDiv)
+		btnSpacer()
 
 		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'btnDiv')
+		btnToggleLines.addEventListener('click', hidingLinesBtnEffect, true)
 		btnToggleLines.style.top = 55 + 'px'
 
 		let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'btnDiv')
+
 		btnCenterCamera.style.top = 110 + 'px'
 
 		import('./core3D.js')
 			.then((module) => {
-				module.main(modelURL)
-				module.render()
 				renderedSpheresGroup = module.renderedSpheresGroup
 				uvMapToMousePoint = module.uvMapToMousePoint
+				module.getOBJRender(assetUrl)
 				return module
 			})
 			.then((module) => {
@@ -758,10 +761,8 @@ Namespace('Labeling').Engine = (function () {
 				my3DCanvas.addEventListener('touchmove', _drawBoard)
 				my3DCanvas.addEventListener('mousedown', _drawBoard)
 
-
-				btnToggleLines.addEventListener('click', hidingLinesBtnEffect, true)
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
-
+				btnCenterCamera.addEventListener('click', _drawBoard)
 				appendLabels3D(_questions)
 			})
 			.catch((err) => {
@@ -778,6 +779,18 @@ Namespace('Labeling').Engine = (function () {
 
 		let prevBtn = document.getElementById('prevbtn')
 		prevBtn.style.top = (parseInt(blockTop.style.top.replace('px', '')) + 6) + 'px'
+	}
+
+	function btnSpacer() {
+		let btnDiv = document.createElement('div')
+		btnDiv.id = 'btnDiv'
+		btnDiv.style.display = 'inline'
+		btnDiv.style.background = 'url(assets/checker.png)'
+		btnDiv.style.zIndex = 1
+		btnDiv.style.top = '50px'
+		btnDiv.style.height = '105px'
+		btnDiv.style.width = '195px'
+		document.body.appendChild(btnDiv)
 	}
 
 	function createBtn(btnID, btnValue, location) {
