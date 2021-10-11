@@ -50,6 +50,7 @@ Namespace('Labeling').Engine = (function () {
 	let numberOfTerms = 10
 	let numberOfTermsRemove = 3
 	let listOfTerms = []
+	let oneSecond = 1000
 
 	// getElementById and cache it, for the sake of performance
 	const _g = id => _domCache[id] || (_domCache[id] = document.getElementById(id))
@@ -96,9 +97,7 @@ Namespace('Labeling').Engine = (function () {
 		// set background and header title
 		_g('board').style.background = background
 
-		if ((instance.name === undefined) || null) {
-			instance.name = "Widget Title Goes Here"
-		}
+		if ((instance.name === undefined) || null) { instance.name = "Widget Title Goes Here" }
 
 		_g('title').innerHTML = instance.name
 		_g('title').style['font-size'] = ((20 - (instance.name.length / 30)) + 'px')
@@ -139,18 +138,22 @@ Namespace('Labeling').Engine = (function () {
 		let url = Materia.Engine.getImageAssetUrl((
 			_qset.options.image ? _qset.options.image.id : _qset.assets[0]))
 
-		let realURL = 'https://'
-		let reverseSplitURL = url.split('/').reverse()
-		let httpsIndex = reverseSplitURL.findIndex(element => element === 'https:')
+		_img.src = url
 
-		for (let index = httpsIndex - 2; index > -1; index--) {
-			let temp = realURL.concat(reverseSplitURL[index], '/')
-			realURL = temp
+		if (_qset.options.flag3D === true) {
+			let realURL = 'https://'
+			let reverseSplitURL = url.split('/').reverse()
+			let httpsIndex = reverseSplitURL.findIndex(element => element === 'https:')
+			_img.src = url
+
+			for (let index = httpsIndex - 2; index > -1; index--) {
+				let temp = realURL.concat(reverseSplitURL[index], '/')
+				realURL = temp
+			}
+
+			_img.src = realURL
+			chooseVer(realURL)
 		}
-
-		_img.src = realURL
-
-		if (_qset.options.flag3D === true) { chooseVer(realURL) }
 
 		_questions = _shuffle(_questions)
 
@@ -169,7 +172,7 @@ Namespace('Labeling').Engine = (function () {
 				_arrangeList()
 				return Array.from(document.getElementsByClassName('term')).map((node) =>
 					node.classList.add('ease'))
-			}, 1 * 500)
+			}, oneSecond / 2)
 		}
 
 		// attach document listeners
@@ -353,7 +356,6 @@ Namespace('Labeling').Engine = (function () {
 				}
 
 				listOfTerms.push(node)
-
 				maxY = y
 				y += node.getBoundingClientRect().height + spacing  // increments of 48px
 			}
@@ -587,10 +589,7 @@ Namespace('Labeling').Engine = (function () {
 		context.fill()
 		context.lineWidth = border
 		context.strokeStyle = borderColor
-		if (_qset.options.flag3D === false) {
-			return context.stroke()
-		}
-
+		if (_qset.options.flag3D === false) { return context.stroke() }
 	}
 
 	// draw a stroked line (one big line, one smaller on top)
@@ -608,9 +607,7 @@ Namespace('Labeling').Engine = (function () {
 		if (mouseY == null) { mouseY = 0 }
 		_context.clearRect(0, 0, 1000, 1000)
 
-		// draw the asset image
-		// only use shadow if its not graph paper, because
-		// that would look bad
+		// draw the asset image; only use shadow if its not graph paper
 		if (_qset.options.backgroundTheme !== 'themeGraphPaper') {
 			_context.shadowOffsetX = 0
 			_context.shadowOffsetY = 0
@@ -718,11 +715,8 @@ Namespace('Labeling').Engine = (function () {
 
 	// submit questions to Materia. Ask first if they aren't done$
 	var _submitAnswers = function () {
-		if (!_isPuzzleComplete) {
-			return _showAlert()
-		} else {
-			return _submitAnswersToMateria()
-		}
+		if (!_isPuzzleComplete) { return _showAlert() }
+		else { return _submitAnswersToMateria() }
 	}
 
 	// submit every question and the placed answer to Materia for scoring
@@ -733,9 +727,7 @@ Namespace('Labeling').Engine = (function () {
 		return Materia.Engine.end()
 	}
 
-	// **** 3D VERSION *********************************************************
 	function chooseVer(assetUrl) {
-
 		btnSpacer()
 
 		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'btnDiv')
@@ -743,7 +735,6 @@ Namespace('Labeling').Engine = (function () {
 		btnToggleLines.style.top = 55 + 'px'
 
 		let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'btnDiv')
-
 		btnCenterCamera.style.top = 110 + 'px'
 
 		import('./core3D.js')
@@ -754,7 +745,6 @@ Namespace('Labeling').Engine = (function () {
 				return module
 			})
 			.then((module) => {
-
 				let my3DCanvas = document.getElementById('my3DCanvas')
 				my3DCanvas.addEventListener('wheel', _drawBoard)
 				my3DCanvas.addEventListener('mousemove', _drawBoard)
@@ -809,13 +799,6 @@ Namespace('Labeling').Engine = (function () {
 		return btn
 	}
 
-	function removeFromUI() {
-		document.querySelector('#image').remove()
-		document.querySelector('#imagewrapper').remove()
-		document.querySelector('#opacity-toggle').remove()
-		document.querySelector('#maincontrols').remove()
-	}
-
 	function hidingLinesBtnEffect() {
 		let element = document.getElementById('image')
 		let btn = document.getElementById('toggleLines')
@@ -837,5 +820,4 @@ Namespace('Labeling').Engine = (function () {
 		manualResize: true,
 		start
 	}
-
 })()
