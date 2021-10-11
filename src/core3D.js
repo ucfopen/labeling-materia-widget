@@ -36,7 +36,7 @@ const canvasHeight = canvas.offsetHeight  // data value = 551
 
 // ThreeJs variables that control and help the scene, camera position, rendering, and
 // display of model and its texture loaders.
-let mtlLoader = new MTLLoader()
+let mtlLoader = new MTLLoader() // NOT USE AT THE MOMENT
 let objLoader = new OBJLoader()
 let cameraInitialPosition = new THREE.Vector3()
 const objBoxDimensions = new THREE.Box3()
@@ -100,7 +100,7 @@ function render() {
 	controls.update()
 	requestAnimationFrame(render)
 	renderer.render(scene, camera)
-}
+} // END OF render()
 
 function getSphere() {
 	let mesh = new THREE.Mesh(
@@ -112,9 +112,9 @@ function getSphere() {
 	mesh.castShadow = true
 	mesh.position.set(0, 0, 0)
 	return mesh
-}
+}// END OF getSphere()
 
-function getBox() {
+function getBox() { // NOT USED AT THE MOMENT
 	let boxDimension = 10
 	let boxColor = 0x00fff0
 	let mesh = new THREE.Mesh(
@@ -126,7 +126,7 @@ function getBox() {
 	mesh.castShadow = true
 	mesh.position.set(0, 0, 0)
 	return mesh
-}
+}// END OF  getBox()
 
 function getDirectionalLight(intensity) {
 	let light = new THREE.DirectionalLight(0xffffff, intensity)
@@ -134,10 +134,10 @@ function getDirectionalLight(intensity) {
 	light.castShadow = true
 	light.position.set(-1, 2, 4)
 	return light
-}
+}// END OF getDirectionalLight
 
 function onProgress(xhr) {
-	// Returns a console log of the model % loaded
+	// Returns a console log of the model loaded percentage
 	console.log('Model downloaded: ' + Math.round((xhr.loaded / xhr.total * 100), 2) + '% loaded')
 }
 
@@ -163,13 +163,13 @@ function getOBJRender(objFileStr) {
 		for (let index = 1; properSize; index++) {
 			scaleUpObj(obj)
 			getObjDimensions(obj)
-
 			dimensionsTotal = resizePointer()
 			smallestAxis = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.y : dimensionsTotal.x
 			pointerRadius = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.x * 0.1 : dimensionsTotal.y * 0.1
 			properSize = (smallestAxis >= 60 && pointerRadius >= 4) ? false : true
 		}
 
+		// Centralize the camera on the model
 		getObjDimensions(obj)
 		frameArea(objBoxSize * 1.2, objBoxSize, objBoxCenter)
 		controls.maxDistance = objBoxSize * 10
@@ -179,23 +179,23 @@ function getOBJRender(objFileStr) {
 		onProgress,
 		onError
 	)
-} // End of getOBJRender()
+} // END OF getOBJRender()
 
-function getMTLandOBJRender(mtlFileStr, objFileStr) {
+function getMTLandOBJRender(mtlFileStr, objFileStr) { // NOT USED AT THE MOMENT
 
 	mtlLoader.load(mtlFileStr, (mtl) => {
 		mtl.preload()
 		objLoader.setMaterials(mtl)
 		getOBJRender(objFileStr)
 	})
-} // End of getMTLandOBJRender()
+} // END OF getMTLandOBJRender()
 
 function getObjDimensions(obj) {
-	// Create invisible box with dimensions of obj.
+	// ["IMAGINARY"] Create invisible box with model dimension of width, height, and length.
 	objBoxDimensions.setFromObject(obj)
 	objBoxSize = objBoxDimensions.getSize(new THREE.Vector3()).length()
 	objBoxCenter = objBoxDimensions.getCenter(new THREE.Vector3())
-}
+}// END OF getObjDimensions
 
 function frameArea(sizeToFitOnScreen, objBoxSize, objBoxCenter) {
 	const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5
@@ -214,7 +214,7 @@ function frameArea(sizeToFitOnScreen, objBoxSize, objBoxCenter) {
 	camera.lookAt(objBoxCenter.x, objBoxCenter.y, objBoxCenter.z)
 
 	cameraInitialPosition.copy(camera.position)
-}
+}// END OF frameArea()
 
 // A sphere radius min is 1, so if model yTotal or xTotal is 2 then the pointer
 // will end up covering half of the model.
@@ -236,28 +236,21 @@ function resizePointer() {
 	yTotal = yTotal > 0 ? yTotal : (-1 * yTotal)
 
 	return { x: xTotal, y: yTotal }
-}
+}// END OF resizePointer()
 
 function scaleUpObj(obj) {
 	let scaler = obj.scale.x
 	obj.scale.set(scaler + 1, scaler + 1, scaler + 1)
-}
+}// END OF scaleUpObj
 
-// func breaks on creator reload.
-// MAY BE DO TO OBJ NOT LOADED IN.
+// Func use as a event onClick for btn
 function centeringCameraEvent() {
 	camera.position.copy(cameraInitialPosition)
 	camera.lookAt(objBoxCenter.x, objBoxCenter.y, objBoxCenter.z)
 	controls.maxDistance = objBoxSize * 10
 	controls.target.copy(objBoxCenter)
 	controls.update()
-}
-
-// Function for testing purposes
-function printShotgun(str, data) {
-	console.log('%c ' + str, 'color:orange  font-weight:bold ')
-	console.log(data)
-}
+}// END OF centeringCameraEvent()
 
 function onWindowResize() {
 	camera.aspect = canvas.offsetWidth / canvas.offsetHeight
@@ -267,23 +260,20 @@ function onWindowResize() {
 	let canvasRect = canvas.getBoundingClientRect()
 	stats.dom.style.left = canvasRect.right - 80 + 'px'
 	stats.dom.style.top = canvasRect.bottom - 48 + 'px'
-}
+}// END OF onWindowResize()
 
-// Func that processes all the raycaster to determine where the user click.
+// Func that processes all the raycasting to determine where the user click.
 // Its achieve by using the mouse xy-position and calculating where that its with
-// reference to the camera seeing dimensions.
+// reference to the camera seeing (visual) dimensions.
 function onMouseClick(event) {
-
 	event.preventDefault()
 
 	let listLength = scene.children.length
 	let intersectedModel = scene.children[listLength - 1]
-
 	const array = getMousePosition(event.clientX, event.clientY)  // array[x, y]
 	onClickPosition.fromArray(array)  // object {x, y, isVector2: true}
 
 	intersects = getIntersects(onClickPosition, intersectedModel.children, true)
-
 	if (intersects.length > 0) {
 		vertex = new Vertex(
 			'term_',
@@ -297,28 +287,25 @@ function onMouseClick(event) {
 		myPointer.position.y = vertex.point['y']
 		myPointer.position.z = vertex.point['z']
 	}
-
-} // End of onMouseClick()
+}// END OF onMouseClick()
 
 function getMousePosition(x, y) {
 	let canvasRect = canvas.getBoundingClientRect()
 	let xPosition = (x - canvasRect.left) / canvasRect.width
 	let yPosition = (y - canvasRect.top) / canvasRect.height
-
 	return [xPosition, yPosition]
-}
+}// END OF getMousePosition()
 
+// Func that obtains the obj intersected by the ray
 function getIntersects(point, objects) {
 	mousePosition.set((point.x * 2) - 1, - (point.y * 2) + 1)
 	raycaster.setFromCamera(mousePosition, camera)
-
 	return raycaster.intersectObjects(objects)
-}
+}// END OF getIntersects()
 
-// Converts a point: Vector3 (x,y,z) to a 2D (x,y) position on the screen.
-// The return 2D position is similar to a mouse click event position.
+// Converts a point: vec3.xyz to a point position on the screen.
+// Return 2D position is similar to a mouse click event position.
 function uvMapToMousePoint(vertexPoint) {
-
 	vector.copy(vertexPoint)
 	vector.project(camera)
 	vector.x = Math.round((0.5 + vector.x / 2) * (renderer.domElement.width / window.devicePixelRatio))
@@ -326,26 +313,21 @@ function uvMapToMousePoint(vertexPoint) {
 	return vector
 }
 
+// Func use as event onClick for removing model
 function removeModel() {
 	console.log('Func trigger')
 	let tempModel = scene.getObjectByName('myModel')
 	scene.remove(tempModel)
-}
+}// END OF removeModel()
 
-function requestCORSIfNotSameOrigin(img, url) {
-	if ((new URL(url, window.location.href)).origin !== window.location.origin) {
-		img.crossOrigin = "";
-	}
-}
-
+// Func used to generate vertex ("spheres") on click.
 function createVertex(dataTermID, dotID, faceIndex, point, uv) {
 	return new Vertex(dataTermID, dotID, faceIndex, point, uv)
-}
+}// END OF createVertex()
 
-// Class that contains all the vertex, labeling, and sphere data.
+// Class that contains all the vertex and sphere data.
 // The sphere data auto updates the moment dotID & point update.
 class Vertex {
-
 	constructor(_dataTermID, _dotID, _faceIndex, _point, _uv) {
 		this.dataTermID = _dataTermID
 		this.dotID = _dotID
@@ -354,7 +336,6 @@ class Vertex {
 		this.uv = _uv
 		this.sphere = function () {
 			let sphereColor = 0xfdedce
-
 			let mesh = new THREE.Mesh(
 				new THREE.SphereGeometry(sphereRadius, widthAndHeightSegments, widthAndHeightSegments),
 				new THREE.MeshBasicMaterial({ color: sphereColor, wireframe: false, }),
@@ -366,11 +347,10 @@ class Vertex {
 		}
 	} // End of constructor
 
-	// STATIC
 	static isVariableNull(value) {
 		return value === null
 	}
-} // End of class Vertex
+}
 
 export {
 	vertex, intersects, renderedSpheresGroup,

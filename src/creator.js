@@ -58,7 +58,6 @@ Namespace('Labeling').Creator = (function () {
 		// get canvas context
 		_canvas = document.getElementById('canvas')
 		_context = _canvas.getContext('2d')
-
 		_img = new Image()
 
 		// set up event handlers
@@ -72,13 +71,13 @@ Namespace('Labeling').Creator = (function () {
 			return _setBackground()
 		})
 
-		// Color Wheel ==> custom jQuery
+		// Color Wheel ==>
 		$('.backgroundtile.color').click(function () {
 			if (_qset.options.backgroundTheme !== 'themeSolidColor') {
 				_qset.options.backgroundTheme = 'themeSolidColor'
 				_setBackground()
 			}
-
+			// custom jQuery
 			$("#colorpicker").spectrum("show")
 			$('.sp-coloropt').click(function (e) {
 				if ((e != null) && (e.target != null)) {
@@ -147,17 +146,13 @@ Namespace('Labeling').Creator = (function () {
 		document.querySelector('#header .link').addEventListener('click', _showMiniTitleEditor)
 
 		window.setTitle = function (title) {
-
-			if (title == null) {
-				title = document.getElementById("title").textContent
-			}
+			if (title == null) { title = document.getElementById("title").textContent }
 
 			title = title.replace(/</g, '').replace(/>/g, '')
 
 			document.querySelector('#titlebox').classList.remove('show')
 			document.querySelector('#titlechanger').classList.remove('show')
 			document.querySelector('#backgroundcover').classList.remove('show')
-
 			return document.querySelector('#title').textContent = title || 'My labeling widget'
 		}
 
@@ -204,9 +199,7 @@ Namespace('Labeling').Creator = (function () {
 		return imageWrapper.style.top = _lastImgDimensions.top + 'px'
 	}
 
-	function resizableDone() {
-		_resizeMode(false)
-	}
+	function resizableDone() { _resizeMode(false) }
 
 	function btnChooseImage() {
 		if (flag3D === true) { remove3DLoadedAssets() }
@@ -227,9 +220,8 @@ Namespace('Labeling').Creator = (function () {
 
 	const _makeDraggable = () => // drag all sides of the image for resizing
 		$('#imagewrapper').draggable({
-			drag(event, ui) {
-				return ui
-			}
+			drag(event, ui) { return ui }
+
 		}).resizable({
 			aspectRatio: true,
 			handles: 'n, e, s, w, ne, nw, se, sw'
@@ -289,13 +281,12 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	const initExistingWidget = function (title, widget, qset, version, baseUrl) {
-
 		qset.options.flag3D === false ? initExisting2D(title, widget, qset, version, baseUrl)
 			: initExisting3D(title, widget, qset, version, baseUrl)
 	}
 
 	function initExisting2D(title, widget, qset, version, baseUrl) {
-
+		mediaFileType.push('jpg', 'jpeg', 'gif', 'png')
 		_qset = qset
 
 		_setupCreator()
@@ -311,7 +302,6 @@ Namespace('Labeling').Creator = (function () {
 
 		// load the image resource via JavaScript for rendering later
 		_img.src = url
-
 		let imageWrapper = document.querySelector('#imagewrapper')
 
 		_img.onload = function () {
@@ -363,19 +353,19 @@ Namespace('Labeling').Creator = (function () {
 		_title = title
 
 		flag3D = true
-		// add qset terms to the list
+
 		// legacy support:
 		let questions = qset.items
 		if ((questions[0] != null) && questions[0].items) { questions = questions[0].items }
 
 		reRenderLines()
-		// try placing the return in a setTimeout
+
 		return setTimeout(() => {
 			Array.from(questions).map((item) =>
 				reloadingLabels(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id,
 					item.options.vertex.faceIndex, item.options.vertex.point, item.options.vertex.uv))
 		},
-			1 * (oneSecond / 2))
+			(oneSecond / 2))
 	}
 
 	// draw lines on the board
@@ -395,8 +385,6 @@ Namespace('Labeling').Creator = (function () {
 				const labelx = parseInt(term.style.left)
 				const labely = parseInt(term.style.top)
 
-				// drawLine handles the curves and such  run it for inner
-				// and outer stroke
 				Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff')
 				result.push(Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000'))
 			}
@@ -414,16 +402,14 @@ Namespace('Labeling').Creator = (function () {
 		document.querySelector('#boardcover').style.display = 'none'
 		document.querySelector('#help_adding').style.display = 'none'
 
-		if (flag3D === false) {
-			document.querySelector('#imagewrapper').classList.remove('faded')
-		}
+		if (flag3D === false) { document.querySelector('#imagewrapper').classList.remove('faded') }
 
 		return setTimeout(function () {
 			document.querySelector('#help_moving').style.display = 'block'
 			document.querySelector('#btnMoveResize').style.display = 'block'
 			return document.querySelector('#btnChooseImage').style.display = 'block'
 		}
-			, 1 * (oneSecond / 2))
+			, oneSecond / 2)
 	}
 
 	// generate a term div
@@ -451,32 +437,17 @@ Namespace('Labeling').Creator = (function () {
 
 			if (x < labelAreaHalfWidth) {
 				x -= labelStartOffsetX
+				y < labelAreaHalfHeight ? y += labelStartOffsetY : y -= labelStartOffsetY
 
-				if (y < labelAreaHalfHeight) {
-					y += labelStartOffsetY
-				} else {
-					y -= labelStartOffsetY
-				}
 			} else {
 				x += labelStartOffsetX
-
-				if (y < labelAreaHalfHeight) {
-					y += labelStartOffsetY
-				} else {
-					y -= labelStartOffsetY
-				}
+				y < labelAreaHalfHeight ? y += labelStartOffsetY : y -= labelStartOffsetY
 			}
 
-			if (y < 150) {
-				y = 150
-			}
+			if (y < 150) { y = 150 }
+			if (x > 450) { x = 450 }
+			if (x < 100) { x = 100 }
 
-			if (x > 450) {
-				x = 450
-			}
-			if (x < 100) {
-				x = 100
-			}
 		} else {
 			x = labelX
 			y = labelY
@@ -533,27 +504,17 @@ Namespace('Labeling').Creator = (function () {
 		// make the term movable
 		$(term).draggable({
 			drag(event, ui) {
-				if (ui.position.left < 20) {
-					ui.position.left = 20
-				}
-				if (ui.position.left > 460) {
-					ui.position.left = 460
-				}
-				if (ui.position.top > 505) {
-					ui.position.top = 505
-				}
-				if (ui.position.top < 20) {
-					ui.position.top = 20
-				}
+				if (ui.position.left < 20) { ui.position.left = 20 }
+				if (ui.position.left > 460) { ui.position.left = 460 }
+				if (ui.position.top > 505) { ui.position.top = 505 }
+				if (ui.position.top < 20) { ui.position.top = 20 }
 				_drawBoard()
 				return ui
 			}
 		})
 
 		// make the dot movable
-		$(dot).draggable({
-			drag: _dotDragged
-		})
+		$(dot).draggable({ drag: _dotDragged })
 
 		setTimeout(function () {
 			term.childNodes[0].focus()
@@ -642,13 +603,10 @@ Namespace('Labeling').Creator = (function () {
 				y < labelAreaHalfHeight ? y += labelStartOffsetY : y -= labelStartOffsetY
 			}
 
-			if (y < 150) {
-				y = 150
-			}
+			if (y < 150) { y = 150 }
 
 			x < 100 ? x = 100
-				: x > 450 ? x = 450
-					: true
+				: x > 450 ? x = 450 : true
 
 		} else {
 			x = labelX
@@ -712,19 +670,10 @@ Namespace('Labeling').Creator = (function () {
 		// make the term movable
 		$(term).draggable({
 			drag(event, ui) {
-				if (ui.position.left < 20) {
-					ui.position.left = 20
-				}
-				if (ui.position.left > 460) {
-					ui.position.left = 460
-				}
-				if (ui.position.top > 505) {
-					ui.position.top = 505
-				}
-				if (ui.position.top < 20) {
-					ui.position.top = 20
-				}
-
+				if (ui.position.left < 20) { ui.position.left = 20 }
+				if (ui.position.left > 460) { ui.position.left = 460 }
+				if (ui.position.top > 505) { ui.position.top = 505 }
+				if (ui.position.top < 20) { ui.position.top = 20 }
 				_drawBoard()
 				return ui
 			}
@@ -751,9 +700,6 @@ Namespace('Labeling').Creator = (function () {
 	var _termKeyDown = function (e) {
 		if ((e == null)) { e = window.event }
 
-		// Enter key
-		// block adding line returns
-		// consider Enter Key to mean 'done editing'
 		if (e.keyCode === 13) {
 			// Defocus
 			e.target.blur()
@@ -770,6 +716,7 @@ Namespace('Labeling').Creator = (function () {
 				$(document.getElementById('dot_' + e.target.parentElement.id)).remove()
 				$(e.target.parentElement).remove()
 				return _drawBoard()
+
 			} else {
 				// Defocus
 				e.target.blur()
@@ -799,14 +746,11 @@ Namespace('Labeling').Creator = (function () {
 		}
 		// ie11 has different arguments for clipboardData and makes it a method of window instead of the paste event
 		if (e.clipboardData != null) {
-			({
-				clipboardData
-			} = e)
+			({ clipboardData } = e)
 			clipboardArgument = 'text/plain'
+
 		} else {
-			({
-				clipboardData
-			} = window)
+			({ clipboardData } = window)
 			clipboardArgument = 'Text'
 		}
 
@@ -834,9 +778,8 @@ Namespace('Labeling').Creator = (function () {
 		let minDistEle = null
 
 		for (let dot of Array.from($('.dot'))) {
-			if (dot === event.target) {
-				continue
-			}
+			if (dot === event.target) { continue }
+
 			const dist = Math.sqrt(Math.pow((ui.position.left - $(dot).position().left), 2) + Math.pow((ui.position.top - $(dot).position().top), 2))
 			if (dist < minDist) {
 				minDist = dist
@@ -915,14 +858,12 @@ Namespace('Labeling').Creator = (function () {
 				}
 
 			} else {
-
 				let vertex
 				listOfVertex.forEach((element) => {
 					if (element.dataTermID == dot.id) { vertex = element }
 				})
 
-				// The sphere name is generated based on the dotID automatically, so
-				// there is no need to parse it.
+				// The sphere name is generated based on the dotID automatically
 				item.options = {
 					labelBoxX: parseInt(dot.style.left.replace('px', '')),
 					labelBoxY: parseInt(dot.style.top.replace('px', '')),
@@ -945,11 +886,8 @@ Namespace('Labeling').Creator = (function () {
 
 		if (items.length < 1) { _okToSave = false }
 
-		if (_anchorOpacity.indexOf('frosted') > -1) {
-			_anchorOpacityValue = 0.5
-		} else if (_anchorOpacity.indexOf('transparent') > -1) {
-			_anchorOpacityValue = 0.0
-		}
+		if (_anchorOpacity.indexOf('frosted') > -1) { _anchorOpacityValue = 0.5 }
+		else if (_anchorOpacity.indexOf('transparent') > -1) { anchorOpacityValue = 0.0 }
 
 		_qset.options.flag3D === true ? qsetOption3D(_qset)
 			: flag3D === true ? qsetOption3D(_qset)
@@ -966,7 +904,7 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	function onMediaImportComplete2D(media) {
-
+		mediaFileType.push('jpg', 'jpeg', 'gif', 'png')
 		document.getElementById('canvas').style.display = 'block'
 		document.getElementById('chooseimage').style.display = 'none'
 
@@ -997,17 +935,13 @@ Namespace('Labeling').Creator = (function () {
 		}
 
 		_makeDraggable()
-
 		return true
 	}
 
 	function onMediaImportComplete3D(media) {
 
-		let _anchorOpacityValue = 1.0
-		// document.querySelector('#imagewrapper').style.display = 'none'
-		// document.getElementById('canvas').style.display = 'block'
-		// document.getElementById('chooseimage').style.display = 'none'
 		mediaFileType.push('obj')
+		let _anchorOpacityValue = 1.0
 		const url = Materia.CreatorCore.getMediaUrl(media[0].id)
 
 		_img.src = url
@@ -1123,12 +1057,8 @@ Namespace('Labeling').Creator = (function () {
 	function load3DAsset(assetUrl) {
 		mediaFileType.push('obj')
 		import('./core3D.js')
-			.then((module) => {
-				module.getOBJRender(assetUrl)
-			})
-			.catch((err) => {
-				console.log(err)
-			})
+			.then((module) => { module.getOBJRender(assetUrl) })
+			.catch((err) => { console.log(err) })
 	}
 
 	function removeFromUI() {
@@ -1224,7 +1154,6 @@ Namespace('Labeling').Creator = (function () {
 		for (let index = 0; index != 2; index++) {
 			let termsList = document.getElementById('terms').childNodes
 			termsList.forEach((element, index) => {
-
 				element.parentElement.removeChild(element)
 				renderedSpheresGroup.remove(renderedSpheresGroup.children[index])
 				listOfVertex.splice(index, 1)
@@ -1234,12 +1163,8 @@ Namespace('Labeling').Creator = (function () {
 		reRenderLines()
 
 		import('./core3D.js')
-			.then((module) => {
-				module.removeModel()
-			})
-			.catch((err) => {
-				console.log(err)
-			})
+			.then((module) => { module.removeModel() })
+			.catch((err) => { console.log(err) })
 	}
 
 	// Public members
