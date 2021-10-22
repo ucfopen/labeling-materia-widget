@@ -1,0 +1,174 @@
+{
+    "options": {
+        "backgroundTheme": "themeCorkBoard",
+        "backgroundColor": 2565927,
+        "image": {
+            "id": "https://127.0.0.1/media/GlaLo",
+            "materiaType": "asset"
+        },
+        "flag3D": true
+    },
+    "assets": [],
+    "rand": false,
+    "name": "Building Model",
+    "items": [
+        {
+            "materiaType": "question",
+            "id": "4d863ac8-566a-4652-ab50-2ed9be31bed2",
+            "type": "QA",
+            "created_at": 1633714315,
+            "questions": [
+                {
+                    "text": "sign"
+                }
+            ],
+            "answers": [
+                {
+                    "text": "sign",
+                    "value": 100,
+                    "id": "ab0233a5-e47b-4c66-9870-5a96d376c5ae"
+                }
+            ],
+            "options": {
+                "labelBoxX": 460,
+                "labelBoxY": 41,
+                "endPointX": 327,
+                "endPointY": 213,
+                "vertex": {
+                    "dataTermID": "term_0.312502328639213",
+                    "dotID": "dot_term_0.312502328639213",
+                    "faceIndex": 7,
+                    "point": {
+                        "x": 19.910039876441928,
+                        "y": 49.274091712318,
+                        "z": 6.057155961259571
+                    },
+                    "uv": {
+                        "x": 0.6062428681167933,
+                        "y": 0.9471526461869498
+                    }
+                }
+            },
+            "assets": []
+        },
+        {
+            "materiaType": "question",
+            "id": "56c32d75-7de2-4b8b-80e0-7624d0d907d0",
+            "type": "QA",
+            "created_at": 1633714315,
+            "questions": [
+                {
+                    "text": "store"
+                }
+            ],
+            "answers": [
+                {
+                    "text": "store",
+                    "value": 100,
+                    "id": "7a4ad8da-5dcf-4a13-90b0-bd449f1015b9"
+                }
+            ],
+            "options": {
+                "labelBoxX": 450,
+                "labelBoxY": 267,
+                "endPointX": 343,
+                "endPointY": 303,
+                "vertex": {
+                    "dataTermID": "term_0.20761621536959485",
+                    "dotID": "dot_term_0.20761621536959485",
+                    "faceIndex": 28,
+                    "point": {
+                        "x": 24.558524010914567,
+                        "y": 9.750629689058057,
+                        "z": -3.9227363740534162
+                    },
+                    "uv": {
+                        "x": 0.4239719590541129,
+                        "y": 0.8721040242710425
+                    }
+                }
+            },
+            "assets": []
+        },
+        {
+            "materiaType": "question",
+            "id": "b8aa65a3-11ac-4a28-91fc-2bd13253bd06",
+            "type": "QA",
+            "created_at": 1633714315,
+            "questions": [
+                {
+                    "text": "balcony"
+                }
+            ],
+            "answers": [
+                {
+                    "text": "balcony",
+                    "value": 100,
+                    "id": "6f8b67a9-593f-4d92-b04e-4ca5cc036640"
+                }
+            ],
+            "options": {
+                "labelBoxX": 100,
+                "labelBoxY": 168,
+                "endPointX": 292,
+                "endPointY": 260,
+                "vertex": {
+                    "dataTermID": "term_0.9033178732197678",
+                    "dotID": "dot_term_0.9033178732197678",
+                    "faceIndex": 233,
+                    "point": {
+                        "x": 5.097707060567969,
+                        "y": 24.01025792473669,
+                        "z": -6.6012370548515396
+                    },
+                    "uv": {
+                        "x": 0.5203941218304537,
+                        "y": 0.17357686584310844
+                    }
+                }
+            },
+            "assets": []
+        },
+        {
+            "materiaType": "question",
+            "id": "b0ecc37f-e176-441b-842f-d0a7c7c52e0a",
+            "type": "QA",
+            "created_at": 1633714315,
+            "questions": [
+                {
+                    "text": "road"
+                }
+            ],
+            "answers": [
+                {
+                    "text": "road",
+                    "value": 100,
+                    "id": "9aab1fdc-7157-4de2-aa7d-49555be22cac"
+                }
+            ],
+            "options": {
+                "labelBoxX": 20,
+                "labelBoxY": 343,
+                "endPointX": 277,
+                "endPointY": 391,
+                "vertex": {
+                    "dataTermID": "term_0.4345965835953045",
+                    "dotID": "dot_term_0.4345965835953045",
+                    "faceIndex": 11,
+                    "point": {
+                        "x": 10.63788078471517,
+                        "y": 0.7297452475477488,
+                        "z": 39.58384613761973
+                    },
+                    "uv": {
+                        "x": 0.755730668442918,
+                        "y": 0.7013152268928655
+                    }
+                }
+            },
+            "assets": []
+        }
+    ],
+    "version": "2",
+    "id": "161"
+}
