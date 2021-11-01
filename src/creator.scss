@@ -541,7 +541,7 @@ h1 {
 	background-image: -o-linear-gradient(top, #ffbc78, #ff8f11);
 	background-image: -moz-linear-gradient(top, #ffbc78, #ff8f11);
 	background-image: -ms-linear-gradient(top, #ffbc78, #ff8f11);
-	border:#ff8f11 1px solid;
+	border:#ff8f11 0px solid;
 }
 
 .spacing {
@@ -656,4 +656,33 @@ h1 {
 	margin-right: 2px;
 	margin-left: 4px;
 	cursor: pointer;
+}
+
+.rotateOrLabel {
+	font-size: 24px;
+	font-weight: bold;
+	text-shadow: #444 2px 2px;
+	background-color: $green;
+	padding: 10px 25px 10px 25px;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+
+
+	z-index: 10000;
+}
+
+.topControls {
+	font-size: 24px;
+	font-weight: bold;
+	text-shadow: #444 2px 2px;
+	text-align: center;
+	background-color: $green;
+	padding: 10px;
+	position: absolute;
+	bottom: 2px;
+	left: 0;
+	right: 0;
+
+	z-index: 10000;
 }

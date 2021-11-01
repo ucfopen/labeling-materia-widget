@@ -7,7 +7,6 @@ import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/thr
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/controls/OrbitControls.js'
 import { MTLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/MTLLoader.js'
 import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/OBJLoader.js'
-import Stats from 'https://unpkg.com/three@0.124.0/examples/jsm/libs/stats.module.js'
 
 // Variables that can
 let sceneColor = 0xdddddd  // control the background color of a scene,
@@ -34,6 +33,7 @@ const canvas = document.getElementById('board')
 const canvasWidth = canvas.offsetWidth  // data value = 605
 const canvasHeight = canvas.offsetHeight  // data value = 551
 
+
 // ThreeJs variables that control and help the scene, camera position, rendering, and
 // display of model and its texture loaders.
 let mtlLoader = new MTLLoader() // NOT USE AT THE MOMENT
@@ -50,13 +50,12 @@ const onClickPosition = new THREE.Vector2()
 const raycaster = new THREE.Raycaster()
 let intersects
 
-let fov = 45
+const fov = 45
 const aspect = canvasWidth / canvasHeight
-let near = 0.1
-let far = 1000
+const near = 0.1
+const far = 1000
+const cameraRotationSpeed = 3; // Used for arrow keys
 
-const stats = Stats()
-let canvasRect = canvas.getBoundingClientRect()
 const scene = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias })
@@ -80,11 +79,6 @@ function main() {
 	renderer.domElement.id = 'my3DCanvas'
 	canvas.appendChild(renderer.domElement)
 
-	stats.dom.id = 'statsBlock'
-	stats.dom.style.left = canvasRect.right - 80 + 'px'
-	stats.dom.style.top = canvasRect.bottom - 48 + 'px'
-	canvas.appendChild(stats.dom)
-
 	scene.add(renderedSpheresGroup)
 	scene.add(myPointer)
 	scene.add(camera)
@@ -95,12 +89,88 @@ function main() {
 
 // Function that re-renders the models ideally every fps
 function render() {
-	stats.update()
-
 	controls.update()
 	requestAnimationFrame(render)
 	renderer.render(scene, camera)
 } // END OF render()
+
+// Arrow keys rotate the camera.
+function arrowKeys() {
+	console.log('trigger')
+	document.onkeydown = (e) => {
+
+		let radiantIncrement = (Math.PI * cameraRotationSpeed) / 180
+		switch (e.keyCode) {
+			case 37:
+				rightCameraRotation(radiantIncrement)
+				break;
+			case 38:
+				downCameraRotation(radiantIncrement)
+				break;
+			case 39:
+				leftCameraRotation(radiantIncrement)
+				break;
+			case 40:
+				upCameraRotation(radiantIncrement)
+				break;
+
+			default:
+				break;
+		}
+	}
+}
+
+function leftCameraRotation(rotationAngle) {
+	let cameraPointX = camera.position.x
+	let cameraPointZ = camera.position.z
+
+	camera.position.x = cameraPointX * Math.cos(rotationAngle) + cameraPointZ * Math.sin(rotationAngle)
+	camera.position.z = cameraPointZ * Math.cos(rotationAngle) - cameraPointX * Math.sin(rotationAngle)
+	camera.lookAt(objBoxCenter)
+
+	controls.maxDistance = objBoxSize * 10
+	controls.target.copy(objBoxCenter)
+	console.log('left Key')
+}
+
+function rightCameraRotation(rotationAngle) {
+	let cameraPointX = camera.position.x
+	let cameraPointZ = camera.position.z
+
+	camera.position.x = cameraPointX * Math.cos(rotationAngle) - cameraPointZ * Math.sin(rotationAngle)
+	camera.position.z = cameraPointZ * Math.cos(rotationAngle) + cameraPointX * Math.sin(rotationAngle)
+	camera.lookAt(objBoxCenter)
+
+	controls.maxDistance = objBoxSize * 10
+	controls.target.copy(objBoxCenter)
+	console.log('right Key')
+}
+
+function upCameraRotation(rotationAngle) {
+	let cameraPointY = camera.position.y
+	let cameraPointZ = camera.position.z
+
+	camera.position.y = cameraPointY * Math.cos(rotationAngle) - cameraPointZ * Math.sin(rotationAngle)
+	camera.position.z = cameraPointZ * Math.cos(rotationAngle) + cameraPointY * Math.sin(rotationAngle)
+	camera.lookAt(objBoxCenter)
+
+	controls.maxDistance = objBoxSize * 10
+	controls.target.copy(objBoxCenter)
+	console.log('up Key')
+}
+
+function downCameraRotation(rotationAngle) {
+	let cameraPointY = camera.position.y
+	let cameraPointZ = camera.position.z
+
+	camera.position.y = cameraPointY * Math.cos(rotationAngle) + cameraPointZ * Math.sin(rotationAngle)
+	camera.position.z = cameraPointZ * Math.cos(rotationAngle) - cameraPointY * Math.sin(rotationAngle)
+	camera.lookAt(objBoxCenter)
+
+	controls.maxDistance = objBoxSize * 10
+	controls.target.copy(objBoxCenter)
+	console.log('down Key')
+}
 
 function getSphere() {
 	let mesh = new THREE.Mesh(
@@ -174,7 +244,8 @@ function getOBJRender(objFileStr) {
 		frameArea(objBoxSize * 1.2, objBoxSize, objBoxCenter)
 		controls.maxDistance = objBoxSize * 10
 		controls.target.copy(objBoxCenter)
-		controls.update()
+
+		// arrowKeys()
 	},
 		onProgress,
 		onError
@@ -256,10 +327,6 @@ function onWindowResize() {
 	camera.aspect = canvas.offsetWidth / canvas.offsetHeight
 	camera.updateProjectionMatrix()
 	renderer.setSize(canvas.offsetWidth, canvas.offsetHeight)
-
-	let canvasRect = canvas.getBoundingClientRect()
-	stats.dom.style.left = canvasRect.right - 80 + 'px'
-	stats.dom.style.top = canvasRect.bottom - 48 + 'px'
 }// END OF onWindowResize()
 
 // Func that processes all the raycasting to determine where the user click.
@@ -355,4 +422,5 @@ class Vertex {
 export {
 	vertex, intersects, renderedSpheresGroup,
 	uvMapToMousePoint, centeringCameraEvent, createVertex, getOBJRender, removeModel,
+	leftCameraRotation, rightCameraRotation, upCameraRotation, downCameraRotation
 }

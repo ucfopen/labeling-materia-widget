@@ -1,3 +1,4 @@
+// Temporarily disable while using MWDK
 
 Namespace('Labeling').Creator = (function () {
 
@@ -27,6 +28,12 @@ Namespace('Labeling').Creator = (function () {
 	let areLinesHided = true
 	var uvMapToMousePoint
 	let oneSecond = 1000
+
+	let cameraRotationSpeed = 3
+	let leftCameraRotation
+	let rightCameraRotation
+	let upCameraRotation
+	let downCameraRotation
 
 	let mediaFileType = []
 
@@ -141,7 +148,7 @@ Namespace('Labeling').Creator = (function () {
 		document.querySelector('#btnMoveResizeCancel').addEventListener('click', resizableCancel)
 
 		// Events pertaining to the title.
-		document.querySelector('#btn-enter-title').addEventListener('click', btnTitle)  // Temporarily disable while using MWDK
+		// document.querySelector('#btn-enter-title').addEventListener('click', btnTitle)  // Temporarily disable while using MWDK
 		document.querySelector('#title').addEventListener('click', _showMiniTitleEditor)
 		document.querySelector('#header .link').addEventListener('click', _showMiniTitleEditor)
 
@@ -945,7 +952,6 @@ Namespace('Labeling').Creator = (function () {
 		const url = Materia.CreatorCore.getMediaUrl(media[0].id)
 
 		_img.src = url
-		console.log('onMediaImportComplete3D url:', url)
 
 		load3DAsset(url)
 		_makeDraggable()
@@ -1018,9 +1024,12 @@ Namespace('Labeling').Creator = (function () {
 	// set the 3D UI.
 	function setUp3DEnvironment() {
 		removeFromUI()
+		optionsBox()
 
-		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'controls')
+		document.getElementById('btnChooseImage').innerHTML = 'Choose a different model'
+
 		let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'controls')
+		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'controls')
 
 		let loadCore3D = document.createElement("script")
 		loadCore3D.src = 'core3D.js'
@@ -1034,6 +1043,11 @@ Namespace('Labeling').Creator = (function () {
 			.then((module) => {
 				uvMapToMousePoint = module.uvMapToMousePoint
 				renderedSpheresGroup = module.renderedSpheresGroup
+				leftCameraRotation = module.leftCameraRotation
+				rightCameraRotation = module.rightCameraRotation
+				upCameraRotation = module.upCameraRotation
+				downCameraRotation = module.downCameraRotation
+
 				return module
 			})
 			.then((module) => {
@@ -1044,6 +1058,7 @@ Namespace('Labeling').Creator = (function () {
 
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
 				btnCenterCamera.addEventListener('click', reRenderLines)
+				arrowKeys()
 			})
 			.catch((err) => {
 				console.log(err)
@@ -1052,6 +1067,9 @@ Namespace('Labeling').Creator = (function () {
 		disableEvents()
 		enable3DEvents()
 
+		let tagBottom = document.getElementsByClassName('rotateOrLabel')[0]
+		tagBottom.addEventListener('click', optionsBoxActions)
+
 	} // End of Environment3D
 
 	function load3DAsset(assetUrl) {
@@ -1059,6 +1077,46 @@ Namespace('Labeling').Creator = (function () {
 		import('./core3D.js')
 			.then((module) => { module.getOBJRender(assetUrl) })
 			.catch((err) => { console.log(err) })
+	}
+
+	// Arrow keys rotate the camera.
+	function arrowKeys() {
+		console.log('trigger')
+		document.onkeydown = (e) => {
+			let radiantIncrement = (Math.PI * cameraRotationSpeed) / 180
+			reRenderLines()
+			switch (e.keyCode) {
+				case 37:
+					rightCameraRotation(radiantIncrement)
+
+					break;
+				case 38:
+					downCameraRotation(radiantIncrement)
+
+					break;
+				case 39:
+					leftCameraRotation(radiantIncrement)
+
+					break;
+				case 40:
+					upCameraRotation(radiantIncrement)
+
+					break;
+
+				default:
+					break;
+			}
+		}
+	}
+
+	function mouseClickDownHideLines() {
+		document.getElementById('canvas').style.display = 'none'
+		console.log('mouse click down.')
+	}
+
+	function mouseClickUpHideLines() {
+		document.getElementById('canvas').style.display = 'inline'
+		console.log('mouse click up.')
 	}
 
 	function removeFromUI() {
@@ -1080,6 +1138,32 @@ Namespace('Labeling').Creator = (function () {
 		return btn
 	}
 
+	function optionsBox() {
+		let modeIdBox = document.createElement('div')
+		modeIdBox.classList.add('rotateOrLabel')
+		modeIdBox.innerHTML = 'Now Rotating'
+
+		const board = document.getElementById('board')
+		board.appendChild(modeIdBox)
+
+		let modeIdBox2 = document.createElement('div')
+		modeIdBox2.classList.add('topControls')
+		modeIdBox2.innerHTML = 'Now Rotating'
+
+		const controlNodeList = document.getElementById('controls')
+		controlNodeList.insertBefore(modeIdBox2, controlNodeList.children[0])
+	}
+
+	function optionsBoxActions() {
+		let modeIdBox = document.getElementsByClassName('rotateOrLabel')[0]
+		if (modeIdBox.offsetHeight < 50) {
+			modeIdBox.style.top = 0 + 'px'
+		}
+		else {
+			modeIdBox.style.top = ''
+		}
+	}
+
 	function disableEvents() {
 		document.querySelector('#btnMoveResize').removeEventListener('click', resizable)
 		document.querySelector('#btnMoveResizeCancel').removeEventListener('click', resizableCancel)
@@ -1094,6 +1178,8 @@ Namespace('Labeling').Creator = (function () {
 	function addingLabelsBtnEffect() {
 		let element = document.getElementById('canvas')
 		let btn = document.getElementById('btnMoveResize')
+		let tagTop = document.getElementsByClassName('topControls')[0]
+		let tagBottom = document.getElementsByClassName('rotateOrLabel')[0]
 
 		if (areLinesHided) {
 			if (areWeLabeling) {
@@ -1104,6 +1190,9 @@ Namespace('Labeling').Creator = (function () {
 				element.style.pointerEvents = 'auto'
 				element.addEventListener('click', _addTerm, false)
 
+				tagTop.innerHTML = 'Labeling'
+				tagBottom.innerHTML = 'Labeling'
+
 			} else {
 				reRenderLines()
 				btn.value = "Rotating Model"
@@ -1111,6 +1200,9 @@ Namespace('Labeling').Creator = (function () {
 				areWeLabeling = true
 				element.style.pointerEvents = 'none'
 				element.removeEventListener('click', _addTerm, false)
+
+				tagTop.innerHTML = 'Rotating'
+				tagBottom.innerHTML = 'Rotating'
 			}
 		}
 	}
@@ -1150,7 +1242,6 @@ Namespace('Labeling').Creator = (function () {
 
 	// removes labels, lines, spheres, and model from the canvas.
 	function remove3DLoadedAssets() {
-
 		for (let index = 0; index != 2; index++) {
 			let termsList = document.getElementById('terms').childNodes
 			termsList.forEach((element, index) => {
