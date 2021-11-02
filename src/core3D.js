@@ -3,6 +3,9 @@
 // WebGL2 => https://webgl2fundamentals.org/
 // [for a deeper understanding of what the library does in the background]
 
+// For the future, to add event listeners for three js use threex
+// https://github.com/jeromeetienne/threex.domevents
+
 import * as THREE from 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/three.module.min.js'
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/controls/OrbitControls.js'
 import { MTLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/MTLLoader.js'
@@ -33,7 +36,6 @@ const canvas = document.getElementById('board')
 const canvasWidth = canvas.offsetWidth  // data value = 605
 const canvasHeight = canvas.offsetHeight  // data value = 551
 
-
 // ThreeJs variables that control and help the scene, camera position, rendering, and
 // display of model and its texture loaders.
 let mtlLoader = new MTLLoader() // NOT USE AT THE MOMENT
@@ -54,12 +56,16 @@ const fov = 45
 const aspect = canvasWidth / canvasHeight
 const near = 0.1
 const far = 1000
-const cameraRotationSpeed = 3; // Used for arrow keys
+const cameraRotationSpeed = 50; // Used for arrow keys
 
 const scene = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias })
 const controls = new OrbitControls(camera, renderer.domElement)
+controls.enablePan = false
+controls.rotateSpeed = 1
+controls.enableDamping = true
+controls.dampingFactor = 0.5
 
 main()
 render()
@@ -94,82 +100,18 @@ function render() {
 	renderer.render(scene, camera)
 } // END OF render()
 
-// Arrow keys rotate the camera.
-function arrowKeys() {
-	console.log('trigger')
-	document.onkeydown = (e) => {
-
-		let radiantIncrement = (Math.PI * cameraRotationSpeed) / 180
-		switch (e.keyCode) {
-			case 37:
-				rightCameraRotation(radiantIncrement)
-				break;
-			case 38:
-				downCameraRotation(radiantIncrement)
-				break;
-			case 39:
-				leftCameraRotation(radiantIncrement)
-				break;
-			case 40:
-				upCameraRotation(radiantIncrement)
-				break;
-
-			default:
-				break;
-		}
-	}
-}
-
-function leftCameraRotation(rotationAngle) {
+function horizontalCameraRotation(rotationAngle) {
 	let cameraPointX = camera.position.x
 	let cameraPointZ = camera.position.z
-
 	camera.position.x = cameraPointX * Math.cos(rotationAngle) + cameraPointZ * Math.sin(rotationAngle)
 	camera.position.z = cameraPointZ * Math.cos(rotationAngle) - cameraPointX * Math.sin(rotationAngle)
-	camera.lookAt(objBoxCenter)
-
-	controls.maxDistance = objBoxSize * 10
-	controls.target.copy(objBoxCenter)
-	console.log('left Key')
 }
 
-function rightCameraRotation(rotationAngle) {
-	let cameraPointX = camera.position.x
-	let cameraPointZ = camera.position.z
-
-	camera.position.x = cameraPointX * Math.cos(rotationAngle) - cameraPointZ * Math.sin(rotationAngle)
-	camera.position.z = cameraPointZ * Math.cos(rotationAngle) + cameraPointX * Math.sin(rotationAngle)
-	camera.lookAt(objBoxCenter)
-
-	controls.maxDistance = objBoxSize * 10
-	controls.target.copy(objBoxCenter)
-	console.log('right Key')
-}
-
-function upCameraRotation(rotationAngle) {
+function verticalCameraRotation(rotationAngle) {
 	let cameraPointY = camera.position.y
 	let cameraPointZ = camera.position.z
-
-	camera.position.y = cameraPointY * Math.cos(rotationAngle) - cameraPointZ * Math.sin(rotationAngle)
-	camera.position.z = cameraPointZ * Math.cos(rotationAngle) + cameraPointY * Math.sin(rotationAngle)
-	camera.lookAt(objBoxCenter)
-
-	controls.maxDistance = objBoxSize * 10
-	controls.target.copy(objBoxCenter)
-	console.log('up Key')
-}
-
-function downCameraRotation(rotationAngle) {
-	let cameraPointY = camera.position.y
-	let cameraPointZ = camera.position.z
-
 	camera.position.y = cameraPointY * Math.cos(rotationAngle) + cameraPointZ * Math.sin(rotationAngle)
 	camera.position.z = cameraPointZ * Math.cos(rotationAngle) - cameraPointY * Math.sin(rotationAngle)
-	camera.lookAt(objBoxCenter)
-
-	controls.maxDistance = objBoxSize * 10
-	controls.target.copy(objBoxCenter)
-	console.log('down Key')
 }
 
 function getSphere() {
@@ -242,10 +184,9 @@ function getOBJRender(objFileStr) {
 		// Centralize the camera on the model
 		getObjDimensions(obj)
 		frameArea(objBoxSize * 1.2, objBoxSize, objBoxCenter)
-		controls.maxDistance = objBoxSize * 10
+		controls.minDistance = objBoxSize / 2
+		controls.maxDistance = objBoxSize * 5
 		controls.target.copy(objBoxCenter)
-
-		// arrowKeys()
 	},
 		onProgress,
 		onError
@@ -318,7 +259,6 @@ function scaleUpObj(obj) {
 function centeringCameraEvent() {
 	camera.position.copy(cameraInitialPosition)
 	camera.lookAt(objBoxCenter.x, objBoxCenter.y, objBoxCenter.z)
-	controls.maxDistance = objBoxSize * 10
 	controls.target.copy(objBoxCenter)
 	controls.update()
 }// END OF centeringCameraEvent()
@@ -422,5 +362,5 @@ class Vertex {
 export {
 	vertex, intersects, renderedSpheresGroup,
 	uvMapToMousePoint, centeringCameraEvent, createVertex, getOBJRender, removeModel,
-	leftCameraRotation, rightCameraRotation, upCameraRotation, downCameraRotation
+	horizontalCameraRotation, verticalCameraRotation,
 }

@@ -18,26 +18,22 @@ Namespace('Labeling').Creator = (function () {
 	// store image dimensions in case the user cancels the resize
 	let _lastImgDimensions = {}
 
+	const _defaultLabel = '[label title]'
+
+	// class Vertex located in core3D, one of its parameters is function spheres.
 	// variables used through the code to manage the 3D aspect of the code
 	let flag3D = false
-	// A Class Vertex construct can be seen in core3D.js, there are 5 parameters and one
-	// one function parameter called spheres.
-	let listOfVertex = []  // contains each vertex.
-	let renderedSpheresGroup  // render group containing spheres of each vertex.
 	let areWeLabeling = true
 	let areLinesHided = true
-	var uvMapToMousePoint
-	let oneSecond = 1000
-
-	let cameraRotationSpeed = 3
-	let leftCameraRotation
-	let rightCameraRotation
-	let upCameraRotation
-	let downCameraRotation
-
+	const oneSecond = 1000
+	const cameraRotationSpeed = 2.5
+	let listOfVertex = []  // contains each vertex.
+	let renderedSpheresGroup = null// render group containing spheres of each vertex.
+	var uvMapToMousePoint = null
+	let horizontalCameraRotation = null
+	let verticalCameraRotation = null
+	let mouseDownFireIntervals = 0
 	let mediaFileType = []
-
-	const _defaultLabel = '[label title]'
 
 	// have to change function to async/await to be able read flag3D
 	const initNewWidget = function () {
@@ -364,8 +360,6 @@ Namespace('Labeling').Creator = (function () {
 		// legacy support:
 		let questions = qset.items
 		if ((questions[0] != null) && questions[0].items) { questions = questions[0].items }
-
-		reRenderLines()
 
 		return setTimeout(() => {
 			Array.from(questions).map((item) =>
@@ -1028,8 +1022,11 @@ Namespace('Labeling').Creator = (function () {
 
 		document.getElementById('btnChooseImage').innerHTML = 'Choose a different model'
 
-		let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'controls')
+		let tagBottom = document.getElementsByClassName('rotateOrLabel')[0]
+		tagBottom.addEventListener('click', optionsBoxActions)
+
 		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'controls')
+		let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'controls')
 
 		let loadCore3D = document.createElement("script")
 		loadCore3D.src = 'core3D.js'
@@ -1043,34 +1040,29 @@ Namespace('Labeling').Creator = (function () {
 			.then((module) => {
 				uvMapToMousePoint = module.uvMapToMousePoint
 				renderedSpheresGroup = module.renderedSpheresGroup
-				leftCameraRotation = module.leftCameraRotation
-				rightCameraRotation = module.rightCameraRotation
-				upCameraRotation = module.upCameraRotation
-				downCameraRotation = module.downCameraRotation
-
+				horizontalCameraRotation = module.horizontalCameraRotation
+				verticalCameraRotation = module.verticalCameraRotation
 				return module
 			})
 			.then((module) => {
-				let my3DCanvas = document.getElementById('my3DCanvas')
-				my3DCanvas.addEventListener('wheel', reRenderLines)
-				my3DCanvas.addEventListener('mousemove', reRenderLines)
-				my3DCanvas.addEventListener('touchmove', reRenderLines)
-
-				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
-				btnCenterCamera.addEventListener('click', reRenderLines)
 				arrowKeys()
+				startMouseDownFire()
+				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
 			})
 			.catch((err) => {
 				console.log(err)
 			})
 
-		disableEvents()
+		disable2DEvents()
 		enable3DEvents()
-
-		let tagBottom = document.getElementsByClassName('rotateOrLabel')[0]
-		tagBottom.addEventListener('click', optionsBoxActions)
-
 	} // End of Environment3D
+
+	// Functionn that
+	function startMouseDownFire() {
+		reRenderLines()
+		mouseDownFireIntervals = setInterval(reRenderLines, 4) // 4 ms is the fastest setInterval can trigger.
+		console.log('start mouseDownFireIntervals = ', mouseDownFireIntervals)
+	}
 
 	function load3DAsset(assetUrl) {
 		mediaFileType.push('obj')
@@ -1084,39 +1076,27 @@ Namespace('Labeling').Creator = (function () {
 		console.log('trigger')
 		document.onkeydown = (e) => {
 			let radiantIncrement = (Math.PI * cameraRotationSpeed) / 180
-			reRenderLines()
 			switch (e.keyCode) {
 				case 37:
-					rightCameraRotation(radiantIncrement)
-
+					horizontalCameraRotation(radiantIncrement) // Left
 					break;
+
 				case 38:
-					downCameraRotation(radiantIncrement)
-
+					verticalCameraRotation(radiantIncrement) // Up
 					break;
+
 				case 39:
-					leftCameraRotation(radiantIncrement)
-
+					horizontalCameraRotation(-radiantIncrement) // Right
 					break;
-				case 40:
-					upCameraRotation(radiantIncrement)
 
+				case 40:
+					verticalCameraRotation(-radiantIncrement) // Down
 					break;
 
 				default:
 					break;
 			}
 		}
-	}
-
-	function mouseClickDownHideLines() {
-		document.getElementById('canvas').style.display = 'none'
-		console.log('mouse click down.')
-	}
-
-	function mouseClickUpHideLines() {
-		document.getElementById('canvas').style.display = 'inline'
-		console.log('mouse click up.')
 	}
 
 	function removeFromUI() {
@@ -1164,7 +1144,7 @@ Namespace('Labeling').Creator = (function () {
 		}
 	}
 
-	function disableEvents() {
+	function disable2DEvents() {
 		document.querySelector('#btnMoveResize').removeEventListener('click', resizable)
 		document.querySelector('#btnMoveResizeCancel').removeEventListener('click', resizableCancel)
 		document.querySelector('#btnMoveResizeDone').removeEventListener('click', resizableDone)
@@ -1183,7 +1163,6 @@ Namespace('Labeling').Creator = (function () {
 
 		if (areLinesHided) {
 			if (areWeLabeling) {
-				reRenderLines()
 				btn.value = "Adding Labels"
 				btn.classList.toggle('orange')
 				areWeLabeling = false
@@ -1194,7 +1173,6 @@ Namespace('Labeling').Creator = (function () {
 				tagBottom.innerHTML = 'Labeling'
 
 			} else {
-				reRenderLines()
 				btn.value = "Rotating Model"
 				btn.classList.toggle('orange')
 				areWeLabeling = true
@@ -1213,13 +1191,11 @@ Namespace('Labeling').Creator = (function () {
 		let btn = document.getElementById('toggleLines')
 
 		if (areLinesHided) {
-			reRenderLines()
 			btn.classList.toggle('orange')
 			element.style.display = 'none'
 			areLinesHided = false
 
 		} else {
-			reRenderLines()
 			btn.classList.toggle('orange')
 			element.style.display = 'inline'
 			areLinesHided = true
@@ -1250,8 +1226,6 @@ Namespace('Labeling').Creator = (function () {
 				listOfVertex.splice(index, 1)
 			})
 		}
-
-		reRenderLines()
 
 		import('./core3D.js')
 			.then((module) => { module.removeModel() })
