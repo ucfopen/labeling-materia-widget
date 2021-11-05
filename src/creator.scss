@@ -658,22 +658,8 @@ h1 {
 	cursor: pointer;
 }
 
-.rotateOrLabel {
-	font-size: 24px;
-	font-weight: bold;
-	text-shadow: #444 2px 2px;
-	background-color: $green;
-	padding: 10px 25px 10px 25px;
-	position: absolute;
-	bottom: 0;
-	right: 0;
-
-
-	z-index: 10000;
-}
-
-.topControls {
-	font-size: 24px;
+.optionsBox {
+	font-size: 20px;
 	font-weight: bold;
 	text-shadow: #444 2px 2px;
 	text-align: center;
@@ -683,6 +669,14 @@ h1 {
 	bottom: 2px;
 	left: 0;
 	right: 0;
-
 	z-index: 10000;
+}
+
+.optionsMenu {
+	// font-size: 20px;
+}
+
+.optionsBox .animate {
+	transform: translate3d(0px, 100%);
+	-webkit-transition: transform 1s ease;
 }

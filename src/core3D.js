@@ -16,13 +16,16 @@ let sceneColor = 0xdddddd  // control the background color of a scene,
 let setAntialias = true  // increase or decrease performance,
 let showWireframe = true  // remove the texture to see the line connections between vertices.
 
-// Variables that control the appearance of the sphere that displays the last position where
-// the user clicked on.
-let sphereColor = 0xffb84d
-let sphereRadius = 4  // size of all spheres even in the CLASS Vertex.
+// variables that define a spheres dimensions.
+let sphereRadius = 1  // size of all spheres even in the CLASS Vertex.
 let myPointerSize = sphereRadius + 0.5  // size of last clicked sphere.
 let widthAndHeightSegments = 16
-let myPointer = getSphere()
+let sphereScale = null
+
+let myPointerPosition = { x: 0, y: 0, z: 0 }
+let myPointer = getSphere(0xffb84d, 'myPointer', myPointerPosition)
+
+let highlightCircle = getSphere(0x27c0ff, 'myHighlightCircle', myPointerPosition)
 
 // Variable used to create and keep track of vertices ["data generated"] from user ones
 // they click to create a label.
@@ -56,16 +59,11 @@ const fov = 45
 const aspect = canvasWidth / canvasHeight
 const near = 0.1
 const far = 1000
-const cameraRotationSpeed = 50; // Used for arrow keys
 
 const scene = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias })
 const controls = new OrbitControls(camera, renderer.domElement)
-controls.enablePan = false
-controls.rotateSpeed = 1
-controls.enableDamping = true
-controls.dampingFactor = 0.5
 
 main()
 render()
@@ -79,6 +77,11 @@ function main() {
 	camera.position.set(0, 0, 1)
 	camera.add(getDirectionalLight(1))
 
+	controls.enablePan = false
+	controls.rotateSpeed = 0.5
+	controls.enableDamping = true
+	controls.dampingFactor = 0.5
+
 	renderer.name = 'myRenderer'
 	renderer.setPixelRatio(window.devicePixelRatio)
 	renderer.setSize(canvasWidth, canvasHeight)
@@ -86,7 +89,8 @@ function main() {
 	canvas.appendChild(renderer.domElement)
 
 	scene.add(renderedSpheresGroup)
-	scene.add(myPointer)
+	// scene.add(myPointer)
+	scene.add(highlightCircle)
 	scene.add(camera)
 
 	window.addEventListener('resize', onWindowResize)
@@ -114,15 +118,15 @@ function verticalCameraRotation(rotationAngle) {
 	camera.position.z = cameraPointZ * Math.cos(rotationAngle) - cameraPointY * Math.sin(rotationAngle)
 }
 
-function getSphere() {
+function getSphere(color, name, position) {
 	let mesh = new THREE.Mesh(
 		new THREE.SphereGeometry(myPointerSize, widthAndHeightSegments, widthAndHeightSegments),
-		new THREE.MeshBasicMaterial({ color: sphereColor, wireframe: false, }),
+		new THREE.MeshBasicMaterial({ color: color, wireframe: false, }),
 	)
 
-	mesh.name = 'myPointer'
+	mesh.name = name
+	mesh.position.set(position['x'], position['y'], position['z'])
 	mesh.castShadow = true
-	mesh.position.set(0, 0, 0)
 	return mesh
 }// END OF getSphere()
 
@@ -170,23 +174,30 @@ function getOBJRender(objFileStr) {
 		let dimensionsTotal = resizePointer()
 		let smallestAxis = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.y : dimensionsTotal.x
 		let pointerRadius = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.x * 0.1 : dimensionsTotal.y * 0.1
-		let properSize = (smallestAxis >= 60 && pointerRadius >= 4) ? false : true
-
+		let properSize = (smallestAxis >= 20 && pointerRadius >= 1) ? false : true
+		let scaleIncrement = null
 		for (let index = 1; properSize; index++) {
+			scaleIncrement = index
 			scaleUpObj(obj)
 			getObjDimensions(obj)
 			dimensionsTotal = resizePointer()
 			smallestAxis = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.y : dimensionsTotal.x
 			pointerRadius = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.x * 0.1 : dimensionsTotal.y * 0.1
-			properSize = (smallestAxis >= 60 && pointerRadius >= 4) ? false : true
+			properSize = (smallestAxis >= 20 && pointerRadius >= 1) ? false : true
 		}
 
+		// myPointer = getSphere(0xffb84d, 'myPointer', myPointerPosition)
+
+		// sphereScale =
 		// Centralize the camera on the model
 		getObjDimensions(obj)
 		frameArea(objBoxSize * 1.2, objBoxSize, objBoxCenter)
 		controls.minDistance = objBoxSize / 2
 		controls.maxDistance = objBoxSize * 5
 		controls.target.copy(objBoxCenter)
+		console.log('objBoxCenter: ', objBoxCenter)
+		console.log('objBoxDimensions: ', objBoxDimensions)
+		console.log('dimensionsTotal: ', dimensionsTotal)
 	},
 		onProgress,
 		onError
@@ -200,14 +211,14 @@ function getMTLandOBJRender(mtlFileStr, objFileStr) { // NOT USED AT THE MOMENT
 		objLoader.setMaterials(mtl)
 		getOBJRender(objFileStr)
 	})
-} // END OF getMTLandOBJRender()
+}
 
 function getObjDimensions(obj) {
 	// ["IMAGINARY"] Create invisible box with model dimension of width, height, and length.
 	objBoxDimensions.setFromObject(obj)
 	objBoxSize = objBoxDimensions.getSize(new THREE.Vector3()).length()
 	objBoxCenter = objBoxDimensions.getCenter(new THREE.Vector3())
-}// END OF getObjDimensions
+}
 
 function frameArea(sizeToFitOnScreen, objBoxSize, objBoxCenter) {
 	const halfSizeToFitOnScreen = sizeToFitOnScreen * 0.5
@@ -226,34 +237,39 @@ function frameArea(sizeToFitOnScreen, objBoxSize, objBoxCenter) {
 	camera.lookAt(objBoxCenter.x, objBoxCenter.y, objBoxCenter.z)
 
 	cameraInitialPosition.copy(camera.position)
-}// END OF frameArea()
+}
 
 // A sphere radius min is 1, so if model yTotal or xTotal is 2 then the pointer
 // will end up covering half of the model.
 function resizePointer() {
 	let xTotal
 	let yTotal
+	let zTotal
 	// Max will always be closer to the positive axis
 	let xMax = objBoxDimensions.max.x
 	let yMax = objBoxDimensions.max.y
+	let zMax = objBoxDimensions.max.z
 
 	// Min will always be closer to the negative axis
 	let xMin = objBoxDimensions.min.x
 	let yMin = objBoxDimensions.min.y
+	let zMin = objBoxDimensions.min.z
 
 	xTotal = xMax > 0 ? (xMax - xMin) : (xMin - xMax)
 	yTotal = yMax > 0 ? (yMax - yMin) : (yMin - yMax)
+	zTotal = zMax > 0 ? (zMax - zMin) : (zMin - zMax)
 
 	xTotal = xTotal > 0 ? xTotal : (-1 * xTotal)
 	yTotal = yTotal > 0 ? yTotal : (-1 * yTotal)
+	zTotal = zTotal > 0 ? zTotal : (-1 * zTotal)
 
-	return { x: xTotal, y: yTotal }
-}// END OF resizePointer()
+	return { x: xTotal, y: yTotal, z: zTotal }
+}
 
 function scaleUpObj(obj) {
 	let scaler = obj.scale.x
 	obj.scale.set(scaler + 1, scaler + 1, scaler + 1)
-}// END OF scaleUpObj
+}
 
 // Func use as a event onClick for btn
 function centeringCameraEvent() {
@@ -261,13 +277,13 @@ function centeringCameraEvent() {
 	camera.lookAt(objBoxCenter.x, objBoxCenter.y, objBoxCenter.z)
 	controls.target.copy(objBoxCenter)
 	controls.update()
-}// END OF centeringCameraEvent()
+}
 
 function onWindowResize() {
 	camera.aspect = canvas.offsetWidth / canvas.offsetHeight
 	camera.updateProjectionMatrix()
 	renderer.setSize(canvas.offsetWidth, canvas.offsetHeight)
-}// END OF onWindowResize()
+}
 
 // Func that processes all the raycasting to determine where the user click.
 // Its achieve by using the mouse xy-position and calculating where that its with
@@ -290,25 +306,25 @@ function onMouseClick(event) {
 			intersects[0].uv
 		)
 
-		myPointer.position.x = vertex.point['x']
-		myPointer.position.y = vertex.point['y']
-		myPointer.position.z = vertex.point['z']
+		// myPointer.position.x = vertex.point['x']
+		// myPointer.position.y = vertex.point['y']
+		// myPointer.position.z = vertex.point['z']
 	}
-}// END OF onMouseClick()
+}
 
 function getMousePosition(x, y) {
 	let canvasRect = canvas.getBoundingClientRect()
 	let xPosition = (x - canvasRect.left) / canvasRect.width
 	let yPosition = (y - canvasRect.top) / canvasRect.height
 	return [xPosition, yPosition]
-}// END OF getMousePosition()
+}
 
 // Func that obtains the obj intersected by the ray
 function getIntersects(point, objects) {
 	mousePosition.set((point.x * 2) - 1, - (point.y * 2) + 1)
 	raycaster.setFromCamera(mousePosition, camera)
 	return raycaster.intersectObjects(objects)
-}// END OF getIntersects()
+}
 
 // Converts a point: vec3.xyz to a point position on the screen.
 // Return 2D position is similar to a mouse click event position.
@@ -325,12 +341,12 @@ function removeModel() {
 	console.log('Func trigger')
 	let tempModel = scene.getObjectByName('myModel')
 	scene.remove(tempModel)
-}// END OF removeModel()
+}
 
 // Func used to generate vertex ("spheres") on click.
 function createVertex(dataTermID, dotID, faceIndex, point, uv) {
 	return new Vertex(dataTermID, dotID, faceIndex, point, uv)
-}// END OF createVertex()
+}
 
 // Class that contains all the vertex and sphere data.
 // The sphere data auto updates the moment dotID & point update.
@@ -352,7 +368,7 @@ class Vertex {
 			mesh.position.set(this.point['x'], this.point['y'], this.point['z'])
 			return mesh
 		}
-	} // End of constructor
+	}
 
 	static isVariableNull(value) {
 		return value === null
@@ -360,7 +376,7 @@ class Vertex {
 }
 
 export {
-	vertex, intersects, renderedSpheresGroup,
+	vertex, intersects, highlightCircle, renderedSpheresGroup,
 	uvMapToMousePoint, centeringCameraEvent, createVertex, getOBJRender, removeModel,
 	horizontalCameraRotation, verticalCameraRotation,
 }
