@@ -28,6 +28,7 @@ Namespace('Labeling').Creator = (function () {
 	const oneSecond = 1000
 	const cameraRotationSpeed = 2.5
 	let listOfVertex = []  // contains each vertex.
+	let highlightCircle = null
 	let renderedSpheresGroup = null// render group containing spheres of each vertex.
 	var uvMapToMousePoint = null
 	let horizontalCameraRotation = null
@@ -615,20 +616,21 @@ Namespace('Labeling').Creator = (function () {
 		}
 
 		// set term location and dot attribute
-		term.className = 'term'
-		term.innerHTML = "<div class='label-input' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>" + text + "</div><div class='delete'></div>"
-		term.style.left = x + 'px'
-		term.style.top = y + 'px'
+		term.className = `term`
+		term.innerHTML = "<div class='label - input' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>" + text + "</div><div class='delete '></div>"
+		term.style.left = `${x}px`
+		term.style.top = `${y}px`
 		term.setAttribute('data-x', dotx)
 		term.setAttribute('data-y', doty)
 		term.setAttribute('data-id', id)
 
-		dot.className = 'dot' + _anchorOpacity
-		dot.style.left = dotx + 'px'
-		dot.style.top = doty + 'px'
+		dot.className = `dot${_anchorOpacity}`
+		dot.style.left = `${dotx}px`
+		dot.style.top = `${doty}px`
 		dot.setAttribute('data-termid', term.id)
 
 		document.getElementById('terms').append(term)
+		highlightCircle.visible = false
 
 		// edit on click
 		term.onclick = function () {
@@ -655,17 +657,30 @@ Namespace('Labeling').Creator = (function () {
 		term.childNodes[0].onpaste = _termPaste
 
 		// make delete button remove it from the list
-		term.childNodes[1].onclick = function () {
+		term.childNodes[1].onclick = () => {
 			term.parentElement.removeChild(term)
 			listOfVertex.forEach((element, index) => {
-
 				if (element.dataTermID == term.id) {
 					renderedSpheresGroup.remove(renderedSpheresGroup.children[index])
 					listOfVertex.splice(index, 1)
+					highlightCircle.visible = false
 				}
 			})
 
 			return _drawBoard()
+		}
+
+		term.childNodes[0].onmouseover = () => {
+			listOfVertex.forEach((element, index) => {
+
+				if (element.dataTermID == term.id) {
+					highlightCircle.visible = true
+					let position = renderedSpheresGroup.children[index].position
+					highlightCircle.position.x = position['x']
+					highlightCircle.position.y = position['y']
+					highlightCircle.position.z = position['z']
+				}
+			})
 		}
 
 		// make the term movable
@@ -1022,7 +1037,7 @@ Namespace('Labeling').Creator = (function () {
 
 		document.getElementById('btnChooseImage').innerHTML = 'Choose a different model'
 
-		let tagBottom = document.getElementsByClassName('rotateOrLabel')[0]
+		let tagBottom = document.getElementsByClassName('optionsBox')[0]
 		tagBottom.addEventListener('click', optionsBoxActions)
 
 		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'controls')
@@ -1039,6 +1054,7 @@ Namespace('Labeling').Creator = (function () {
 		import('./core3D.js')
 			.then((module) => {
 				uvMapToMousePoint = module.uvMapToMousePoint
+				highlightCircle = module.highlightCircle
 				renderedSpheresGroup = module.renderedSpheresGroup
 				horizontalCameraRotation = module.horizontalCameraRotation
 				verticalCameraRotation = module.verticalCameraRotation
@@ -1048,6 +1064,7 @@ Namespace('Labeling').Creator = (function () {
 				arrowKeys()
 				startMouseDownFire()
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
+				highlightCircle.visible = false
 			})
 			.catch((err) => {
 				console.log(err)
@@ -1057,11 +1074,10 @@ Namespace('Labeling').Creator = (function () {
 		enable3DEvents()
 	} // End of Environment3D
 
-	// Functionn that
+	// Function that
 	function startMouseDownFire() {
 		reRenderLines()
 		mouseDownFireIntervals = setInterval(reRenderLines, 4) // 4 ms is the fastest setInterval can trigger.
-		console.log('start mouseDownFireIntervals = ', mouseDownFireIntervals)
 	}
 
 	function load3DAsset(assetUrl) {
@@ -1073,7 +1089,6 @@ Namespace('Labeling').Creator = (function () {
 
 	// Arrow keys rotate the camera.
 	function arrowKeys() {
-		console.log('trigger')
 		document.onkeydown = (e) => {
 			let radiantIncrement = (Math.PI * cameraRotationSpeed) / 180
 			switch (e.keyCode) {
@@ -1120,27 +1135,28 @@ Namespace('Labeling').Creator = (function () {
 
 	function optionsBox() {
 		let modeIdBox = document.createElement('div')
-		modeIdBox.classList.add('rotateOrLabel')
-		modeIdBox.innerHTML = 'Now Rotating'
-
-		const board = document.getElementById('board')
-		board.appendChild(modeIdBox)
-
-		let modeIdBox2 = document.createElement('div')
-		modeIdBox2.classList.add('topControls')
-		modeIdBox2.innerHTML = 'Now Rotating'
+		modeIdBox.classList.add('optionsBox')
+		modeIdBox.innerHTML = 'Rotating'
 
 		const controlNodeList = document.getElementById('controls')
-		controlNodeList.insertBefore(modeIdBox2, controlNodeList.children[0])
+		controlNodeList.insertBefore(modeIdBox, controlNodeList.children[0])
+
+		let menu = document.createElement('div')
+		menu.classList.add('optionsMenu')
+		menu.innerHTML = 'mouse / keyboard support'
+
+		// modeIdBox.appendChild(menu)
 	}
 
 	function optionsBoxActions() {
-		let modeIdBox = document.getElementsByClassName('rotateOrLabel')[0]
+		let modeIdBox = document.getElementsByClassName('optionsBox')[0]
 		if (modeIdBox.offsetHeight < 50) {
 			modeIdBox.style.top = 0 + 'px'
+			// modeIdBox.classList.add('animate')
 		}
 		else {
 			modeIdBox.style.top = ''
+			// modeIdBox.classList.remove('animate')
 		}
 	}
 
@@ -1158,8 +1174,7 @@ Namespace('Labeling').Creator = (function () {
 	function addingLabelsBtnEffect() {
 		let element = document.getElementById('canvas')
 		let btn = document.getElementById('btnMoveResize')
-		let tagTop = document.getElementsByClassName('topControls')[0]
-		let tagBottom = document.getElementsByClassName('rotateOrLabel')[0]
+		let modeIdBox = document.getElementsByClassName('optionsBox')[0]
 
 		if (areLinesHided) {
 			if (areWeLabeling) {
@@ -1169,8 +1184,7 @@ Namespace('Labeling').Creator = (function () {
 				element.style.pointerEvents = 'auto'
 				element.addEventListener('click', _addTerm, false)
 
-				tagTop.innerHTML = 'Labeling'
-				tagBottom.innerHTML = 'Labeling'
+				modeIdBox.innerHTML = 'Labeling'
 
 			} else {
 				btn.value = "Rotating Model"
@@ -1179,8 +1193,7 @@ Namespace('Labeling').Creator = (function () {
 				element.style.pointerEvents = 'none'
 				element.removeEventListener('click', _addTerm, false)
 
-				tagTop.innerHTML = 'Rotating'
-				tagBottom.innerHTML = 'Rotating'
+				modeIdBox.innerHTML = 'Rotating'
 			}
 		}
 	}
