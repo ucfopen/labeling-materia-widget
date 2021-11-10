@@ -11,59 +11,51 @@ import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/exampl
 import { MTLLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/MTLLoader.js'
 import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/jsm/loaders/OBJLoader.js'
 
-// Variables that can
-let sceneColor = 0xdddddd  // control the background color of a scene,
-let setAntialias = true  // increase or decrease performance,
-let showWireframe = true  // remove the texture to see the line connections between vertices.
-
 // variables that define a spheres dimensions.
 let sphereRadius = 1  // size of all spheres even in the CLASS Vertex.
-let myPointerSize = sphereRadius + 0.5  // size of last clicked sphere.
-let widthAndHeightSegments = 16
-let sphereScale = null
-
 let myPointerPosition = { x: 0, y: 0, z: 0 }
-let myPointer = getSphere(0xffb84d, 'myPointer', myPointerPosition)
+let highlightCircle = getSphere('myHighlightCircle', (sphereRadius + 0.05),
+	myPointerPosition, 0x27c0ff)
 
-let highlightCircle = getSphere(0x27c0ff, 'myHighlightCircle', myPointerPosition)
+let labelSphereColor = 0x1ec74a; // green
 
-// Variable used to create and keep track of vertices ["data generated"] from user ones
-// they click to create a label.
+// Variable used to create and keep track of vertices ["data generated"] from
+// user click that generate labels
 let vertex
 let renderedSpheresGroup = new THREE.Group
 renderedSpheresGroup.name = 'renderedSpheresGroup'
 let vector = new THREE.Vector3()
 
-// Get the HTML element where the scene will be appended to and render.
-const canvas = document.getElementById('board')
-const canvasWidth = canvas.offsetWidth  // data value = 605
-const canvasHeight = canvas.offsetHeight  // data value = 551
-
-// ThreeJs variables that control and help the scene, camera position, rendering, and
+// Variables that control and set scene, camera position, rendering, and
 // display of model and its texture loaders.
-let mtlLoader = new MTLLoader() // NOT USE AT THE MOMENT
-let objLoader = new OBJLoader()
-let cameraInitialPosition = new THREE.Vector3()
-const objBoxDimensions = new THREE.Box3()
-let objBoxSize
-let objBoxCenter
-const mousePosition = new THREE.Vector2()
-const onClickPosition = new THREE.Vector2()
-// raycaster is used for interpolating the mouse's xy-position on click
-// versus 3D world xyz-position. Look at function onMouseClick() and inside that
-// function getIntersects().
-const raycaster = new THREE.Raycaster()
-let intersects
+
+let sceneColor = 0xdddddd  // control the background color of a scene, // remove the texture to see the line connections between vertices.
+const scene = new THREE.Scene()
+let setAntialias = true  // increase visual at the cost of performance
 
 const fov = 45
-const aspect = canvasWidth / canvasHeight
+const canvas = document.getElementById('board')
+const aspect = canvas.offsetWidth / canvas.offsetHeight
 const near = 0.1
 const far = 1000
-
-const scene = new THREE.Scene()
 const camera = new THREE.PerspectiveCamera(fov, aspect, near, far)
+let cameraInitialPosition = new THREE.Vector3()
+
 const renderer = new THREE.WebGLRenderer({ antialias: setAntialias })
 const controls = new OrbitControls(camera, renderer.domElement)
+
+let objBoxSize = null
+let objBoxCenter = null
+const objBoxDimensions = new THREE.Box3()
+
+let mtlLoader = new MTLLoader() // NOT USE AT THE MOMENT
+let objLoader = new OBJLoader()
+
+// raycaster is used for covert the mouse's xy-position on click to xyz-position.
+const raycaster = new THREE.Raycaster()
+const mousePosition = new THREE.Vector2()
+const onClickPosition = new THREE.Vector2()
+let intersects = null
 
 main()
 render()
@@ -77,19 +69,18 @@ function main() {
 	camera.position.set(0, 0, 1)
 	camera.add(getDirectionalLight(1))
 
-	controls.enablePan = false
+	controls.enablePan = true
 	controls.rotateSpeed = 0.5
 	controls.enableDamping = true
 	controls.dampingFactor = 0.5
 
 	renderer.name = 'myRenderer'
 	renderer.setPixelRatio(window.devicePixelRatio)
-	renderer.setSize(canvasWidth, canvasHeight)
+	renderer.setSize(canvas.offsetWidth, canvas.offsetHeight)
 	renderer.domElement.id = 'my3DCanvas'
 	canvas.appendChild(renderer.domElement)
 
 	scene.add(renderedSpheresGroup)
-	// scene.add(myPointer)
 	scene.add(highlightCircle)
 	scene.add(camera)
 
@@ -118,9 +109,9 @@ function verticalCameraRotation(rotationAngle) {
 	camera.position.z = cameraPointZ * Math.cos(rotationAngle) - cameraPointY * Math.sin(rotationAngle)
 }
 
-function getSphere(color, name, position) {
+function getSphere(name, radius, position, color) {
 	let mesh = new THREE.Mesh(
-		new THREE.SphereGeometry(myPointerSize, widthAndHeightSegments, widthAndHeightSegments),
+		new THREE.SphereGeometry(radius, 16, 16), // 16 = spheres width and height Segments
 		new THREE.MeshBasicMaterial({ color: color, wireframe: false, }),
 	)
 
@@ -128,21 +119,21 @@ function getSphere(color, name, position) {
 	mesh.position.set(position['x'], position['y'], position['z'])
 	mesh.castShadow = true
 	return mesh
-}// END OF getSphere()
+}
 
 function getBox() { // NOT USED AT THE MOMENT
 	let boxDimension = 10
 	let boxColor = 0x00fff0
 	let mesh = new THREE.Mesh(
 		new THREE.BoxGeometry(boxDimension, boxDimension, boxDimension),
-		new THREE.MeshPhongMaterial({ color: boxColor, wireframe: showWireframe, }),
+		new THREE.MeshPhongMaterial({ color: boxColor, wireframe: true, }),
 	)
 
 	mesh.name = 'TESTBox'
 	mesh.castShadow = true
 	mesh.position.set(0, 0, 0)
 	return mesh
-}// END OF  getBox()
+}
 
 function getDirectionalLight(intensity) {
 	let light = new THREE.DirectionalLight(0xffffff, intensity)
@@ -150,7 +141,7 @@ function getDirectionalLight(intensity) {
 	light.castShadow = true
 	light.position.set(-1, 2, 4)
 	return light
-}// END OF getDirectionalLight
+}
 
 function onProgress(xhr) {
 	// Returns a console log of the model loaded percentage
@@ -171,38 +162,56 @@ function getOBJRender(objFileStr) {
 		// If the smallest total length of an axis is less than 32 units of spacing, loop
 		// until the scale grows enough that it is equal to 32 and pointerRadius equal or greater than 4
 		getObjDimensions(obj)
+
 		let dimensionsTotal = resizePointer()
-		let smallestAxis = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.y : dimensionsTotal.x
-		let pointerRadius = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.x * 0.1 : dimensionsTotal.y * 0.1
-		let properSize = (smallestAxis >= 20 && pointerRadius >= 1) ? false : true
+		let smallestAxis = dimensionsTotal.x > dimensionsTotal.y
+			? dimensionsTotal.y : dimensionsTotal.x
+		let properSize = smallestAxis >= 20 ? false : true
 		let scaleIncrement = null
+
 		for (let index = 1; properSize; index++) {
 			scaleIncrement = index
 			scaleUpObj(obj)
 			getObjDimensions(obj)
 			dimensionsTotal = resizePointer()
-			smallestAxis = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.y : dimensionsTotal.x
-			pointerRadius = dimensionsTotal.x > dimensionsTotal.y ? dimensionsTotal.x * 0.1 : dimensionsTotal.y * 0.1
-			properSize = (smallestAxis >= 20 && pointerRadius >= 1) ? false : true
+			smallestAxis = dimensionsTotal.x > dimensionsTotal.y
+				? dimensionsTotal.y : dimensionsTotal.x
+			properSize = smallestAxis >= 20 ? false : true
 		}
 
-		// myPointer = getSphere(0xffb84d, 'myPointer', myPointerPosition)
-
-		// sphereScale =
 		// Centralize the camera on the model
 		getObjDimensions(obj)
 		frameArea(objBoxSize * 1.2, objBoxSize, objBoxCenter)
-		controls.minDistance = objBoxSize / 2
+		controls.minDistance = objBoxSize / 5
 		controls.maxDistance = objBoxSize * 5
 		controls.target.copy(objBoxCenter)
-		console.log('objBoxCenter: ', objBoxCenter)
-		console.log('objBoxDimensions: ', objBoxDimensions)
-		console.log('dimensionsTotal: ', dimensionsTotal)
+
+		let totalSumAxes = dimensionsTotal.x + dimensionsTotal.y + dimensionsTotal.z
+		let ratioTotalSumAxes = totalSumAxes / 3
+		let sphereScaleValue = ratioTotalSumAxes / 20
+		if (sphereScaleValue > 1) {
+			sphereRadius = sphereScaleValue
+			// highlightCircle.scale.set(sphereRadius, sphereRadius, sphereRadius)
+			// createHighlightSphereNewRadius()
+			// scene.remove(highlightCircle)
+			// highlightCircle = getSphere('myHighlightCircle', (sphereRadius + 0.05), myPointerPosition, 0x27c0ff)
+
+		}
+		//  else {
+		// 	highlightCircle = getSphere('myHighlightCircle', (sphereRadius + 0.05), myPointerPosition, 0x27c0ff)
+		// }
+
+		// scene.add(highlightCircle)
 	},
 		onProgress,
 		onError
 	)
 } // END OF getOBJRender()
+
+function createHighlightSphereNewRadius() {
+	scene.remove(highlightCircle)
+	getSphere('myHighlightCircle', (sphereRadius + 0.05), myPointerPosition, 0x27c0ff)
+}
 
 function getMTLandOBJRender(mtlFileStr, objFileStr) { // NOT USED AT THE MOMENT
 
@@ -239,31 +248,31 @@ function frameArea(sizeToFitOnScreen, objBoxSize, objBoxCenter) {
 	cameraInitialPosition.copy(camera.position)
 }
 
+
 // A sphere radius min is 1, so if model yTotal or xTotal is 2 then the pointer
 // will end up covering half of the model.
 function resizePointer() {
-	let xTotal
-	let yTotal
-	let zTotal
+
 	// Max will always be closer to the positive axis
 	let xMax = objBoxDimensions.max.x
 	let yMax = objBoxDimensions.max.y
 	let zMax = objBoxDimensions.max.z
 
 	// Min will always be closer to the negative axis
-	let xMin = objBoxDimensions.min.x
+	let xMin = objBoxDimensions.min['x']
 	let yMin = objBoxDimensions.min.y
 	let zMin = objBoxDimensions.min.z
 
-	xTotal = xMax > 0 ? (xMax - xMin) : (xMin - xMax)
-	yTotal = yMax > 0 ? (yMax - yMin) : (yMin - yMax)
-	zTotal = zMax > 0 ? (zMax - zMin) : (zMin - zMax)
+	let xTotal = xMax > 0 ? (xMax - xMin) : (xMin - xMax)
+	let yTotal = yMax > 0 ? (yMax - yMin) : (yMin - yMax)
+	let zTotal = zMax > 0 ? (zMax - zMin) : (zMin - zMax)
 
 	xTotal = xTotal > 0 ? xTotal : (-1 * xTotal)
 	yTotal = yTotal > 0 ? yTotal : (-1 * yTotal)
 	zTotal = zTotal > 0 ? zTotal : (-1 * zTotal)
 
-	return { x: xTotal, y: yTotal, z: zTotal }
+	let axisTotals = { x: xTotal, y: yTotal, z: zTotal }
+	return axisTotals
 }
 
 function scaleUpObj(obj) {
@@ -305,10 +314,6 @@ function onMouseClick(event) {
 			intersects[0].point,
 			intersects[0].uv
 		)
-
-		// myPointer.position.x = vertex.point['x']
-		// myPointer.position.y = vertex.point['y']
-		// myPointer.position.z = vertex.point['z']
 	}
 }
 
@@ -338,7 +343,6 @@ function uvMapToMousePoint(vertexPoint) {
 
 // Func use as event onClick for removing model
 function removeModel() {
-	console.log('Func trigger')
 	let tempModel = scene.getObjectByName('myModel')
 	scene.remove(tempModel)
 }
@@ -358,10 +362,9 @@ class Vertex {
 		this.point = _point
 		this.uv = _uv
 		this.sphere = function () {
-			let sphereColor = 0xfdedce
 			let mesh = new THREE.Mesh(
-				new THREE.SphereGeometry(sphereRadius, widthAndHeightSegments, widthAndHeightSegments),
-				new THREE.MeshBasicMaterial({ color: sphereColor, wireframe: false, }),
+				new THREE.SphereGeometry(sphereRadius, 16, 16), // 16 = spheres width and heightSegments
+				new THREE.MeshBasicMaterial({ color: labelSphereColor, wireframe: false, }),
 			)
 
 			mesh.name = this.dotID
