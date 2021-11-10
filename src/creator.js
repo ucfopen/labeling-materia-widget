@@ -1,5 +1,8 @@
 // Temporarily disable while using MWDK
 
+// Using this style of import will cause the 3D to run every time even when on 2D.
+// import { renderedSpheresGroup } from './core3D.js'
+
 Namespace('Labeling').Creator = (function () {
 
 	// variables for local use
@@ -33,7 +36,8 @@ Namespace('Labeling').Creator = (function () {
 	var uvMapToMousePoint = null
 	let horizontalCameraRotation = null
 	let verticalCameraRotation = null
-	let mouseDownFireIntervals = 0
+	let mouseDownFireIntervals = null
+
 	let mediaFileType = []
 
 	// have to change function to async/await to be able read flag3D
@@ -630,7 +634,7 @@ Namespace('Labeling').Creator = (function () {
 		dot.setAttribute('data-termid', term.id)
 
 		document.getElementById('terms').append(term)
-		highlightCircle.visible = false
+		// highlightCircle.visible = false
 
 		// edit on click
 		term.onclick = function () {
@@ -670,6 +674,20 @@ Namespace('Labeling').Creator = (function () {
 			return _drawBoard()
 		}
 
+		// make the term movable
+		$(term).draggable({
+			drag(event, ui) {
+				if (ui.position.left < 20) { ui.position.left = 20 }
+				if (ui.position.left > 460) { ui.position.left = 460 }
+				if (ui.position.top > 505) { ui.position.top = 505 }
+				if (ui.position.top < 20) { ui.position.top = 20 }
+				_drawBoard()
+				return ui
+			}
+		})
+
+
+		// appends the highlightSphere to the label when hovering
 		term.childNodes[0].onmouseover = () => {
 			listOfVertex.forEach((element, index) => {
 
@@ -682,18 +700,6 @@ Namespace('Labeling').Creator = (function () {
 				}
 			})
 		}
-
-		// make the term movable
-		$(term).draggable({
-			drag(event, ui) {
-				if (ui.position.left < 20) { ui.position.left = 20 }
-				if (ui.position.left > 460) { ui.position.left = 460 }
-				if (ui.position.top > 505) { ui.position.top = 505 }
-				if (ui.position.top < 20) { ui.position.top = 20 }
-				_drawBoard()
-				return ui
-			}
-		})
 
 		setTimeout(function () {
 			term.childNodes[0].focus()
@@ -891,6 +897,7 @@ Namespace('Labeling').Creator = (function () {
 						faceIndex: vertex.faceIndex,
 						point: vertex.point,
 						uv: vertex.uv,
+						// sphereRadius: sphereRadius,
 					}
 				}
 			}
@@ -1036,12 +1043,17 @@ Namespace('Labeling').Creator = (function () {
 		optionsBox()
 
 		document.getElementById('btnChooseImage').innerHTML = 'Choose a different model'
+		document.getElementById('btnMoveResize').remove()
 
 		let tagBottom = document.getElementsByClassName('optionsBox')[0]
 		tagBottom.addEventListener('click', optionsBoxActions)
 
-		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'controls')
+		// btn created in display order.
+		let btnSmaller = createBtn('scaleDownSpheres', 'Scale Down', 'controls')
+		let btnBigger = createBtn('scaleUpSpheres', 'Scale Up', 'controls')
 		let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'controls')
+		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'controls')
+		let btnRotateModel = createBtn('btnMoveResize', 'Rotating Model', 'controls')
 
 		let loadCore3D = document.createElement("script")
 		loadCore3D.src = 'core3D.js'
@@ -1053,18 +1065,22 @@ Namespace('Labeling').Creator = (function () {
 
 		import('./core3D.js')
 			.then((module) => {
-				uvMapToMousePoint = module.uvMapToMousePoint
 				highlightCircle = module.highlightCircle
+				uvMapToMousePoint = module.uvMapToMousePoint
 				renderedSpheresGroup = module.renderedSpheresGroup
-				horizontalCameraRotation = module.horizontalCameraRotation
 				verticalCameraRotation = module.verticalCameraRotation
+				horizontalCameraRotation = module.horizontalCameraRotation
 				return module
 			})
 			.then((module) => {
 				arrowKeys()
 				startMouseDownFire()
-				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
+
 				highlightCircle.visible = false
+				btnBigger.addEventListener('click', scaleUp)
+				btnSmaller.addEventListener('click', scaleDown)
+				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
+
 			})
 			.catch((err) => {
 				console.log(err)
@@ -1074,16 +1090,56 @@ Namespace('Labeling').Creator = (function () {
 		enable3DEvents()
 	} // End of Environment3D
 
+
+	// WORK ON THE HIGHLIGHTCIRCLE NOT SCALING APPROPRIATELY
+	function scaleUp() {
+		// Scaling up the label spheres requires increasing the scale of each sphere individually.
+		// Scaling up the group scales up all the spheres in one go but also scales up the spacing
+		// between node creating a visual distortion between the spheres, model, and lines.
+		let highlightCircleScale = highlightCircle.scale.x
+		highlightCircle.scale.set(
+			highlightCircleScale + 0.5, highlightCircleScale + 0.5, highlightCircleScale + 0.5
+		)
+
+		let sphereCurrentScale = renderedSpheresGroup.children[0].scale.x
+		renderedSpheresGroup.children.forEach((element) => {
+			element.scale.set(
+				sphereCurrentScale + 0.5, sphereCurrentScale + 0.5, sphereCurrentScale + 0.5
+			)
+		})
+	}
+
+	function scaleDown() {
+		let highlightCircleScale = highlightCircle.scale.x
+		highlightCircle.scale.set(
+			highlightCircleScale - 0.5, highlightCircleScale - 0.5, highlightCircleScale - 0.5
+		)
+
+		let sphereCurrentScale = renderedSpheresGroup.children[0].scale.x
+		renderedSpheresGroup.children.forEach((element) => {
+			element.scale.set(
+				sphereCurrentScale - 0.5, sphereCurrentScale - 0.5, sphereCurrentScale - 0.5
+			)
+		})
+	}
+
 	// Function that
 	function startMouseDownFire() {
 		reRenderLines()
 		mouseDownFireIntervals = setInterval(reRenderLines, 4) // 4 ms is the fastest setInterval can trigger.
 	}
 
+	function stopMouseDownFire() {
+		clearInterval(mouseDownFireIntervals)
+	}
+
 	function load3DAsset(assetUrl) {
 		mediaFileType.push('obj')
 		import('./core3D.js')
-			.then((module) => { module.getOBJRender(assetUrl) })
+			.then((module) => {
+				module.getOBJRender(assetUrl)
+				// highlightCircle = module.highlightCircle
+			})
 			.catch((err) => { console.log(err) })
 	}
 
@@ -1119,16 +1175,18 @@ Namespace('Labeling').Creator = (function () {
 		document.querySelector('#imagewrapper').remove()
 		document.querySelector('#opacity-toggle').remove()
 		document.querySelector('#maincontrols').remove()
+		let helpBox = document.getElementById('help_moving')
+		for (let i = 7; i >= 3; i--) { helpBox.lastElementChild.remove() }
 	}
 
 	function createBtn(btnId, btnValue, btnParent) {
-		let btn = document.createElement('input')
+		let btn = document.createElement('button')
 		btn.type = 'button'
-		btn.value = btnValue
+		btn.innerHTML = btnValue
 		btn.id = btnId
 
 		let controlNodeList = document.getElementById(btnParent)
-		controlNodeList.insertBefore(btn, controlNodeList.children[2])
+		controlNodeList.insertBefore(btn, controlNodeList.children[3])
 
 		return btn
 	}
@@ -1178,7 +1236,7 @@ Namespace('Labeling').Creator = (function () {
 
 		if (areLinesHided) {
 			if (areWeLabeling) {
-				btn.value = "Adding Labels"
+				btn.innerHTML = "Adding Labels"
 				btn.classList.toggle('orange')
 				areWeLabeling = false
 				element.style.pointerEvents = 'auto'
@@ -1187,7 +1245,7 @@ Namespace('Labeling').Creator = (function () {
 				modeIdBox.innerHTML = 'Labeling'
 
 			} else {
-				btn.value = "Rotating Model"
+				btn.innerHTML = "Rotating Model"
 				btn.classList.toggle('orange')
 				areWeLabeling = true
 				element.style.pointerEvents = 'none'
@@ -1239,7 +1297,7 @@ Namespace('Labeling').Creator = (function () {
 				listOfVertex.splice(index, 1)
 			})
 		}
-
+		highlightCircle.visible = false
 		import('./core3D.js')
 			.then((module) => { module.removeModel() })
 			.catch((err) => { console.log(err) })
