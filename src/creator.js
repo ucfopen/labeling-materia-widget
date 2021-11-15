@@ -550,7 +550,7 @@ Namespace('Labeling').Creator = (function () {
 					vertex.dotID = 'dot_' + term.id
 					renderedSpheresGroup.add(vertex.sphere())
 					listOfVertex.push(vertex)
-
+					scaleNeutral()
 					appendingOfMake3D(x, y, text, labelX = null, labelY = null, id, term, dot)
 				}
 			}).catch((error) => {
@@ -634,7 +634,6 @@ Namespace('Labeling').Creator = (function () {
 		dot.setAttribute('data-termid', term.id)
 
 		document.getElementById('terms').append(term)
-		// highlightSphere.visible = false
 
 		// edit on click
 		term.onclick = function () {
@@ -667,7 +666,6 @@ Namespace('Labeling').Creator = (function () {
 				if (element.dataTermID == term.id) {
 					renderedSpheresGroup.remove(renderedSpheresGroup.children[index])
 					listOfVertex.splice(index, 1)
-					// highlightSphere.visible = false
 				}
 			})
 
@@ -686,20 +684,19 @@ Namespace('Labeling').Creator = (function () {
 			}
 		})
 
-
 		// appends the highlightSphere to the label when hovering
-		// term.childNodes[0].onmouseover = () => {
-		// 	listOfVertex.forEach((element, index) => {
-
-		// 		if (element.dataTermID == term.id) {
-		// 			highlightSphere.visible = true
-		// 			let position = renderedSpheresGroup.children[index].position
-		// 			highlightSphere.position.x = position['x']
-		// 			highlightSphere.position.y = position['y']
-		// 			highlightSphere.position.z = position['z']
-		// 		}
-		// 	})
-		// }
+		let highlightSphere = highlightSpheresGroup.children[0]
+		term.childNodes[0].onmouseover = () => {
+			listOfVertex.forEach((element, index) => {
+				if (element.dataTermID == term.id) {
+					highlightSphere.visible = true
+					let position = renderedSpheresGroup.children[index].position
+					highlightSphere.position.x = position['x']
+					highlightSphere.position.y = position['y']
+					highlightSphere.position.z = position['z']
+				}
+			})
+		}
 
 		setTimeout(function () {
 			term.childNodes[0].focus()
@@ -1114,23 +1111,46 @@ Namespace('Labeling').Creator = (function () {
 	function scaleDown() {
 		let groupChildren = highlightSpheresGroup.children
 		if (groupChildren.length > 0) {
+
 			let sphereCurrentScale = groupChildren[0].scale.x
-			groupChildren[0].scale.set(
-				sphereCurrentScale - 0.5, sphereCurrentScale - 0.5, sphereCurrentScale - 0.5
-			)
+			if (sphereCurrentScale > 0) {
+				groupChildren[0].scale.set(
+					sphereCurrentScale - 0.5, sphereCurrentScale - 0.5, sphereCurrentScale - 0.5
+				)
+			}
+
+			console.log(groupChildren[0])
+		}
+
+		groupChildren = renderedSpheresGroup.children
+		if (groupChildren.length > 0) {
+
+			let sphereCurrentScale = groupChildren[0].scale.x
+			if (sphereCurrentScale > 0) {
+				groupChildren.forEach((element) => {
+					element.scale.set(
+						sphereCurrentScale - 0.5, sphereCurrentScale - 0.5, sphereCurrentScale - 0.5
+					)
+				})
+			}
+		}
+	}
+
+	function scaleNeutral() {
+		let groupChildren = highlightSpheresGroup.children
+		if (groupChildren.length > 0) {
+			let sphereCurrentScale = groupChildren[0].scale.x
+			groupChildren[0].scale.set(sphereCurrentScale, sphereCurrentScale, sphereCurrentScale)
 		}
 
 		groupChildren = renderedSpheresGroup.children
 		if (groupChildren.length > 0) {
 			let sphereCurrentScale = groupChildren[0].scale.x
 			groupChildren.forEach((element) => {
-				element.scale.set(
-					sphereCurrentScale - 0.5, sphereCurrentScale - 0.5, sphereCurrentScale - 0.5
-				)
+				element.scale.set(sphereCurrentScale, sphereCurrentScale, sphereCurrentScale)
 			})
 		}
 	}
-
 
 	// Function that
 	function startMouseDownFire() {
@@ -1308,7 +1328,6 @@ Namespace('Labeling').Creator = (function () {
 
 		highlightSpheresGroup.remove(highlightSpheresGroup.children[0])
 
-		// highlightSphere.visible = false
 		import('./core3D.js')
 			.then((module) => { module.removeModel() })
 			.catch((err) => { console.log(err) })
