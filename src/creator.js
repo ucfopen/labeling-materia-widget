@@ -31,7 +31,7 @@ Namespace('Labeling').Creator = (function () {
 	const oneSecond = 1000
 	const cameraRotationSpeed = 2.5
 	let listOfVertex = []  // contains each vertex.
-	let highlightCircle = null
+	let highlightSpheresGroup = null
 	let renderedSpheresGroup = null// render group containing spheres of each vertex.
 	var uvMapToMousePoint = null
 	let horizontalCameraRotation = null
@@ -634,7 +634,7 @@ Namespace('Labeling').Creator = (function () {
 		dot.setAttribute('data-termid', term.id)
 
 		document.getElementById('terms').append(term)
-		// highlightCircle.visible = false
+		// highlightSphere.visible = false
 
 		// edit on click
 		term.onclick = function () {
@@ -667,7 +667,7 @@ Namespace('Labeling').Creator = (function () {
 				if (element.dataTermID == term.id) {
 					renderedSpheresGroup.remove(renderedSpheresGroup.children[index])
 					listOfVertex.splice(index, 1)
-					highlightCircle.visible = false
+					// highlightSphere.visible = false
 				}
 			})
 
@@ -688,18 +688,18 @@ Namespace('Labeling').Creator = (function () {
 
 
 		// appends the highlightSphere to the label when hovering
-		term.childNodes[0].onmouseover = () => {
-			listOfVertex.forEach((element, index) => {
+		// term.childNodes[0].onmouseover = () => {
+		// 	listOfVertex.forEach((element, index) => {
 
-				if (element.dataTermID == term.id) {
-					highlightCircle.visible = true
-					let position = renderedSpheresGroup.children[index].position
-					highlightCircle.position.x = position['x']
-					highlightCircle.position.y = position['y']
-					highlightCircle.position.z = position['z']
-				}
-			})
-		}
+		// 		if (element.dataTermID == term.id) {
+		// 			highlightSphere.visible = true
+		// 			let position = renderedSpheresGroup.children[index].position
+		// 			highlightSphere.position.x = position['x']
+		// 			highlightSphere.position.y = position['y']
+		// 			highlightSphere.position.z = position['z']
+		// 		}
+		// 	})
+		// }
 
 		setTimeout(function () {
 			term.childNodes[0].focus()
@@ -1065,9 +1065,9 @@ Namespace('Labeling').Creator = (function () {
 
 		import('./core3D.js')
 			.then((module) => {
-				highlightCircle = module.highlightCircle
 				uvMapToMousePoint = module.uvMapToMousePoint
 				renderedSpheresGroup = module.renderedSpheresGroup
+				highlightSpheresGroup = module.highlightSpheresGroup
 				verticalCameraRotation = module.verticalCameraRotation
 				horizontalCameraRotation = module.horizontalCameraRotation
 				return module
@@ -1075,8 +1075,6 @@ Namespace('Labeling').Creator = (function () {
 			.then((module) => {
 				arrowKeys()
 				startMouseDownFire()
-
-				highlightCircle.visible = false
 				btnBigger.addEventListener('click', scaleUp)
 				btnSmaller.addEventListener('click', scaleDown)
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
@@ -1090,38 +1088,49 @@ Namespace('Labeling').Creator = (function () {
 		enable3DEvents()
 	} // End of Environment3D
 
-
-	// WORK ON THE HIGHLIGHTCIRCLE NOT SCALING APPROPRIATELY
+	// Scaling up the label spheres requires increasing the scale of each sphere individually.
+	// Scaling up the group scales up all the spheres in one go but also scales up the spacing
+	// between node creating a visual distortion between the spheres, model, and lines.
 	function scaleUp() {
-		// Scaling up the label spheres requires increasing the scale of each sphere individually.
-		// Scaling up the group scales up all the spheres in one go but also scales up the spacing
-		// between node creating a visual distortion between the spheres, model, and lines.
-		let highlightCircleScale = highlightCircle.scale.x
-		highlightCircle.scale.set(
-			highlightCircleScale + 0.5, highlightCircleScale + 0.5, highlightCircleScale + 0.5
-		)
-
-		let sphereCurrentScale = renderedSpheresGroup.children[0].scale.x
-		renderedSpheresGroup.children.forEach((element) => {
-			element.scale.set(
+		let groupChildren = highlightSpheresGroup.children
+		if (groupChildren.length > 0) {
+			let sphereCurrentScale = groupChildren[0].scale.x
+			groupChildren[0].scale.set(
 				sphereCurrentScale + 0.5, sphereCurrentScale + 0.5, sphereCurrentScale + 0.5
 			)
-		})
+		}
+
+		groupChildren = renderedSpheresGroup.children
+		if (groupChildren.length > 0) {
+			let sphereCurrentScale = groupChildren[0].scale.x
+			groupChildren.forEach((element) => {
+				element.scale.set(
+					sphereCurrentScale + 0.5, sphereCurrentScale + 0.5, sphereCurrentScale + 0.5
+				)
+			})
+		}
 	}
 
 	function scaleDown() {
-		let highlightCircleScale = highlightCircle.scale.x
-		highlightCircle.scale.set(
-			highlightCircleScale - 0.5, highlightCircleScale - 0.5, highlightCircleScale - 0.5
-		)
-
-		let sphereCurrentScale = renderedSpheresGroup.children[0].scale.x
-		renderedSpheresGroup.children.forEach((element) => {
-			element.scale.set(
+		let groupChildren = highlightSpheresGroup.children
+		if (groupChildren.length > 0) {
+			let sphereCurrentScale = groupChildren[0].scale.x
+			groupChildren[0].scale.set(
 				sphereCurrentScale - 0.5, sphereCurrentScale - 0.5, sphereCurrentScale - 0.5
 			)
-		})
+		}
+
+		groupChildren = renderedSpheresGroup.children
+		if (groupChildren.length > 0) {
+			let sphereCurrentScale = groupChildren[0].scale.x
+			groupChildren.forEach((element) => {
+				element.scale.set(
+					sphereCurrentScale - 0.5, sphereCurrentScale - 0.5, sphereCurrentScale - 0.5
+				)
+			})
+		}
 	}
+
 
 	// Function that
 	function startMouseDownFire() {
@@ -1131,16 +1140,6 @@ Namespace('Labeling').Creator = (function () {
 
 	function stopMouseDownFire() {
 		clearInterval(mouseDownFireIntervals)
-	}
-
-	function load3DAsset(assetUrl) {
-		mediaFileType.push('obj')
-		import('./core3D.js')
-			.then((module) => {
-				module.getOBJRender(assetUrl)
-				// highlightCircle = module.highlightCircle
-			})
-			.catch((err) => { console.log(err) })
 	}
 
 	// Arrow keys rotate the camera.
@@ -1287,6 +1286,15 @@ Namespace('Labeling').Creator = (function () {
 		return _drawBoard()
 	}
 
+	function load3DAsset(assetUrl) {
+		mediaFileType.push('obj')
+		import('./core3D.js')
+			.then((module) => {
+				module.getOBJRender(assetUrl)
+			})
+			.catch((err) => { console.log(err) })
+	}
+
 	// removes labels, lines, spheres, and model from the canvas.
 	function remove3DLoadedAssets() {
 		for (let index = 0; index != 2; index++) {
@@ -1297,7 +1305,10 @@ Namespace('Labeling').Creator = (function () {
 				listOfVertex.splice(index, 1)
 			})
 		}
-		highlightCircle.visible = false
+
+		highlightSpheresGroup.remove(highlightSpheresGroup.children[0])
+
+		// highlightSphere.visible = false
 		import('./core3D.js')
 			.then((module) => { module.removeModel() })
 			.catch((err) => { console.log(err) })
