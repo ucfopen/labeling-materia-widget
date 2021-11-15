@@ -14,21 +14,21 @@ import { OBJLoader } from 'https://cdn.jsdelivr.net/npm/three@0.124.0/examples/j
 // variables that define a spheres dimensions.
 let sphereRadius = 1  // size of all spheres even in the CLASS Vertex.
 let myPointerPosition = { x: 0, y: 0, z: 0 }
-let highlightCircle = getSphere('myHighlightCircle', (sphereRadius + 0.05),
-	myPointerPosition, 0x27c0ff)
-
 let labelSphereColor = 0x1ec74a; // green
 
 // Variable used to create and keep track of vertices ["data generated"] from
 // user click that generate labels
 let vertex
+let vector = new THREE.Vector3()
+
 let renderedSpheresGroup = new THREE.Group
 renderedSpheresGroup.name = 'renderedSpheresGroup'
-let vector = new THREE.Vector3()
+
+let highlightSpheresGroup = new THREE.Group
+highlightSpheresGroup.name = 'highlightSpheresGroup'
 
 // Variables that control and set scene, camera position, rendering, and
 // display of model and its texture loaders.
-
 let sceneColor = 0xdddddd  // control the background color of a scene, // remove the texture to see the line connections between vertices.
 const scene = new THREE.Scene()
 let setAntialias = true  // increase visual at the cost of performance
@@ -81,7 +81,7 @@ function main() {
 	canvas.appendChild(renderer.domElement)
 
 	scene.add(renderedSpheresGroup)
-	scene.add(highlightCircle)
+	scene.add(highlightSpheresGroup)
 	scene.add(camera)
 
 	window.addEventListener('resize', onWindowResize)
@@ -162,55 +162,54 @@ function getOBJRender(objFileStr) {
 		// If the smallest total length of an axis is less than 32 units of spacing, loop
 		// until the scale grows enough that it is equal to 32 and pointerRadius equal or greater than 4
 		getObjDimensions(obj)
-
 		let dimensionsTotal = resizePointer()
+
 		let smallestAxis = dimensionsTotal.x > dimensionsTotal.y
-			? dimensionsTotal.y : dimensionsTotal.x
-		let properSize = smallestAxis >= 20 ? false : true
-		let scaleIncrement = null
+			? dimensionsTotal.y
+			: dimensionsTotal.x
+
+		let properSize = smallestAxis >= 20
+			? false
+			: true
 
 		for (let index = 1; properSize; index++) {
-			scaleIncrement = index
 			scaleUpObj(obj)
 			getObjDimensions(obj)
 			dimensionsTotal = resizePointer()
+
 			smallestAxis = dimensionsTotal.x > dimensionsTotal.y
-				? dimensionsTotal.y : dimensionsTotal.x
-			properSize = smallestAxis >= 20 ? false : true
+				? dimensionsTotal.y
+				: dimensionsTotal.x
+
+			properSize = smallestAxis >= 20
+				? false
+				: true
 		}
 
-		// Centralize the camera on the model
-		getObjDimensions(obj)
-		frameArea(objBoxSize * 1.2, objBoxSize, objBoxCenter)
-		controls.minDistance = objBoxSize / 5
-		controls.maxDistance = objBoxSize * 5
-		controls.target.copy(objBoxCenter)
 
 		let totalSumAxes = dimensionsTotal.x + dimensionsTotal.y + dimensionsTotal.z
 		let ratioTotalSumAxes = totalSumAxes / 3
 		let sphereScaleValue = ratioTotalSumAxes / 20
-		if (sphereScaleValue > 1) {
-			sphereRadius = sphereScaleValue
-			// highlightCircle.scale.set(sphereRadius, sphereRadius, sphereRadius)
-			// createHighlightSphereNewRadius()
-			// scene.remove(highlightCircle)
-			// highlightCircle = getSphere('myHighlightCircle', (sphereRadius + 0.05), myPointerPosition, 0x27c0ff)
 
-		}
-		//  else {
-		// 	highlightCircle = getSphere('myHighlightCircle', (sphereRadius + 0.05), myPointerPosition, 0x27c0ff)
-		// }
+		if (sphereScaleValue > 1) { sphereRadius = sphereScaleValue }
+		let highlightSphere = getSphere('myHighlightSphere', (sphereRadius + 0.05), myPointerPosition, 0x27c0ff)
+		highlightSphere.visible = true
+		highlightSpheresGroup.add(highlightSphere)
+		// Centralize the camera on the model
+		getObjDimensions(obj)
+		frameArea(objBoxSize * 1.2, objBoxSize, objBoxCenter)
 
-		// scene.add(highlightCircle)
+		controls.minDistance = objBoxSize / 5
+		controls.maxDistance = objBoxSize * 5
+		controls.target.copy(objBoxCenter)
 	},
 		onProgress,
 		onError
 	)
 } // END OF getOBJRender()
 
-function createHighlightSphereNewRadius() {
-	scene.remove(highlightCircle)
-	getSphere('myHighlightCircle', (sphereRadius + 0.05), myPointerPosition, 0x27c0ff)
+function addHighlightSphere() {
+	scene.add(highlightSphere)
 }
 
 function getMTLandOBJRender(mtlFileStr, objFileStr) { // NOT USED AT THE MOMENT
@@ -315,6 +314,7 @@ function onMouseClick(event) {
 			intersects[0].uv
 		)
 	}
+	console.log(intersects[0])
 }
 
 function getMousePosition(x, y) {
@@ -379,7 +379,7 @@ class Vertex {
 }
 
 export {
-	vertex, intersects, highlightCircle, renderedSpheresGroup,
+	vertex, intersects, highlightSpheresGroup, renderedSpheresGroup,
 	uvMapToMousePoint, centeringCameraEvent, createVertex, getOBJRender, removeModel,
-	horizontalCameraRotation, verticalCameraRotation,
+	horizontalCameraRotation, verticalCameraRotation, addHighlightSphere,
 }
