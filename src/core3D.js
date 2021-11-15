@@ -193,7 +193,7 @@ function getOBJRender(objFileStr) {
 
 		if (sphereScaleValue > 1) { sphereRadius = sphereScaleValue }
 		let highlightSphere = getSphere('myHighlightSphere', (sphereRadius + 0.05), myPointerPosition, 0x27c0ff)
-		highlightSphere.visible = true
+		highlightSphere.visible = false
 		highlightSpheresGroup.add(highlightSphere)
 		// Centralize the camera on the model
 		getObjDimensions(obj)
