@@ -352,6 +352,10 @@ function createVertex(dataTermID, dotID, faceIndex, point, uv) {
 	return new Vertex(dataTermID, dotID, faceIndex, point, uv)
 }
 
+function newSphereRadius(newRadius) {
+	sphereRadius = newRadius
+}
+
 // Class that contains all the vertex and sphere data.
 // The sphere data auto updates the moment dotID & point update.
 class Vertex {
@@ -381,5 +385,5 @@ class Vertex {
 export {
 	vertex, intersects, highlightSpheresGroup, renderedSpheresGroup,
 	uvMapToMousePoint, centeringCameraEvent, createVertex, getOBJRender, removeModel,
-	horizontalCameraRotation, verticalCameraRotation, addHighlightSphere,
+	horizontalCameraRotation, verticalCameraRotation, addHighlightSphere, newSphereRadius
 }

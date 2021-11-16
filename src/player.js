@@ -154,7 +154,7 @@ Namespace('Labeling').Engine = (function () {
 			}
 
 			_img.src = realURL
-			chooseVer(realURL)
+			chooseVer(realURL, _qset.options.sphereRadius)
 		}
 
 		_questions = _shuffle(_questions)
@@ -754,7 +754,7 @@ Namespace('Labeling').Engine = (function () {
 		return Materia.Engine.end()
 	}
 
-	function chooseVer(assetUrl) {
+	function chooseVer(assetUrl, sphereRadius) {
 		btnSpacer()
 
 		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'btnDiv')
@@ -766,18 +766,13 @@ Namespace('Labeling').Engine = (function () {
 
 		import('./core3D.js')
 			.then((module) => {
+				module.newSphereRadius(sphereRadius)
 				module.getOBJRender(assetUrl)
 				uvMapToMousePoint = module.uvMapToMousePoint
 				renderedSpheresGroup = module.renderedSpheresGroup
 				return module
 
 			}).then((module) => {
-				let my3DCanvas = document.getElementById('my3DCanvas')
-				my3DCanvas.addEventListener('wheel', _drawBoard)
-				my3DCanvas.addEventListener('mousemove', _drawBoard)
-				my3DCanvas.addEventListener('touchmove', _drawBoard)
-				my3DCanvas.addEventListener('mousedown', _drawBoard)
-
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
 				btnCenterCamera.addEventListener('click', _drawBoard)
 				appendLabels3D(_questions)
