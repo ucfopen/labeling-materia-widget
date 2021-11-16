@@ -355,7 +355,7 @@ Namespace('Labeling').Creator = (function () {
 		}
 
 		setUp3DEnvironment()
-		load3DAsset(realURL)
+		load3DAsset(realURL, _qset.options.sphereRadius)
 		_img.src = realURL
 
 		// set the title from the qset
@@ -1166,10 +1166,6 @@ Namespace('Labeling').Creator = (function () {
 		mouseDownFireIntervals = setInterval(reRenderLines, 4) // 4 ms is the fastest setInterval can trigger.
 	}
 
-	function stopMouseDownFire() {
-		clearInterval(mouseDownFireIntervals)
-	}
-
 	// Arrow keys rotate the camera.
 	function arrowKeys() {
 		document.onkeydown = (e) => {
@@ -1314,10 +1310,11 @@ Namespace('Labeling').Creator = (function () {
 		return _drawBoard()
 	}
 
-	function load3DAsset(assetUrl) {
+	function load3DAsset(assetUrl, newRadius = 1) {
 		mediaFileType.push('obj')
 		import('./core3D.js')
 			.then((module) => {
+				module.newSphereRadius(newRadius)
 				module.getOBJRender(assetUrl)
 
 			})
@@ -1327,12 +1324,16 @@ Namespace('Labeling').Creator = (function () {
 
 	// removes labels, lines, spheres, and model from the canvas.
 	function remove3DLoadedAssets() {
-		for (let index = 0; index != 2; index++) {
+		for (let index = 0; index != 5; index++) {
+
 			let termsList = document.getElementById('terms').childNodes
-			termsList.forEach((element, index) => {
+			termsList.forEach((element) => {
 				element.parentElement.removeChild(element)
-				renderedSpheresGroup.remove(renderedSpheresGroup.children[index])
-				listOfVertex.splice(index, 1)
+				listOfVertex.pop()
+			})
+
+			renderedSpheresGroup.children.forEach((element) => {
+				renderedSpheresGroup.remove(element)
 			})
 		}
 
