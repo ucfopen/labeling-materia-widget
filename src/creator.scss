@@ -672,16 +672,10 @@ h1 {
 	z-index: 10000;
 }
 
-.optionsMenu {
-	// font-size: 20px;
-}
-
 .optionsBox .animate {
 	transform: translate3d(0px, 100%);
 	-webkit-transition: transform 1s ease;
 }
-
-// ///////////////
 
 button {
   --top: 50%;
@@ -697,7 +691,7 @@ button {
   font-size: 0.9rem;
   position: relative;
 }
-/* if existing, separate the inline icon from the text which follows */
+
 button svg {
   width: 1em;
   height: auto;
@@ -705,7 +699,6 @@ button svg {
   margin-inline-end: 0.2rem;
 }
 
-/* with a pseudo element add a semitransparent layer with the same color of the text */
 button:before {
   content: "";
   position: absolute;
@@ -722,7 +715,6 @@ button:hover:before {
   opacity: 0.1;
 }
 
-/* with another pseudo element add a semitransparent layer clipped to be a circle */
 button:after {
   content: "";
   position: absolute;

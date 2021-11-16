@@ -51,6 +51,7 @@ Namespace('Labeling').Engine = (function () {
 	let numberOfTermsRemove = 3
 	let listOfTerms = []
 	let oneSecond = 1000
+	let mouseDownFireIntervals = null
 
 	// getElementById and cache it, for the sake of performance
 	const _g = id => _domCache[id] || (_domCache[id] = document.getElementById(id))
@@ -65,9 +66,7 @@ Namespace('Labeling').Engine = (function () {
 		// if (_qset.options.flag3D === true) { chooseVer()  }
 
 		_questions = _qset.items
-		if (_questions[0].items) {
-			_questions = _questions[0].items
-		}
+		if (_questions[0].items) { _questions = _questions[0].items }
 
 		// deal with some legacy qset things
 		if (_qset.options.version === 2) {
@@ -77,6 +76,7 @@ Namespace('Labeling').Engine = (function () {
 
 		if ((_qset.options.opacity !== null) && (_qset.options.opacity !== undefined)) {
 			_anchorOpacityValue = _qset.options.opacity
+
 		} else {
 			_anchorOpacityValue = 1.0
 		}
@@ -86,9 +86,11 @@ Namespace('Labeling').Engine = (function () {
 			case 'themeGraphPaper':
 				background = 'url(assets/labeling-graph-bg.png)'
 				break
+
 			case 'themeCorkBoard':
 				background = 'url(assets/labeling-cork-bg.jpg)'
 				break
+
 			default:
 				// convert to hex and zero pad the background, which is stored as an integer
 				background = '#' + ('000000' + _qset.options.backgroundColor.toString(16)).substr(-6)
@@ -273,7 +275,6 @@ Namespace('Labeling').Engine = (function () {
 
 		while (counter > 0) {
 			const index = Math.floor(Math.random() * counter)
-
 			counter--
 
 			const temp = array[counter]
@@ -293,14 +294,18 @@ Namespace('Labeling').Engine = (function () {
 		let context = _g('previewimg0').getContext('2d')
 
 		dots.forEach((dot) => {
-			_drawDot(dot[0], dot[1], 6, 2, context, 'rgba(0,0,0,' + _anchorOpacityValue + ')', 'rgba(255,255,255,' + _anchorOpacityValue + ')')
+			_drawDot(dot[0], dot[1], 6, 2, context, 'rgba(0,0,0,' + _anchorOpacityValue + ')',
+				'rgba(255,255,255,' + _anchorOpacityValue + ')')
 		})
 
 		// each subsequent board has its dot and line
 		for (let i = 0; i <= 2; i++) {
 			context = _g('previewimg' + (i + 1)).getContext('2d')
-			_drawStrokedLine(lines[i][0] - _offsetX, lines[i][1] - _offsetY, lines[i][2] - _offsetX, lines[i][3] - _offsetY, '#fff', '#000', context)
-			_drawDot(dots[i][0], dots[i][1], 6, 2, context, 'rgba(255,255,255,' + _anchorOpacityValue + ')', 'rgba(0,0,0,' + _anchorOpacityValue + ')')
+			_drawStrokedLine(lines[i][0] - _offsetX, lines[i][1] - _offsetY,
+				lines[i][2] - _offsetX, lines[i][3] - _offsetY, '#fff', '#000', context)
+
+			_drawDot(dots[i][0], dots[i][1], 6, 2, context, 'rgba(255,255,255,' + _anchorOpacityValue + ')',
+				'rgba(0,0,0,' + _anchorOpacityValue + ')')
 		}
 
 		return _g('gotitbtn').addEventListener('click', _hideAlert)
@@ -317,8 +322,9 @@ Namespace('Labeling').Engine = (function () {
 		if (_curPage < 0) { _curPage = 0 }
 
 		let y
-		_qset.options.flag3D === false ? y = spacing + (-440 * _curPage)
-			: _curPage == 0 ? y = spacing + (termWidth * numberOfTermsRemove)
+		_qset.options.flag3D === false
+			? y = spacing + (-440 * _curPage) : _curPage == 0
+				? y = spacing + (termWidth * numberOfTermsRemove)
 				: y = spacing + ((-440 + (termWidth * numberOfTermsRemove)) * _curPage)
 
 		// state sentinels
@@ -362,14 +368,18 @@ Namespace('Labeling').Engine = (function () {
 		}
 
 		// hide buttons if they should not be visible
-		_g('nextbtn').style.opacity = maxY >= MAX_HEIGHT ? 1 : 0
 		_g('prevbtn').style.opacity = offScreen ? 1 : 0
+		_g('nextbtn').style.opacity = maxY >= MAX_HEIGHT ? 1 : 0
 		_g('prevbtn').style['z-index'] = offScreen ? '9999' : '0'
 
 		// these covers provide padding to the terms during tweening
-		maxY >= MAX_HEIGHT ? _g('blockbottom').classList.remove('hide') : _g('blockbottom').classList.add('hide')
+		maxY >= MAX_HEIGHT
+			? _g('blockbottom').classList.remove('hide')
+			: _g('blockbottom').classList.add('hide')
 
-		offScreen ? _g('blocktop').classList.remove('hide') : _g('blocktop').classList.add('hide')
+		offScreen
+			? _g('blocktop').classList.remove('hide')
+			: _g('blocktop').classList.add('hide')
 
 		// if nothing was found, the page is empty and we should go back automagically
 		if (!found && (_curPage > 0)) {
@@ -463,7 +473,8 @@ Namespace('Labeling').Engine = (function () {
 			// Using a forEach breaks the code.
 			for (question of Array.from(_questions)) {
 				// distance formula
-				const dist = Math.sqrt(Math.pow((e.clientX - question.options.endPointX - _offsetX - 195), 2) + Math.pow((e.clientY - question.options.endPointY - _offsetY - 50), 2))
+				const dist = Math.sqrt(Math.pow((e.clientX - question.options.endPointX - _offsetX - 195), 2)
+					+ Math.pow((e.clientY - question.options.endPointY - _offsetY - 50), 2))
 
 				// we want the closest one
 				if ((dist < minDist) && (dist < 200)) {
@@ -616,7 +627,9 @@ Namespace('Labeling').Engine = (function () {
 		}
 
 		if (_qset.options.flag3D === false) {
-			_context.drawImage(_img, _qset.options.imageX, _qset.options.imageY, (_img.width * _qset.options.imageScale), (_img.height * _qset.options.imageScale))
+			_context.drawImage(_img, _qset.options.imageX, _qset.options.imageY,
+				(_img.width * _qset.options.imageScale), (_img.height * _qset.options.imageScale)
+			)
 		}
 
 		_context.shadowColor = ''
@@ -641,12 +654,14 @@ Namespace('Labeling').Engine = (function () {
 					dotBackground = 'rgba(0,0,0,' + _anchorOpacityValue + ')'
 
 					if (flag3D === false) {
-						_drawStrokedLine(question.options.endPointX, question.options.endPointY, question.options.labelBoxX, question.options.labelBoxY, '#fff', '#000')
+						_drawStrokedLine(question.options.endPointX, question.options.endPointY,
+							question.options.labelBoxX, question.options.labelBoxY, '#fff', '#000')
 
 					} else {
 						// Same functionality as the function reRenderLines() in the creator
 						let vector = uvMapToMousePoint(question.options.vertex.point)
-						_drawStrokedLine(vector.x, vector.y, question.options.labelBoxX, question.options.labelBoxY, '#fff', '#000')
+						_drawStrokedLine(vector.x, vector.y, question.options.labelBoxX,
+							question.options.labelBoxY, '#fff', '#000')
 					}
 
 				} else {
@@ -660,12 +675,17 @@ Namespace('Labeling').Engine = (function () {
 					dotBackground = 'rgba(0,0,0,' + _anchorOpacityValue + ')'
 
 					if (flag3D === false) {
-						_drawStrokedLine(question.options.endPointX, question.options.endPointY, question.options.labelBoxX, question.options.labelBoxY, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)')
+						_drawStrokedLine(question.options.endPointX, question.options.endPointY,
+							question.options.labelBoxX, question.options.labelBoxY,
+							'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)'
+						)
 
 					} else {
 						// Same functionality as the function reRenderLines() in the creator
 						let vector = uvMapToMousePoint(question.options.vertex.point)
-						_drawStrokedLine(vector.x, vector.y, question.options.labelBoxX, question.options.labelBoxY, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)')
+						_drawStrokedLine(vector.x, vector.y, question.options.labelBoxX,
+							question.options.labelBoxY, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)'
+						)
 					}
 
 					// move the ghost label and make it semi-transparent
@@ -676,16 +696,23 @@ Namespace('Labeling').Engine = (function () {
 					_g('ghost').className = 'term'
 
 					if (flag3D === false) {
-						_drawStrokedLine(question.options.endPointX, question.options.endPointY, mouseX - _offsetX - 240, mouseY - _offsetY - 80, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)')
+						_drawStrokedLine(question.options.endPointX, question.options.endPointY,
+							mouseX - _offsetX - 240, mouseY - _offsetY - 80,
+							'rgba(255,255,255,1)', 'rgba(0,0,0,1)'
+						)
 
 					} else {
 						let vector = uvMapToMousePoint(question.options.vertex.point)
-						_drawStrokedLine(vector.x, vector.y, mouseX - _offsetX - 240, mouseY - _offsetY - 80, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)')
+						_drawStrokedLine(vector.x, vector.y, mouseX - _offsetX - 240,
+							mouseY - _offsetY - 80, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)'
+						)
 					}
 				}
 
 				if (_qset.options.flag3D === false) {
-					result.push(_drawDot(question.options.endPointX + _offsetX, question.options.endPointY + _offsetY, 9, 3, _context, dotBorder, dotBackground))
+					result.push(_drawDot(question.options.endPointX + _offsetX,
+						question.options.endPointY + _offsetY, 9, 3, _context, dotBorder, dotBackground
+					))
 				}
 			})
 
@@ -739,12 +766,12 @@ Namespace('Labeling').Engine = (function () {
 
 		import('./core3D.js')
 			.then((module) => {
-				renderedSpheresGroup = module.renderedSpheresGroup
-				uvMapToMousePoint = module.uvMapToMousePoint
 				module.getOBJRender(assetUrl)
+				uvMapToMousePoint = module.uvMapToMousePoint
+				renderedSpheresGroup = module.renderedSpheresGroup
 				return module
-			})
-			.then((module) => {
+
+			}).then((module) => {
 				let my3DCanvas = document.getElementById('my3DCanvas')
 				my3DCanvas.addEventListener('wheel', _drawBoard)
 				my3DCanvas.addEventListener('mousemove', _drawBoard)
@@ -754,14 +781,15 @@ Namespace('Labeling').Engine = (function () {
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
 				btnCenterCamera.addEventListener('click', _drawBoard)
 				appendLabels3D(_questions)
-			})
-			.catch((err) => {
+				startMouseDownFire()
+
+			}).catch((err) => {
 				console.log(err)
 			})
 
 		let imageCanvas = document.getElementById('image')
-		imageCanvas.style.zIndex = 2
 		imageCanvas.style.pointerEvents = 'none'
+		imageCanvas.style.zIndex = 2
 
 		let blockTop = document.getElementById('blocktop')
 		blockTop.style.top = (numberOfTermsRemove * termWidth + spacing) + 'px'
@@ -771,27 +799,31 @@ Namespace('Labeling').Engine = (function () {
 		prevBtn.style.top = (parseInt(blockTop.style.top.replace('px', '')) + 6) + 'px'
 	}
 
+	function startMouseDownFire() {
+		_drawBoard()
+		mouseDownFireIntervals = setInterval(_drawBoard, 4) // 4 ms is the fastest setInterval can trigger.
+	}
+
 	function btnSpacer() {
 		let btnDiv = document.createElement('div')
 		btnDiv.id = 'btnDiv'
-		btnDiv.style.display = 'inline'
-		btnDiv.style.background = 'url(assets/checker.png)'
 		btnDiv.style.zIndex = 1
 		btnDiv.style.top = '50px'
-		btnDiv.style.height = '105px'
 		btnDiv.style.width = '195px'
+		btnDiv.style.height = '105px'
+		btnDiv.style.display = 'inline'
+		btnDiv.style.background = 'url(assets/checker.png)'
 		document.body.appendChild(btnDiv)
 	}
 
 	function createBtn(btnID, btnValue, location) {
-		let btn = document.createElement('input')
-		btn.type = 'button'
-		btn.value = btnValue
+		let btn = document.createElement('button')
 		btn.id = btnID
+		btn.type = 'button'
+		btn.innerHTML = btnValue
 		btn.className = 'verBtn'
-		btn.style.width = '162px'
-		// btn.style.height = '38.2px'
 		btn.style.left = '22px'
+		btn.style.width = '162px'
 
 		let controlNodeList = document.getElementById(location)
 		controlNodeList.insertBefore(btn, controlNodeList.firstChild)
