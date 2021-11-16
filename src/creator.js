@@ -37,6 +37,8 @@ Namespace('Labeling').Creator = (function () {
 	let horizontalCameraRotation = null
 	let verticalCameraRotation = null
 	let mouseDownFireIntervals = null
+	let sphereRadius = 1
+	let sphereScale = 1
 
 	let mediaFileType = []
 
@@ -149,7 +151,7 @@ Namespace('Labeling').Creator = (function () {
 		document.querySelector('#btnMoveResizeCancel').addEventListener('click', resizableCancel)
 
 		// Events pertaining to the title.
-		// document.querySelector('#btn-enter-title').addEventListener('click', btnTitle)  // Temporarily disable while using MWDK
+		document.querySelector('#btn-enter-title').addEventListener('click', btnTitle)  // Temporarily disable while using MWDK
 		document.querySelector('#title').addEventListener('click', _showMiniTitleEditor)
 		document.querySelector('#header .link').addEventListener('click', _showMiniTitleEditor)
 
@@ -993,6 +995,8 @@ Namespace('Labeling').Creator = (function () {
 
 	function qsetOption3D(_qset) {
 		let _anchorOpacityValue = 1.0
+		console.log(highlightSpheresGroup.children[0])
+
 		_qset.options = {
 			backgroundTheme: _qset.options.backgroundTheme,
 			backgroundColor: _qset.options.backgroundColor,
@@ -1001,7 +1005,11 @@ Namespace('Labeling').Creator = (function () {
 				materiaType: 'asset',
 			},
 			flag3D: flag3D,
+			sphereRadius: highlightSpheresGroup.children[0].geometry.parameters.radius,
+			sphereScale: highlightSpheresGroup.children[0].scale
 		}
+
+		console.log(_qset.options.sphereRadius)
 	}
 
 	// Choose which UI based on the version of the widget. By default its the 2D version.
@@ -1311,7 +1319,9 @@ Namespace('Labeling').Creator = (function () {
 		import('./core3D.js')
 			.then((module) => {
 				module.getOBJRender(assetUrl)
+
 			})
+
 			.catch((err) => { console.log(err) })
 	}
 
