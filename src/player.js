@@ -52,6 +52,7 @@ Namespace('Labeling').Engine = (function () {
 	let listOfTerms = []
 	let oneSecond = 1000
 	let mouseDownFireIntervals = null
+	let highlightSpheresGroup = null
 
 	// getElementById and cache it, for the sake of performance
 	const _g = id => _domCache[id] || (_domCache[id] = document.getElementById(id))
@@ -154,7 +155,7 @@ Namespace('Labeling').Engine = (function () {
 			}
 
 			_img.src = realURL
-			chooseVer(realURL, _qset.options.sphereRadius)
+			chooseVer(realURL, _qset.options.sphereRadius, _qset.options.sphereScale)
 		}
 
 		_questions = _shuffle(_questions)
@@ -223,6 +224,7 @@ Namespace('Labeling').Engine = (function () {
 
 	function appendLabels3D() {
 		let termList = document.getElementById('termlist')
+		let sphereScale = _qset.options.sphereScale
 
 		_questions.forEach((question) => {
 			if (!question.id) { question.id = 'q' + Math.random() }
@@ -257,16 +259,22 @@ Namespace('Labeling').Engine = (function () {
 						question.options.vertex.point,
 						question.options.vertex.uv
 					)
-				})
-				.then((vertex) => {
+
+				}).then((vertex) => {
 					renderedSpheresGroup.add(vertex.sphere())
-				})
-				.catch((err) => {
+
+				}).then(() => {
+					renderedSpheresGroup.children.forEach((element) => {
+						element.scale.set(sphereScale.x, sphereScale.y, sphereScale.z)
+					})
+
+				}).catch((err) => {
 					console.log(err)
 				})
 
 			termList.appendChild(term)
 		})
+
 	}
 
 	// https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
@@ -754,9 +762,9 @@ Namespace('Labeling').Engine = (function () {
 		return Materia.Engine.end()
 	}
 
-	function chooseVer(assetUrl, sphereRadius) {
+	function chooseVer(assetUrl, sphereRadius, sphereScale) {
 		btnSpacer()
-
+		console.log(sphereScale)
 		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'btnDiv')
 		btnToggleLines.addEventListener('click', hidingLinesBtnEffect, true)
 		btnToggleLines.style.top = 55 + 'px'
@@ -770,6 +778,7 @@ Namespace('Labeling').Engine = (function () {
 				module.getOBJRender(assetUrl)
 				uvMapToMousePoint = module.uvMapToMousePoint
 				renderedSpheresGroup = module.renderedSpheresGroup
+				highlightSpheresGroup = module.highlightSpheresGroup
 				return module
 
 			}).then((module) => {
