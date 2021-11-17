@@ -151,7 +151,7 @@ Namespace('Labeling').Creator = (function () {
 		document.querySelector('#btnMoveResizeCancel').addEventListener('click', resizableCancel)
 
 		// Events pertaining to the title.
-		document.querySelector('#btn-enter-title').addEventListener('click', btnTitle)  // Temporarily disable while using MWDK
+		// document.querySelector('#btn-enter-title').addEventListener('click', btnTitle)  // Temporarily disable while using MWDK
 		document.querySelector('#title').addEventListener('click', _showMiniTitleEditor)
 		document.querySelector('#header .link').addEventListener('click', _showMiniTitleEditor)
 
@@ -355,6 +355,7 @@ Namespace('Labeling').Creator = (function () {
 		}
 
 		setUp3DEnvironment()
+		// PASS THE SPHERE SCALE AND UPDATE AFTER getObj() RUNS.
 		load3DAsset(realURL, _qset.options.sphereRadius)
 		_img.src = realURL
 
@@ -563,7 +564,7 @@ Namespace('Labeling').Creator = (function () {
 	function reloadingLabels(x, y, text, labelX = null, labelY = null, id, faceIndex, point, uv) {
 		if (text == null) { text = _defaultLabel }
 		if (id == null) { id = '' }
-
+		const reloadScale = _qset.options.sphereScale
 		const term = document.createElement('div')
 		term.id = 'term_' + Math.random()  // fake id for linking with dot
 
@@ -573,15 +574,18 @@ Namespace('Labeling').Creator = (function () {
 		import('./core3D.js')
 			.then((module) => {
 				return module.createVertex(term.id, dot.id, faceIndex, point, uv)
-			})
-			.then((vertex) => {
+
+			}).then((vertex) => {
 				listOfVertex.push(vertex)
 				renderedSpheresGroup.add(vertex.sphere())
-			})
-			.then(() => {
+
+			}).then(() => {
 				appendingOfMake3D(x, y, text, labelX = null, labelY = null, id, term, dot)
-			})
-			.catch((error) => {
+
+			}).then(() => {
+				scaleSpheresOnReload(reloadScale)
+
+			}).catch((error) => {
 				console.log(error)
 			})
 	}
@@ -1054,18 +1058,18 @@ Namespace('Labeling').Creator = (function () {
 		tagBottom.addEventListener('click', optionsBoxActions)
 
 		// btn created in display order.
-		let btnSmaller = createBtn('scaleDownSpheres', 'Scale Down', 'controls')
-		let btnBigger = createBtn('scaleUpSpheres', 'Scale Up', 'controls')
+		let btnScaleSmaller = createBtn('scaleDownSpheres', 'Smaller', 'controls')
+		let btnScaleBigger = createBtn('scaleUpSpheres', 'Larger', 'controls')
+		scaleBanner()
 		let btnCenterCamera = createBtn('centerCamera', 'Center Camera', 'controls')
 		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'controls')
-		let btnRotateModel = createBtn('btnMoveResize', 'Rotating Model', 'controls')
+		let btnRotateModel = createBtn('btnMoveResize', 'Toggle label placement', 'controls')
 
 		let loadCore3D = document.createElement("script")
 		loadCore3D.src = 'core3D.js'
 		loadCore3D.type = 'module'
 
 		document.getElementsByTagName('head')[0].appendChild(loadCore3D)
-		document.querySelector('#btnMoveResize').value = "Rotating Model"
 		document.getElementById('canvas').style.pointerEvents = 'none'
 
 		import('./core3D.js')
@@ -1080,8 +1084,8 @@ Namespace('Labeling').Creator = (function () {
 			.then((module) => {
 				arrowKeys()
 				startMouseDownFire()
-				btnBigger.addEventListener('click', scaleUp)
-				btnSmaller.addEventListener('click', scaleDown)
+				btnScaleBigger.addEventListener('click', scaleUp)
+				btnScaleSmaller.addEventListener('click', scaleDown)
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
 
 			})
@@ -1093,6 +1097,22 @@ Namespace('Labeling').Creator = (function () {
 		enable3DEvents()
 	} // End of Environment3D
 
+	function scaleBanner() {
+		let banner = document.createElement('div')
+		banner.id = `scaleBanner`
+		banner.innerHTML = `Label anchor size`
+		banner.style.textAlign = 'center'
+		banner.style.color = '#000000'
+		banner.style.backgroundColor = '#fffac4'
+		banner.style.marginBottom = '9px'
+		banner.style.paddingTop = '5px'
+		banner.style.paddingBottom = '5px'
+		banner.style.font = 'bold'
+
+		let controlNodeList = document.getElementById('controls')
+		controlNodeList.insertBefore(banner, controlNodeList.children[3])
+	}
+
 	// Scaling up the label spheres requires increasing the scale of each sphere individually.
 	// Scaling up the group scales up all the spheres in one go but also scales up the spacing
 	// between node creating a visual distortion between the spheres, model, and lines.
@@ -1100,19 +1120,23 @@ Namespace('Labeling').Creator = (function () {
 		let groupChildren = highlightSpheresGroup.children
 		if (groupChildren.length > 0) {
 			let sphereCurrentScale = groupChildren[0].scale.x
-			groupChildren[0].scale.set(
-				sphereCurrentScale + 0.5, sphereCurrentScale + 0.5, sphereCurrentScale + 0.5
-			)
+			if (sphereCurrentScale < 3.1) {
+				groupChildren[0].scale.set(
+					sphereCurrentScale + 0.1, sphereCurrentScale + 0.1, sphereCurrentScale + 0.1
+				)
+			}
 		}
 
 		groupChildren = renderedSpheresGroup.children
 		if (groupChildren.length > 0) {
 			let sphereCurrentScale = groupChildren[0].scale.x
-			groupChildren.forEach((element) => {
-				element.scale.set(
-					sphereCurrentScale + 0.5, sphereCurrentScale + 0.5, sphereCurrentScale + 0.5
-				)
-			})
+			if (sphereCurrentScale < 3.1) {
+				groupChildren.forEach((element) => {
+					element.scale.set(
+						sphereCurrentScale + 0.1, sphereCurrentScale + 0.1, sphereCurrentScale + 0.1
+					)
+				})
+			}
 		}
 	}
 
@@ -1121,29 +1145,28 @@ Namespace('Labeling').Creator = (function () {
 		if (groupChildren.length > 0) {
 
 			let sphereCurrentScale = groupChildren[0].scale.x
-			if (sphereCurrentScale > 0) {
+			if (sphereCurrentScale > 0.5) {
 				groupChildren[0].scale.set(
-					sphereCurrentScale - 0.5, sphereCurrentScale - 0.5, sphereCurrentScale - 0.5
+					sphereCurrentScale - 0.1, sphereCurrentScale - 0.1, sphereCurrentScale - 0.1
 				)
 			}
-
-			console.log(groupChildren[0])
 		}
 
 		groupChildren = renderedSpheresGroup.children
 		if (groupChildren.length > 0) {
 
 			let sphereCurrentScale = groupChildren[0].scale.x
-			if (sphereCurrentScale > 0) {
+			if (sphereCurrentScale > 0.5) {
 				groupChildren.forEach((element) => {
 					element.scale.set(
-						sphereCurrentScale - 0.5, sphereCurrentScale - 0.5, sphereCurrentScale - 0.5
+						sphereCurrentScale - 0.1, sphereCurrentScale - 0.1, sphereCurrentScale - 0.1
 					)
 				})
 			}
 		}
 	}
 
+	// Makes the new added sphere the same scale as the others.
 	function scaleNeutral() {
 		let groupChildren = highlightSpheresGroup.children
 		if (groupChildren.length > 0) {
@@ -1160,7 +1183,22 @@ Namespace('Labeling').Creator = (function () {
 		}
 	}
 
-	// Function that
+	// On reloading a widget the sphere scales will be set to the one save on the qset.
+	function scaleSpheresOnReload(reloadScale = 1) {
+		let groupChildren = highlightSpheresGroup.children
+		if (groupChildren.length > 0) {
+			groupChildren[0].scale.set(reloadScale.x, reloadScale.y, reloadScale.z)
+		}
+
+		groupChildren = renderedSpheresGroup.children
+		if (groupChildren.length > 0) {
+			groupChildren.forEach((element) => {
+				element.scale.set(reloadScale.x, reloadScale.y, reloadScale.z)
+			})
+		}
+	}
+
+	// Function that creates the effect of an animation for the lines when moving the model.
 	function startMouseDownFire() {
 		reRenderLines()
 		mouseDownFireIntervals = setInterval(reRenderLines, 4) // 4 ms is the fastest setInterval can trigger.
@@ -1187,11 +1225,20 @@ Namespace('Labeling').Creator = (function () {
 					verticalCameraRotation(-radiantIncrement) // Down
 					break;
 
+				case 17:
+					console.log('Left CTRL pressed')
+					// toggleStateRotation()
+					break;
+
 				default:
 					break;
 			}
 		}
 	}
+
+	// function ctrlChangeState() {
+	// 	document
+	// }
 
 	function removeFromUI() {
 		document.querySelector('#image').remove()
@@ -1253,30 +1300,42 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	function addingLabelsBtnEffect() {
-		let element = document.getElementById('canvas')
-		let btn = document.getElementById('btnMoveResize')
-		let modeIdBox = document.getElementsByClassName('optionsBox')[0]
-
 		if (areLinesHided) {
-			if (areWeLabeling) {
-				btn.innerHTML = "Adding Labels"
-				btn.classList.toggle('orange')
-				areWeLabeling = false
-				element.style.pointerEvents = 'auto'
-				element.addEventListener('click', _addTerm, false)
-
-				modeIdBox.innerHTML = 'Labeling'
-
-			} else {
-				btn.innerHTML = "Rotating Model"
-				btn.classList.toggle('orange')
-				areWeLabeling = true
-				element.style.pointerEvents = 'none'
-				element.removeEventListener('click', _addTerm, false)
-
-				modeIdBox.innerHTML = 'Rotating'
-			}
+			if (areWeLabeling) { toggleStateRotation() }
+			else { toggleStateLabeling() }
 		}
+	}
+
+	function toggleStateRotation() {
+		let element = document.getElementById('canvas')
+		element.style.pointerEvents = 'auto'
+		element.addEventListener('click', _addTerm, false)
+
+		let btn = document.getElementById('btnMoveResize')
+		btn.innerHTML = 'Toggle rotation'
+		btn.classList.add('orange')
+		// btn.classList.toggle('orange')
+
+		let modeIdBox = document.getElementsByClassName('optionsBox')[0]
+		modeIdBox.innerHTML = 'Labeling'
+
+		areWeLabeling = false
+	}
+
+	function toggleStateLabeling() {
+		let element = document.getElementById('canvas')
+		element.style.pointerEvents = 'none'
+		element.removeEventListener('click', _addTerm, false)
+
+		let btn = document.getElementById('btnMoveResize')
+		btn.innerHTML = 'Toggle label placement'
+		btn.classList.remove('orange')
+		// btn.classList.toggle('orange')
+
+		let modeIdBox = document.getElementsByClassName('optionsBox')[0]
+		modeIdBox.innerHTML = 'Rotating'
+
+		areWeLabeling = true
 	}
 
 	// Depending on the btn toggle status drawn lines may be display.
