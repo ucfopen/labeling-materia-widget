@@ -728,6 +728,51 @@ Namespace('Labeling').Engine = (function () {
 		})()
 	}
 
+	var _drawAnimation = function () {
+		// clear any lines outside of the canvas
+		_context.clearRect(0, 0, 1000, 1000)
+
+		// reference the ghost object, and make it invisible
+		const ghost = _g('ghost')
+		ghost.style.opacity = 0
+
+		return (() => {
+
+			_questions.forEach((question) => {
+
+				// if the question has an answer placed, draw a solid line connecting it
+				// but only if the label is not replacing one that already exists
+				if (_labelTextsByQuestionId[question.id] && !(_curMatch && _labelTextsByQuestionId[_curMatch.id] && (question.id === _curMatch.id))) {
+
+					// Same functionality as the function reRenderLines() in the creator
+					let vector = uvMapToMousePoint(question.options.vertex.point)
+					_drawStrokedLine(vector.x, vector.y, question.options.labelBoxX,
+						question.options.labelBoxY, '#fff', '#000')
+				}
+
+				// if the question has a match dragged near it, draw a ghost line
+				if ((_curMatch != null) && (_curMatch.id === question.id)) {
+
+					// // Same functionality as the function reRenderLines() in the creator
+					// let vector = uvMapToMousePoint(question.options.vertex.point)
+					// _drawStrokedLine(vector.x, vector.y, question.options.labelBoxX,
+					// 	question.options.labelBoxY, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)'
+					// )
+
+					// move the ghost label and make it semi-transparent
+					ghost.style.webkitTransform =
+						(ghost.style.msTransform =
+							(ghost.style.transform = 'translate(' + (question.options.labelBoxX + 210 + _offsetX) + 'px,' + (question.options.labelBoxY + _offsetY + 35) + 'px)'))
+					ghost.style.opacity = 0.5
+					_g('ghost').className = 'term'
+				}
+
+			})
+
+		})()
+	}
+
+
 	// show the "are you done?" warning dialog
 	const _showAlert = function () {
 		_g('alertbox').classList.add('show')
@@ -783,7 +828,6 @@ Namespace('Labeling').Engine = (function () {
 
 			}).then((module) => {
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
-				btnCenterCamera.addEventListener('click', _drawBoard)
 				appendLabels3D(_questions)
 				startMouseDownFire()
 
@@ -804,8 +848,10 @@ Namespace('Labeling').Engine = (function () {
 	}
 
 	function startMouseDownFire() {
-		_drawBoard()
-		mouseDownFireIntervals = setInterval(_drawBoard, 4) // 4 ms is the fastest setInterval can trigger.
+		// _drawBoard()
+		// drawAnimation()
+		_drawAnimation
+		mouseDownFireIntervals = setInterval(_drawAnimation, 4) // 4 ms is the fastest setInterval can trigger.
 	}
 
 	function btnSpacer() {
