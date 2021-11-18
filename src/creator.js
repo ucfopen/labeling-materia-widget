@@ -39,6 +39,7 @@ Namespace('Labeling').Creator = (function () {
 	let mouseDownFireIntervals = null
 	let sphereRadius = 1
 	let sphereScale = 1
+	let fireCTRL = true
 
 	let mediaFileType = []
 
@@ -1080,16 +1081,26 @@ Namespace('Labeling').Creator = (function () {
 				verticalCameraRotation = module.verticalCameraRotation
 				horizontalCameraRotation = module.horizontalCameraRotation
 				return module
-			})
-			.then((module) => {
+
+			}).then((module) => {
 				arrowKeys()
 				startMouseDownFire()
 				btnScaleBigger.addEventListener('click', scaleUp)
 				btnScaleSmaller.addEventListener('click', scaleDown)
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
+				document.onkeyup = (e) => {
+					switch (e.keyCode) {
+						case 18:
+							fireCTRL = true
+							addingLabelsBtnEffect()
+							break
+					}
+				}
+			}).then(() => {
+				// On key down change event set boolean to allow for state
+				// when mouse clicking on the btn reset the state of the boolean.
 
-			})
-			.catch((err) => {
+			}).catch((err) => {
 				console.log(err)
 			})
 
@@ -1225,9 +1236,8 @@ Namespace('Labeling').Creator = (function () {
 					verticalCameraRotation(-radiantIncrement) // Down
 					break;
 
-				case 17:
-					console.log('Left CTRL pressed')
-					// toggleStateRotation()
+				case 18:
+					ctrlToggleState()
 					break;
 
 				default:
@@ -1235,10 +1245,6 @@ Namespace('Labeling').Creator = (function () {
 			}
 		}
 	}
-
-	// function ctrlChangeState() {
-	// 	document
-	// }
 
 	function removeFromUI() {
 		document.querySelector('#image').remove()
@@ -1300,10 +1306,9 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	function addingLabelsBtnEffect() {
-		if (areLinesHided) {
-			if (areWeLabeling) { toggleStateRotation() }
-			else { toggleStateLabeling() }
-		}
+		if (areWeLabeling) { toggleStateRotation() }
+		else { toggleStateLabeling() }
+
 	}
 
 	function toggleStateRotation() {
@@ -1314,7 +1319,6 @@ Namespace('Labeling').Creator = (function () {
 		let btn = document.getElementById('btnMoveResize')
 		btn.innerHTML = 'Toggle rotation'
 		btn.classList.add('orange')
-		// btn.classList.toggle('orange')
 
 		let modeIdBox = document.getElementsByClassName('optionsBox')[0]
 		modeIdBox.innerHTML = 'Labeling'
@@ -1330,12 +1334,19 @@ Namespace('Labeling').Creator = (function () {
 		let btn = document.getElementById('btnMoveResize')
 		btn.innerHTML = 'Toggle label placement'
 		btn.classList.remove('orange')
-		// btn.classList.toggle('orange')
 
 		let modeIdBox = document.getElementsByClassName('optionsBox')[0]
 		modeIdBox.innerHTML = 'Rotating'
 
 		areWeLabeling = true
+	}
+
+	function ctrlToggleState() {
+
+		if (fireCTRL === true) {
+			fireCTRL = false
+			addingLabelsBtnEffect()
+		}
 	}
 
 	// Depending on the btn toggle status drawn lines may be display.
