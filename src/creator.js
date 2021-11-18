@@ -673,6 +673,7 @@ Namespace('Labeling').Creator = (function () {
 				if (element.dataTermID == term.id) {
 					renderedSpheresGroup.remove(renderedSpheresGroup.children[index])
 					listOfVertex.splice(index, 1)
+					highlightSpheresGroup.children[0].visible = false
 				}
 			})
 
