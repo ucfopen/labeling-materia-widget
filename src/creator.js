@@ -152,7 +152,7 @@ Namespace('Labeling').Creator = (function () {
 		document.querySelector('#btnMoveResizeCancel').addEventListener('click', resizableCancel)
 
 		// Events pertaining to the title.
-		// document.querySelector('#btn-enter-title').addEventListener('click', btnTitle)  // Temporarily disable while using MWDK
+		document.querySelector('#btn-enter-title').addEventListener('click', btnTitle)  // Temporarily disable while using MWDK
 		document.querySelector('#title').addEventListener('click', _showMiniTitleEditor)
 		document.querySelector('#header .link').addEventListener('click', _showMiniTitleEditor)
 
