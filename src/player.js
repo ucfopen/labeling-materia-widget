@@ -261,6 +261,7 @@ Namespace('Labeling').Engine = (function () {
 					)
 
 				}).then((vertex) => {
+					listOfTerms.push(vertex)
 					renderedSpheresGroup.add(vertex.sphere())
 
 				}).then(() => {
@@ -274,7 +275,6 @@ Namespace('Labeling').Engine = (function () {
 
 			termList.appendChild(term)
 		})
-
 	}
 
 	// https://en.wikipedia.org/wiki/Fisher%E2%80%93Yates_shuffle
@@ -309,11 +309,17 @@ Namespace('Labeling').Engine = (function () {
 		// each subsequent board has its dot and line
 		for (let i = 0; i <= 2; i++) {
 			context = _g('previewimg' + (i + 1)).getContext('2d')
-			_drawStrokedLine(lines[i][0] - _offsetX, lines[i][1] - _offsetY,
-				lines[i][2] - _offsetX, lines[i][3] - _offsetY, '#fff', '#000', context)
+			_drawStrokedLine(
+				lines[i][0] - _offsetX, lines[i][1] - _offsetY,
+				lines[i][2] - _offsetX, lines[i][3] - _offsetY,
+				'#fff', '#000', context
+			)
 
-			_drawDot(dots[i][0], dots[i][1], 6, 2, context, 'rgba(255,255,255,' + _anchorOpacityValue + ')',
-				'rgba(0,0,0,' + _anchorOpacityValue + ')')
+			_drawDot(
+				dots[i][0], dots[i][1],
+				6, 2, context,
+				'rgba(255,255,255,' + _anchorOpacityValue + ')', 'rgba(0,0,0,' + _anchorOpacityValue + ')'
+			)
 		}
 
 		return _g('gotitbtn').addEventListener('click', _hideAlert)
@@ -369,7 +375,7 @@ Namespace('Labeling').Engine = (function () {
 						: document.getElementById('nextbtn').style.pointerEvents = 'auto'
 				}
 
-				listOfTerms.push(node)
+				// listOfTerms.push(node)
 				maxY = y
 				y += node.getBoundingClientRect().height + spacing  // increments of 48px
 			}
@@ -413,7 +419,7 @@ Namespace('Labeling').Engine = (function () {
 	// when a term is mouse downed
 	var _mouseDownEvent = function (e) {
 		if ((e == null)) { e = window.event }
-
+		if (_qset.options.flag3D === true) { clearInterval(mouseDownFireIntervals) }
 		// show ghost term (but keep the opacity at 0)
 		_g('ghost').style.display = 'inline-block'
 
@@ -434,11 +440,11 @@ Namespace('Labeling').Engine = (function () {
 			document.getElementById('my3DCanvas').style.pointerEvents = 'none'
 		}
 
-
 		// don't scroll the page on an iPad
 		e.preventDefault()
 		if (e.stopPropagation != null) { return e.stopPropagation() }
 	}
+
 
 	// when the widget area has a cursor or finger move
 	var _mouseMoveEvent = function (e) {
@@ -481,8 +487,10 @@ Namespace('Labeling').Engine = (function () {
 			// Using a forEach breaks the code.
 			for (question of Array.from(_questions)) {
 				// distance formula
-				const dist = Math.sqrt(Math.pow((e.clientX - question.options.endPointX - _offsetX - 195), 2)
-					+ Math.pow((e.clientY - question.options.endPointY - _offsetY - 50), 2))
+				const dist = Math.sqrt(
+					Math.pow((e.clientX - question.options.endPointX - _offsetX - 195), 2)
+					+ Math.pow((e.clientY - question.options.endPointY - _offsetY - 50), 2)
+				)
 
 				// we want the closest one
 				if ((dist < minDist) && (dist < 200)) {
@@ -500,7 +508,10 @@ Namespace('Labeling').Engine = (function () {
 			const ripple = _g('ripple')
 			ripple.style.transform =
 				(ripple.style.msTransform =
-					(ripple.style.webkitTransform = 'translate(' + (_curMatch.options.endPointX + _offsetX) + 'px,' + (_curMatch.options.endPointY + _offsetY) + 'px)'))
+					(ripple.style.webkitTransform = 'translate('
+						+ (_curMatch.options.endPointX + _offsetX) + 'px,'
+						+ (_curMatch.options.endPointY + _offsetY) + 'px)')
+				)
 			ripple.className = 'play'
 		}
 
@@ -563,9 +574,10 @@ Namespace('Labeling').Engine = (function () {
 			// move the label to where it belongs
 			_curterm.style.webkitTransform =
 				(_curterm.style.msTransform =
-					(_curterm.style.transform =
-						'translate(' + (_curMatch.options.labelBoxX + 210 + _offsetX) + 'px,' + ((_curMatch.options.labelBoxY + _offsetY) - 20) + 'px)'))
-
+					(_curterm.style.transform = 'translate('
+						+ (_curMatch.options.labelBoxX + 210 + _offsetX) + 'px,'
+						+ ((_curMatch.options.labelBoxY + _offsetY) - 20) + 'px)')
+				)
 			_curterm.className += ' placed'
 
 			// identify this element with the question it is answering
@@ -596,6 +608,7 @@ Namespace('Labeling').Engine = (function () {
 			document.getElementById('my3DCanvas').style.pointerEvents = 'auto'
 		}
 
+		if (_qset.options.flag3D === true) { startMouseDownFire() }
 		// prevent iPad/etc from scrolling
 		return e.preventDefault()
 	}
@@ -615,8 +628,17 @@ Namespace('Labeling').Engine = (function () {
 	var _drawStrokedLine = function (x1, y1, x2, y2, color1, color2, context) {
 		if (context == null) { context = _context }
 
-		Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 6, color1)
-		return Labeling.Draw.drawLine(context, x1 + _offsetX, y1 + _offsetY, x2 + _offsetX, y2 + _offsetY, 2, color2)
+		Labeling.Draw.drawLine(context,
+			x1 + _offsetX, y1 + _offsetY, // x1, y1
+			x2 + _offsetX, y2 + _offsetY, // x2, y2
+			6, color1 										// width, color
+		)
+
+		return Labeling.Draw.drawLine(context,
+			x1 + _offsetX, y1 + _offsetY, // x1, y1
+			x2 + _offsetX, y2 + _offsetY, // x2, y2
+			2, color2 										// width, color
+		)
 	}
 
 	// render the canvas frame
@@ -635,7 +657,8 @@ Namespace('Labeling').Engine = (function () {
 		}
 
 		if (_qset.options.flag3D === false) {
-			_context.drawImage(_img, _qset.options.imageX, _qset.options.imageY,
+			_context.drawImage(_img,
+				_qset.options.imageX, _qset.options.imageY,
 				(_img.width * _qset.options.imageScale), (_img.height * _qset.options.imageScale)
 			)
 		}
@@ -662,14 +685,21 @@ Namespace('Labeling').Engine = (function () {
 					dotBackground = 'rgba(0,0,0,' + _anchorOpacityValue + ')'
 
 					if (flag3D === false) {
-						_drawStrokedLine(question.options.endPointX, question.options.endPointY,
-							question.options.labelBoxX, question.options.labelBoxY, '#fff', '#000')
+						_drawStrokedLine(
+							question.options.endPointX, question.options.endPointY,
+							question.options.labelBoxX, question.options.labelBoxY,
+							'#fff', '#000'
+						)
 
 					} else {
 						// Same functionality as the function reRenderLines() in the creator
 						let vector = uvMapToMousePoint(question.options.vertex.point)
-						_drawStrokedLine(vector.x, vector.y, question.options.labelBoxX,
-							question.options.labelBoxY, '#fff', '#000')
+
+						_drawStrokedLine(
+							vector.x, vector.y,
+							question.options.labelBoxX, question.options.labelBoxY,
+							'#fff', '#000'
+						)
 					}
 
 				} else {
@@ -683,7 +713,8 @@ Namespace('Labeling').Engine = (function () {
 					dotBackground = 'rgba(0,0,0,' + _anchorOpacityValue + ')'
 
 					if (flag3D === false) {
-						_drawStrokedLine(question.options.endPointX, question.options.endPointY,
+						_drawStrokedLine(
+							question.options.endPointX, question.options.endPointY,
 							question.options.labelBoxX, question.options.labelBoxY,
 							'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)'
 						)
@@ -691,35 +722,48 @@ Namespace('Labeling').Engine = (function () {
 					} else {
 						// Same functionality as the function reRenderLines() in the creator
 						let vector = uvMapToMousePoint(question.options.vertex.point)
-						_drawStrokedLine(vector.x, vector.y, question.options.labelBoxX,
-							question.options.labelBoxY, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)'
+
+						_drawStrokedLine(
+							vector.x, vector.y,
+							question.options.labelBoxX, question.options.labelBoxY,
+							'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)'
 						)
 					}
 
 					// move the ghost label and make it semi-transparent
+					ghost.style.opacity = 0.5
 					ghost.style.webkitTransform =
 						(ghost.style.msTransform =
-							(ghost.style.transform = 'translate(' + (question.options.labelBoxX + 210 + _offsetX) + 'px,' + (question.options.labelBoxY + _offsetY + 35) + 'px)'))
-					ghost.style.opacity = 0.5
+							(ghost.style.transform = 'translate('
+								+ (question.options.labelBoxX + 210 + _offsetX) + 'px,'
+								+ (question.options.labelBoxY + _offsetY + 35) + 'px)'
+							))
+
 					_g('ghost').className = 'term'
 
 					if (flag3D === false) {
-						_drawStrokedLine(question.options.endPointX, question.options.endPointY,
+						_drawStrokedLine(
+							question.options.endPointX, question.options.endPointY,
 							mouseX - _offsetX - 240, mouseY - _offsetY - 80,
 							'rgba(255,255,255,1)', 'rgba(0,0,0,1)'
 						)
 
 					} else {
 						let vector = uvMapToMousePoint(question.options.vertex.point)
-						_drawStrokedLine(vector.x, vector.y, mouseX - _offsetX - 240,
-							mouseY - _offsetY - 80, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)'
+
+						_drawStrokedLine(
+							vector.x, vector.y,
+							mouseX - _offsetX - 240, mouseY - _offsetY - 80,
+							'rgba(255,255,255,1)', 'rgba(0,0,0,1)'
 						)
 					}
 				}
 
 				if (_qset.options.flag3D === false) {
-					result.push(_drawDot(question.options.endPointX + _offsetX,
-						question.options.endPointY + _offsetY, 9, 3, _context, dotBorder, dotBackground
+					result.push(_drawDot(
+						question.options.endPointX + _offsetX, question.options.endPointY + _offsetY,
+						9, 3,
+						_context, dotBorder, dotBackground
 					))
 				}
 			})
@@ -728,50 +772,43 @@ Namespace('Labeling').Engine = (function () {
 		})()
 	}
 
-	var _drawAnimation = function () {
-		// clear any lines outside of the canvas
+	var _drawAnimation = () => {
 		_context.clearRect(0, 0, 1000, 1000)
 
-		// reference the ghost object, and make it invisible
 		const ghost = _g('ghost')
 		ghost.style.opacity = 0
 
-		return (() => {
+		_questions.forEach((question) => {
+			let vector = uvMapToMousePoint(question.options.vertex.point)
 
-			_questions.forEach((question) => {
+			if (_labelTextsByQuestionId[question.id] && !(_curMatch && _labelTextsByQuestionId[_curMatch.id] && (question.id === _curMatch.id))) {
 
-				// if the question has an answer placed, draw a solid line connecting it
-				// but only if the label is not replacing one that already exists
-				if (_labelTextsByQuestionId[question.id] && !(_curMatch && _labelTextsByQuestionId[_curMatch.id] && (question.id === _curMatch.id))) {
+				_drawStrokedLine(
+					vector.x, vector.y, 																		// x1, y1
+					question.options.labelBoxX, question.options.labelBoxY, // x2, y2
+					'#fff', '#000' 																					// color1, color2
+				)
+			}
 
-					// Same functionality as the function reRenderLines() in the creator
-					let vector = uvMapToMousePoint(question.options.vertex.point)
-					_drawStrokedLine(vector.x, vector.y, question.options.labelBoxX,
-						question.options.labelBoxY, '#fff', '#000')
-				}
+			if ((_curMatch != null) && (_curMatch.id === question.id)) {
 
-				// if the question has a match dragged near it, draw a ghost line
-				if ((_curMatch != null) && (_curMatch.id === question.id)) {
+				_drawStrokedLine(
+					vector.x, vector.y,  																		// x1, y1
+					question.options.labelBoxX, question.options.labelBoxY, // x2, y2
+					'rgba(255, 255, 255, 0.2)', 'rgba(0, 0, 0, 0.3)' 				// color1, color2
+				)
 
-					// // Same functionality as the function reRenderLines() in the creator
-					// let vector = uvMapToMousePoint(question.options.vertex.point)
-					// _drawStrokedLine(vector.x, vector.y, question.options.labelBoxX,
-					// 	question.options.labelBoxY, 'rgba(255,255,255,0.2)', 'rgba(0,0,0,0.3)'
-					// )
-
-					// move the ghost label and make it semi-transparent
-					ghost.style.webkitTransform =
-						(ghost.style.msTransform =
-							(ghost.style.transform = 'translate(' + (question.options.labelBoxX + 210 + _offsetX) + 'px,' + (question.options.labelBoxY + _offsetY + 35) + 'px)'))
-					ghost.style.opacity = 0.5
-					_g('ghost').className = 'term'
-				}
-
-			})
-
-		})()
+				ghost.style.opacity = 0.5
+				ghost.style.webkitTransform =
+					(ghost.style.msTransform =
+						(ghost.style.transform = 'translate('
+							+ (question.options.labelBoxX + 210 + _offsetX) + 'px,' // x position
+							+ (question.options.labelBoxY + _offsetY + 35) + 'px)'  // y position
+						))
+				_g('ghost').className = 'term'
+			}
+		})
 	}
-
 
 	// show the "are you done?" warning dialog
 	const _showAlert = function () {
@@ -809,7 +846,7 @@ Namespace('Labeling').Engine = (function () {
 
 	function chooseVer(assetUrl, sphereRadius, sphereScale) {
 		btnSpacer()
-		console.log(sphereScale)
+
 		let btnToggleLines = createBtn('toggleLines', 'Toggle Lines', 'btnDiv')
 		btnToggleLines.addEventListener('click', hidingLinesBtnEffect, true)
 		btnToggleLines.style.top = 55 + 'px'
@@ -850,6 +887,7 @@ Namespace('Labeling').Engine = (function () {
 	function startMouseDownFire() {
 		// _drawBoard()
 		// drawAnimation()
+		// test()
 		_drawAnimation
 		mouseDownFireIntervals = setInterval(_drawAnimation, 4) // 4 ms is the fastest setInterval can trigger.
 	}
@@ -870,8 +908,8 @@ Namespace('Labeling').Engine = (function () {
 		let btn = document.createElement('button')
 		btn.id = btnID
 		btn.type = 'button'
-		btn.innerHTML = btnValue
 		btn.className = 'verBtn'
+		btn.innerHTML = btnValue
 		btn.style.left = '22px'
 		btn.style.width = '162px'
 
