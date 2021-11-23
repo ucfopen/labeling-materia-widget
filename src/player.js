@@ -867,12 +867,16 @@ Namespace('Labeling').Engine = (function () {
 				return module
 
 			}).then((module) => {
-				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
-				appendLabels3D(_questions)
 				startMouseDownFire()
-				arrowKeys()
+				appendLabels3D(_questions)
+
+				document.onkeydown = (e) => { arrowKeys(e) }
+
 				let my3DCanvas = document.getElementById('my3DCanvas')
 				my3DCanvas.addEventListener('mousemove', arrowKeys)
+
+				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
+
 			}).catch((err) => {
 				console.log(err)
 			})
@@ -938,33 +942,27 @@ Namespace('Labeling').Engine = (function () {
 	}
 
 	// Arrow keys rotate the camera.
-	function arrowKeys() {
-		document.onkeydown = (e) => {
-			let radiantIncrement = (Math.PI * cameraRotationSpeed) / 180
-			switch (e.keyCode) {
-				case 37:
-					horizontalCameraRotation(radiantIncrement) // Left
-					break;
+	function arrowKeys(e) {
+		let radiantIncrement = (Math.PI * cameraRotationSpeed) / 180
+		switch (e.keyCode) {
+			case 37:
+				horizontalCameraRotation(radiantIncrement) // Left
+				break;
 
-				case 38:
-					verticalCameraRotation(radiantIncrement) // Up
-					break;
+			case 38:
+				verticalCameraRotation(radiantIncrement) // Up
+				break;
 
-				case 39:
-					horizontalCameraRotation(-radiantIncrement) // Right
-					break;
+			case 39:
+				horizontalCameraRotation(-radiantIncrement) // Right
+				break;
 
-				case 40:
-					verticalCameraRotation(-radiantIncrement) // Down
-					break;
+			case 40:
+				verticalCameraRotation(-radiantIncrement) // Down
+				break;
 
-				case 18:
-					ctrlToggleState()
-					break;
-
-				default:
-					break;
-			}
+			default:
+				break;
 		}
 	}
 
