@@ -1084,22 +1084,17 @@ Namespace('Labeling').Creator = (function () {
 				return module
 
 			}).then((module) => {
-				arrowKeys()
 				startMouseDownFire()
+
+				let my3DCanvas = document.getElementById('my3DCanvas')
+				my3DCanvas.addEventListener('mousemove', arrowKeys)
+
 				btnScaleBigger.addEventListener('click', scaleUp)
 				btnScaleSmaller.addEventListener('click', scaleDown)
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
-				document.onkeyup = (e) => {
-					switch (e.keyCode) {
-						case 18:
-							fireCTRL = true
-							addingLabelsBtnEffect()
-							break
-					}
-				}
-			}).then(() => {
-				// On key down change event set boolean to allow for state
-				// when mouse clicking on the btn reset the state of the boolean.
+
+				document.onkeydown = (e) => { arrowKeys(e) }
+				document.onkeyup = (e) => { revertToPreviousState(e) }
 
 			}).catch((err) => {
 				console.log(err)
@@ -1217,33 +1212,40 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	// Arrow keys rotate the camera.
-	function arrowKeys() {
-		document.onkeydown = (e) => {
-			let radiantIncrement = (Math.PI * cameraRotationSpeed) / 180
-			switch (e.keyCode) {
-				case 37:
-					horizontalCameraRotation(radiantIncrement) // Left
-					break;
+	function arrowKeys(e) {
+		let radiantIncrement = (Math.PI * cameraRotationSpeed) / 180
+		switch (e.keyCode) {
+			case 37:
+				horizontalCameraRotation(radiantIncrement) // Left
+				break;
 
-				case 38:
-					verticalCameraRotation(radiantIncrement) // Up
-					break;
+			case 38:
+				verticalCameraRotation(radiantIncrement) // Up
+				break;
 
-				case 39:
-					horizontalCameraRotation(-radiantIncrement) // Right
-					break;
+			case 39:
+				horizontalCameraRotation(-radiantIncrement) // Right
+				break;
 
-				case 40:
-					verticalCameraRotation(-radiantIncrement) // Down
-					break;
+			case 40:
+				verticalCameraRotation(-radiantIncrement) // Down
+				break;
 
-				case 18:
-					ctrlToggleState()
-					break;
+			case 18:
+				ctrlToggleState()
+				break;
 
-				default:
-					break;
-			}
+			default:
+				break;
+		}
+	}
+
+	function revertToPreviousState(e) {
+		switch (e.keyCode) {
+			case 18:
+				fireCTRL = true
+				addingLabelsBtnEffect()
+				break
 		}
 	}
 
@@ -1309,7 +1311,6 @@ Namespace('Labeling').Creator = (function () {
 	function addingLabelsBtnEffect() {
 		if (areWeLabeling) { toggleStateRotation() }
 		else { toggleStateLabeling() }
-
 	}
 
 	function toggleStateRotation() {
@@ -1343,7 +1344,6 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	function ctrlToggleState() {
-
 		if (fireCTRL === true) {
 			fireCTRL = false
 			addingLabelsBtnEffect()
