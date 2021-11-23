@@ -52,7 +52,9 @@ Namespace('Labeling').Engine = (function () {
 	let listOfTerms = []
 	let oneSecond = 1000
 	let mouseDownFireIntervals = null
-	let highlightSpheresGroup = null
+	const cameraRotationSpeed = 2.5
+	let horizontalCameraRotation = null
+	let verticalCameraRotation = null
 
 	// getElementById and cache it, for the sake of performance
 	const _g = id => _domCache[id] || (_domCache[id] = document.getElementById(id))
@@ -860,14 +862,17 @@ Namespace('Labeling').Engine = (function () {
 				module.getOBJRender(assetUrl)
 				uvMapToMousePoint = module.uvMapToMousePoint
 				renderedSpheresGroup = module.renderedSpheresGroup
-				highlightSpheresGroup = module.highlightSpheresGroup
+				verticalCameraRotation = module.verticalCameraRotation
+				horizontalCameraRotation = module.horizontalCameraRotation
 				return module
 
 			}).then((module) => {
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
 				appendLabels3D(_questions)
 				startMouseDownFire()
-
+				arrowKeys()
+				let my3DCanvas = document.getElementById('my3DCanvas')
+				my3DCanvas.addEventListener('mousemove', arrowKeys)
 			}).catch((err) => {
 				console.log(err)
 			})
@@ -885,9 +890,6 @@ Namespace('Labeling').Engine = (function () {
 	}
 
 	function startMouseDownFire() {
-		// _drawBoard()
-		// drawAnimation()
-		// test()
 		_drawAnimation
 		mouseDownFireIntervals = setInterval(_drawAnimation, 4) // 4 ms is the fastest setInterval can trigger.
 	}
@@ -932,6 +934,37 @@ Namespace('Labeling').Engine = (function () {
 			btn.classList.toggle('orange')
 			element.style.display = 'inline'
 			element.style.zIndex = 2
+		}
+	}
+
+	// Arrow keys rotate the camera.
+	function arrowKeys() {
+		document.onkeydown = (e) => {
+			let radiantIncrement = (Math.PI * cameraRotationSpeed) / 180
+			switch (e.keyCode) {
+				case 37:
+					horizontalCameraRotation(radiantIncrement) // Left
+					break;
+
+				case 38:
+					verticalCameraRotation(radiantIncrement) // Up
+					break;
+
+				case 39:
+					horizontalCameraRotation(-radiantIncrement) // Right
+					break;
+
+				case 40:
+					verticalCameraRotation(-radiantIncrement) // Down
+					break;
+
+				case 18:
+					ctrlToggleState()
+					break;
+
+				default:
+					break;
+			}
 		}
 	}
 
