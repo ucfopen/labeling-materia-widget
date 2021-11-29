@@ -674,7 +674,14 @@ h1 {
 
 .optionsBox .animate {
 	transform: translate3d(0px, 100%);
-	-webkit-transition: transform 1s ease;
+	-webkit-transition: transform 2s ease;
+}
+
+.keyboardText {
+	text-align: left;
+	font-size: 14px;
+	padding-top: 5px;
+	padding-bottom: 5px;
 }
 
 button {
@@ -683,7 +690,6 @@ button {
   --size: 100%;
   --background: hsl(265, 100%, 50%);
   --color: hsl(265, 100%, 100%);
-  /* :p */
   --border: none;
   color: var(--color);
   background: var(--background);
@@ -736,3 +742,4 @@ button:active:after {
     opacity 0.4s ease-in-out;
   transition-delay: -0.1s, 0.5s;
 }
+
