@@ -1094,7 +1094,12 @@ Namespace('Labeling').Creator = (function () {
 				btnCenterCamera.addEventListener('click', module.centeringCameraEvent)
 
 				document.onkeydown = (e) => { arrowKeys(e) }
-				document.onkeyup = (e) => { revertToPreviousState(e) }
+				document.onkeyup = (e) => {
+					revertToPreviousState(e)
+					if (modeIdBox.offsetHeight > 50) {
+						optionsBoxActions()
+					}
+				}
 
 			}).catch((err) => {
 				console.log(err)
@@ -1233,6 +1238,10 @@ Namespace('Labeling').Creator = (function () {
 
 			case 18:
 				ctrlToggleState()
+				let modeIdBox = document.getElementsByClassName('optionsBox')[0]
+				if (modeIdBox.offsetHeight > 50) {
+					optionsBoxActions()
+				}
 				break;
 
 			default:
@@ -1274,28 +1283,60 @@ Namespace('Labeling').Creator = (function () {
 		let modeIdBox = document.createElement('div')
 		modeIdBox.classList.add('optionsBox')
 		modeIdBox.innerHTML = 'Rotating'
+		modeIdBox.innerHTML += '<br>'
 
 		const controlNodeList = document.getElementById('controls')
 		controlNodeList.insertBefore(modeIdBox, controlNodeList.children[0])
-
-		let menu = document.createElement('div')
-		menu.classList.add('optionsMenu')
-		menu.innerHTML = 'mouse / keyboard support'
-
-		// modeIdBox.appendChild(menu)
 	}
 
 	function optionsBoxActions() {
 		let modeIdBox = document.getElementsByClassName('optionsBox')[0]
 		if (modeIdBox.offsetHeight < 50) {
 			modeIdBox.style.top = 0 + 'px'
-			// modeIdBox.classList.add('animate')
-		}
-		else {
+			modeIdBox.appendChild(mouseText())
+			modeIdBox.appendChild(keyboardText())
+
+		} else {
 			modeIdBox.style.top = ''
-			// modeIdBox.classList.remove('animate')
+			let childrenCount = modeIdBox.childElementCount - 1
+			console.log(childrenCount)
+			for (; childrenCount >= 0; childrenCount--) {
+				modeIdBox.children[childrenCount].remove()
+			}
+
 		}
 	}
+
+	function keyboardText() {
+		let keyboard = document.createElement('div')
+		keyboard.id = 'keyboard-text'
+		keyboard.classList.add('keyboardText')
+		keyboard.innerHTML = 'Arrow Keys:'
+		keyboard.innerHTML += '<br>'
+		keyboard.innerHTML += '&#183; Rotate camera.'
+		keyboard.innerHTML += '<br>'
+		keyboard.innerHTML += '<br>'
+		keyboard.innerHTML += 'Option/alt:'
+		keyboard.innerHTML += '<br>'
+		keyboard.innerHTML += '&#183; While pressing change between rotating and labeling'
+		return keyboard
+	}
+
+	function mouseText() {
+		let mouse = document.createElement('div')
+		mouse.id = 'mouse-text'
+		mouse.classList.add('keyboardText')
+		mouse.innerHTML = 'Mouse:'
+		mouse.innerHTML += '<br>'
+		mouse.innerHTML += '&#183; Hold left click to rotate camera.'
+		mouse.innerHTML += '<br>'
+		mouse.innerHTML += '&#183; Scroll wheel to zoom.'
+		mouse.innerHTML += '<br>'
+		mouse.innerHTML += '&#183; Hold right click to move model.'
+		return mouse
+	}
+
+
 
 	function disable2DEvents() {
 		document.querySelector('#btnMoveResize').removeEventListener('click', resizable)
