@@ -17,7 +17,8 @@
 		<script src='//cdnjs.cloudflare.com/ajax/libs/jqueryui/1.10.4/jquery-ui.min.js'></script>
 
 		<!-- MAIN CREATOR SCRIPT -->
-		<script src="creator.js"></script>
+		<script type="module"  src="creator.js"></script>
+
 	</head>
 	<body>
 		<div class='sidepanel left'></div>
@@ -98,7 +99,7 @@
 			<div id='titlechanger' class='box fade'>
 				<b>Give your Labeling widget a title</b>
 				<form onsubmit='setTitle(titletxt.value);return false;'>
-					<input type='text' id='titletxt' name='titletxt' placeholder='My Labeling widget' autofocus='1'>
+					<input type='text' id='titletxt' name='titletxt' placeholder='My Labeling widget'>
 					<input type='submit' value='Done'>
 				</form>
 			</div>
@@ -109,16 +110,19 @@
 				<p>Add endpoints with labels to an image that you upload.</p>
 				<p>Students match the labels to the endpoints.</p>
 				<p>Students receive a score equal to the percentage of labels that are placed correctly.</p>
+				<button id="ver3D" class="verBtn">3D Version</button>
+				<button id="ver2D" class="verBtn">2D Version</button>
 				<hr>
 				<b>Start by giving your Labeling widget a title</b><br>
 				<form onsubmit='setTitle(titletxt.value);return false;'>
-					<input type='text' name='titletxt' placeholder='My Labeling widget' autofocus='1'>
+					<input type='text' name='titletxt' placeholder='My Labeling widget'>
 					<input type='submit' value='Get Started' id='btn-enter-title'>
 				</form>
 			</div>
+
 		</div>
 		<!-- INITIALIZE -->
-		<script type="text/javascript">
+		<script type="module">
 			Materia.CreatorCore.start(Labeling.Creator);
 		</script>
 	</body>
