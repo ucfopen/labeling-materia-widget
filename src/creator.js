@@ -1,7 +1,3 @@
-// Temporarily disable while using MWDK
-
-// Using this style of import will cause the 3D to run every time even when on 2D.
-// import { renderedSpheresGroup } from './core3D.js'
 
 Namespace('Labeling').Creator = (function () {
 
@@ -44,7 +40,7 @@ Namespace('Labeling').Creator = (function () {
 	let mediaFileType = []
 
 	// have to change function to async/await to be able read flag3D
-	const initNewWidget = function () {
+	const initNewWidget = () => {
 		document.querySelector('#image').display = 'none'
 		document.querySelector('#chooseimage').display = 'block'
 
@@ -59,10 +55,10 @@ Namespace('Labeling').Creator = (function () {
 		_qset.options.backgroundColor = 2565927
 
 		chooseVer()
-		return _setupCreator()
+		_setupCreator()
 	}
 
-	var _setupCreator = function () {
+	var _setupCreator = () => {
 		// set background and header title
 		_setBackground()
 
@@ -74,12 +70,12 @@ Namespace('Labeling').Creator = (function () {
 		// set up event handlers
 		document.querySelector('.graph').addEventListener('click', () => {
 			_qset.options.backgroundTheme = 'themeGraphPaper'
-			return _setBackground()
+			_setBackground()
 		})
 
 		document.querySelector('.cork').addEventListener('click', () => {
 			_qset.options.backgroundTheme = 'themeCorkBoard'
-			return _setBackground()
+			_setBackground()
 		})
 
 		// Color Wheel ==>
@@ -96,7 +92,7 @@ Namespace('Labeling').Creator = (function () {
 					color = parseInt(parseInt(color[0].substring(4)).toString(16) + parseInt(color[1]).toString(16) + parseInt(color[2]).toString(16), 16)
 					_qset.options.backgroundTheme = 'themeSolidColor'
 					_qset.options.backgroundColor = color
-					return _setBackground()
+					_setBackground()
 				}
 			})
 			return false
@@ -222,7 +218,7 @@ Namespace('Labeling').Creator = (function () {
 		return true
 	}
 
-	var _showMiniTitleEditor = function () {
+	var _showMiniTitleEditor = () => {
 		document.querySelector('#titlechanger').classList.add('show')
 		document.querySelector('#backgroundcover').classList.add('show')
 
@@ -239,7 +235,7 @@ Namespace('Labeling').Creator = (function () {
 		})
 
 	// sets resize mode on and off, and sets UI accordingly
-	var _resizeMode = function (isOn) {
+	var _resizeMode = (isOn) => {
 		$('#terms').css('display', isOn ? 'none' : 'block')
 		$('#canvas').css('display', isOn ? 'none' : 'block')
 		$('#maincontrols').css('display', isOn ? 'none' : 'block')
@@ -248,24 +244,24 @@ Namespace('Labeling').Creator = (function () {
 			$('#imagewrapper').addClass('resizable')
 			$('#controlcover').addClass('show')
 			$('#btnMoveResizeCancel').css('display', 'block')
-			return $('#btnMoveResizeDone').css('display', 'block')
+			$('#btnMoveResizeDone').css('display', 'block')
 		} else {
 			$('#imagewrapper').removeClass('resizable')
 			$('#controlcover').removeClass('show')
 			$('#btnMoveResizeCancel').css('display', 'none')
-			return $('#btnMoveResizeDone').css('display', 'none')
+			$('#btnMoveResizeDone').css('display', 'none')
 		}
 	}
 
 	// set background color, called from the spectrum events
-	var _updateColorFromSelector = function (color) {
+	var _updateColorFromSelector = (color) => {
 		_qset.options.backgroundTheme = 'themeSolidColor'
 		_qset.options.backgroundColor = parseInt(color.toHex(), 16)
-		return _setBackground()
+		_setBackground()
 	}
 
 	// sets background from the qset
-	var _setBackground = function () {
+	var _setBackground = () => {
 		let background
 		document.querySelector('.backgroundtile').classList.remove('show')
 
@@ -288,7 +284,7 @@ Namespace('Labeling').Creator = (function () {
 				document.querySelector('#curcolor').style.background = background
 		}
 
-		return document.querySelector('#board').style.background = background
+		document.querySelector('#board').style.background = background
 	}
 
 	const initExistingWidget = function (title, widget, qset, version, baseUrl) {
@@ -315,9 +311,9 @@ Namespace('Labeling').Creator = (function () {
 		_img.src = url
 		let imageWrapper = document.querySelector('#imagewrapper')
 
-		_img.onload = function () {
+		_img.onload = () => {
 			imageWrapper.style.height = (_img.height * _qset.options.imageScale) + 'px'
-			return imageWrapper.style.width = (_img.width * _qset.options.imageScale) + 'px'
+			imageWrapper.style.width = (_img.width * _qset.options.imageScale) + 'px'
 		}
 
 		// set the resizable image wrapper to the size and pos from qset
@@ -370,7 +366,7 @@ Namespace('Labeling').Creator = (function () {
 		let questions = qset.items
 		if ((questions[0] != null) && questions[0].items) { questions = questions[0].items }
 
-		return setTimeout(() => {
+		setTimeout(() => {
 			Array.from(questions).map((item) =>
 				reloadingLabels(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id,
 					item.options.vertex.faceIndex, item.options.vertex.point, item.options.vertex.uv))
@@ -379,31 +375,30 @@ Namespace('Labeling').Creator = (function () {
 	}
 
 	// draw lines on the board
-	const _drawBoard = function () {
+	const _drawBoard = () => {
 		// clear the board area
 		_context.clearRect(0, 0, 1000, 1000)
 
+		const result = []
+		let termArray = document.querySelectorAll('.term')
 		// iterate every term and read dot attributes
-		return (() => {
-			const result = []
-			let termArray = document.querySelectorAll('.term')
-			for (let term of Array.from(termArray)) {
-				const dotx = parseInt(term.getAttribute('data-x'))
-				const doty = parseInt(term.getAttribute('data-y'))
+		termArray.forEach((term) => {
 
-				// read label position from css
-				const labelx = parseInt(term.style.left)
-				const labely = parseInt(term.style.top)
+			const dotx = parseInt(term.getAttribute('data-x'))
+			const doty = parseInt(term.getAttribute('data-y'))
 
-				Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff')
-				result.push(Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000'))
-			}
-			return result
-		})()
+			// read label position from css
+			const labelx = parseInt(term.style.left)
+			const labely = parseInt(term.style.top)
+
+			Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 6, '#fff')
+			result.push(Labeling.Draw.drawLine(_context, dotx + _offsetX, doty + _offsetY, labelx + _offsetX, labely + _offsetY, 2, '#000'))
+		})
+		return result
 	}
 
 	// Add term to the list, called by the click event
-	var _addTerm = function (e) {
+	var _addTerm = (e) => {
 
 		flag3D
 			? _makeTerm3D(e.pageX - document.getElementById('frame').offsetLeft - document.getElementById('board').offsetLeft, e.pageY - 50)
@@ -414,16 +409,16 @@ Namespace('Labeling').Creator = (function () {
 
 		if (flag3D === false) { document.querySelector('#imagewrapper').classList.remove('faded') }
 
-		return setTimeout(function () {
+		setTimeout(() => {
 			document.querySelector('#help_moving').style.display = 'block'
 			document.querySelector('#btnMoveResize').style.display = 'block'
-			return document.querySelector('#btnChooseImage').style.display = 'block'
+			document.querySelector('#btnChooseImage').style.display = 'block'
 		}
 			, oneSecond / 2)
 	}
 
 	// generate a term div
-	var _makeTerm = function (x, y, text, labelX = null, labelY = null, id) {
+	var _makeTerm = (x, y, text, labelX = null, labelY = null, id) => {
 		if (text == null) { text = _defaultLabel }
 		if (id == null) { id = '' }
 
@@ -481,11 +476,11 @@ Namespace('Labeling').Creator = (function () {
 		document.getElementById('terms').append(dot)
 
 		// edit on click
-		term.onclick = function () {
+		term.onclick = () => {
 			term.childNodes[0].focus()
 			document.execCommand('selectAll', false, null)
 			if (term.childNodes[0].innerHTML === _defaultLabel) {
-				return term.childNodes[0].innerHTML = ''
+				term.childNodes[0].innerHTML = ''
 			}
 		}
 
@@ -504,11 +499,10 @@ Namespace('Labeling').Creator = (function () {
 		term.childNodes[0].onpaste = _termPaste
 
 		// make delete button remove it from the list
-		term.childNodes[1].onclick = function () {
+		term.childNodes[1].onclick = () => {
 			term.parentElement.removeChild(term)
 			dot.parentElement.removeChild(dot)
-
-			return _drawBoard()
+			_drawBoard()
 		}
 
 		// make the term movable
@@ -526,16 +520,16 @@ Namespace('Labeling').Creator = (function () {
 		// make the dot movable
 		$(dot).draggable({ drag: _dotDragged })
 
-		setTimeout(function () {
+		setTimeout(() => {
 			term.childNodes[0].focus()
-			return document.execCommand('selectAll', false, null)
+			document.execCommand('selectAll', false, null)
 		}
 			, 1 * (oneSecond / 100))
 
-		return _drawBoard()
+		_drawBoard()
 	}
 
-	var _makeTerm3D = function (x, y, text, labelX = null, labelY = null, id) {
+	var _makeTerm3D = (x, y, text, labelX = null, labelY = null, id) => {
 
 		if (text == null) { text = _defaultLabel }
 		if (id == null) { id = '' }
@@ -558,7 +552,7 @@ Namespace('Labeling').Creator = (function () {
 					appendingOfMake3D(x, y, text, labelX = null, labelY = null, id, term, dot)
 				}
 			}).catch((error) => {
-				console.log(error)
+				console.warn(error)
 			})
 	}
 
@@ -587,7 +581,7 @@ Namespace('Labeling').Creator = (function () {
 				scaleSpheresOnReload(reloadScale)
 
 			}).catch((error) => {
-				console.log(error)
+				console.warn(error)
 			})
 	}
 
@@ -643,11 +637,11 @@ Namespace('Labeling').Creator = (function () {
 		document.getElementById('terms').append(term)
 
 		// edit on click
-		term.onclick = function () {
+		term.onclick = () => {
 			term.childNodes[0].focus()
 			document.execCommand('selectAll', false, null)
 			if (term.childNodes[0].innerHTML === _defaultLabel) {
-				return term.childNodes[0].innerHTML = ''
+				term.childNodes[0].innerHTML = ''
 			}
 		}
 
@@ -677,7 +671,7 @@ Namespace('Labeling').Creator = (function () {
 				}
 			})
 
-			return _drawBoard()
+			_drawBoard()
 		}
 
 		// make the term movable
@@ -706,25 +700,25 @@ Namespace('Labeling').Creator = (function () {
 			})
 		}
 
-		setTimeout(function () {
+		setTimeout(() => {
 			term.childNodes[0].focus()
-			return document.execCommand('selectAll', false, null)
+			document.execCommand('selectAll', false, null)
 		}
 			, 1 * (oneSecond / 100))
 
-		return _drawBoard()
+		_drawBoard()
 	}
 
 	// When typing on a term, resize the font accordingly
-	var _termKeyUp = function (e) {
+	var _termKeyUp = (e) => {
 		if ((e == null)) { e = window.event }
 		let fontSize = (16 - (e.target.innerHTML.length / 10))
 		if (fontSize < 12) { fontSize = 12 }
-		return e.target.style.fontSize = fontSize + 'px'
+		e.target.style.fontSize = fontSize + 'px'
 	}
 
 	// When typing on a term, resize the font accordingly
-	var _termKeyDown = function (e) {
+	var _termKeyDown = (e) => {
 		if ((e == null)) { e = window.event }
 
 		if (e.keyCode === 13) {
@@ -742,24 +736,24 @@ Namespace('Labeling').Creator = (function () {
 			if (e.target.innerHTML.length < 1) {
 				$(document.getElementById('dot_' + e.target.parentElement.id)).remove()
 				$(e.target.parentElement).remove()
-				return _drawBoard()
+				_drawBoard()
 
 			} else {
 				// Defocus
 				e.target.blur()
-				return window.getSelection().removeAllRanges()  // needed for contenteditable blur
+				window.getSelection().removeAllRanges()  // needed for contenteditable blur
 			}
 		}
 	}
 
 	// If the term is blank, put dummy text in it
-	var _termBlurred = function (e) {
+	var _termBlurred = (e) => {
 		if ((e == null)) { e = window.event }
 		if (e.target.innerHTML === '') { return e.target.innerHTML = _defaultLabel }
 	}
 
 	// Convert anything on the clipboard into pure text before pasting it into the label
-	var _termPaste = function (e) {
+	var _termPaste = (e) => {
 		let clipboardArgument, clipboardData, input
 		if (e == null) { e = window.event }
 		e.preventDefault()
@@ -795,12 +789,12 @@ Namespace('Labeling').Creator = (function () {
 			newRange.collapse(false)
 
 			sel.removeAllRanges()
-			return sel.addRange(newRange)
+			sel.addRange(newRange)
 		}
 	}
 
 	// a dot has been dragged, lock it in place if its within 10px
-	var _dotDragged = function (event, ui) {
+	var _dotDragged = (event, ui) => {
 		let minDist = 9999
 		let minDistEle = null
 
@@ -825,16 +819,16 @@ Namespace('Labeling').Creator = (function () {
 		term.setAttribute('data-x', ui.position.left)
 		term.setAttribute('data-y', ui.position.top)
 
-		return _drawBoard()
+		_drawBoard()
 	}
 
 	// called from Materia creator page
-	const onSaveClicked = function (mode) {
+	const onSaveClicked = (mode) => {
 		if (mode == null) { mode = 'save' }
 
-		return !_buildSaveData()
-			? Materia.CreatorCore.cancelSave('Widget needs a title and at least one term.')
-			: Materia.CreatorCore.save(_title, _qset)
+		_buildSaveData()
+			? Materia.CreatorCore.save(_title, _qset)
+			: Materia.CreatorCore.cancelSave('Widget needs a title and at least one term.')
 	}
 
 	const onSaveComplete = (title, widget, qset, version) => true
@@ -902,7 +896,6 @@ Namespace('Labeling').Creator = (function () {
 						faceIndex: vertex.faceIndex,
 						point: vertex.point,
 						uv: vertex.uv,
-						// sphereRadius: sphereRadius,
 					}
 				}
 			}
@@ -927,7 +920,7 @@ Namespace('Labeling').Creator = (function () {
 
 	// called from Materia creator page
 	// loads and sets appropriate data for loading image
-	const onMediaImportComplete = function (media) {
+	const onMediaImportComplete = (media) => {
 		flag3D === false ? onMediaImportComplete2D(media) : onMediaImportComplete3D(media)
 	}
 
@@ -959,7 +952,7 @@ Namespace('Labeling').Creator = (function () {
 			}
 
 			iw.style.left = (600 / 2) - (parseInt(iw.style.width) / 2) + 'px'
-			return iw.style.top = (550 / 2) - (parseInt(iw.style.height) / 2) + 'px'
+			iw.style.top = (550 / 2) - (parseInt(iw.style.height) / 2) + 'px'
 		}
 
 		_makeDraggable()
@@ -1001,7 +994,6 @@ Namespace('Labeling').Creator = (function () {
 
 	function qsetOption3D(_qset) {
 		let _anchorOpacityValue = 1.0
-		console.log(highlightSpheresGroup.children[0])
 
 		_qset.options = {
 			backgroundTheme: _qset.options.backgroundTheme,
@@ -1014,8 +1006,6 @@ Namespace('Labeling').Creator = (function () {
 			sphereRadius: highlightSpheresGroup.children[0].geometry.parameters.radius,
 			sphereScale: highlightSpheresGroup.children[0].scale
 		}
-
-		console.log(_qset.options.sphereRadius)
 	}
 
 	// Choose which UI based on the version of the widget. By default its the 2D version.
@@ -1102,7 +1092,7 @@ Namespace('Labeling').Creator = (function () {
 				}
 
 			}).catch((err) => {
-				console.log(err)
+				console.warn(err)
 			})
 
 		disable2DEvents()
@@ -1299,7 +1289,6 @@ Namespace('Labeling').Creator = (function () {
 		} else {
 			modeIdBox.style.top = ''
 			let childrenCount = modeIdBox.childElementCount - 1
-			console.log(childrenCount)
 			for (; childrenCount >= 0; childrenCount--) {
 				modeIdBox.children[childrenCount].remove()
 			}
@@ -1311,14 +1300,7 @@ Namespace('Labeling').Creator = (function () {
 		let keyboard = document.createElement('div')
 		keyboard.id = 'keyboard-text'
 		keyboard.classList.add('keyboardText')
-		keyboard.innerHTML = 'Arrow Keys:'
-		keyboard.innerHTML += '<br>'
-		keyboard.innerHTML += '&#183; Rotate camera.'
-		keyboard.innerHTML += '<br>'
-		keyboard.innerHTML += '<br>'
-		keyboard.innerHTML += 'Option/alt:'
-		keyboard.innerHTML += '<br>'
-		keyboard.innerHTML += '&#183; While pressing change between rotating and labeling'
+		keyboard.innerHTML = 'Arrow Keys: \n &#183; Rotate camera. \n\n Option/alt: \n &#183; While pressing change \n    between rotating \n    and labeling'
 		return keyboard
 	}
 
@@ -1326,13 +1308,7 @@ Namespace('Labeling').Creator = (function () {
 		let mouse = document.createElement('div')
 		mouse.id = 'mouse-text'
 		mouse.classList.add('keyboardText')
-		mouse.innerHTML = 'Mouse:'
-		mouse.innerHTML += '<br>'
-		mouse.innerHTML += '&#183; Hold left click to rotate camera.'
-		mouse.innerHTML += '<br>'
-		mouse.innerHTML += '&#183; Scroll wheel to zoom.'
-		mouse.innerHTML += '<br>'
-		mouse.innerHTML += '&#183; Hold right click to move model.'
+		mouse.innerHTML = 'Mouse:\n&#183; Hold left click to rotate\n   camera.\n&#183; Scroll wheel to zoom.\n&#183; Hold right click to \n    move model.'
 		return mouse
 	}
 
@@ -1419,7 +1395,7 @@ Namespace('Labeling').Creator = (function () {
 			label.setAttribute('data-y', vector.y)
 		})
 
-		return _drawBoard()
+		_drawBoard()
 	}
 
 	function load3DAsset(assetUrl, newRadius = 1) {
@@ -1431,7 +1407,7 @@ Namespace('Labeling').Creator = (function () {
 
 			})
 
-			.catch((err) => { console.log(err) })
+			.catch((err) => { console.warn(err) })
 	}
 
 	// removes labels, lines, spheres, and model from the canvas.
@@ -1453,7 +1429,7 @@ Namespace('Labeling').Creator = (function () {
 
 		import('./core3D.js')
 			.then((module) => { module.removeModel() })
-			.catch((err) => { console.log(err) })
+			.catch((err) => { console.warn(err) })
 	}
 
 	// Public members

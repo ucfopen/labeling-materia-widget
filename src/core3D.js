@@ -150,7 +150,7 @@ function onProgress(xhr) {
 
 function onError(error) {
 	// Returns a console log ERROR when model doesn't load
-	console.log('ERROR: ' + error)
+	console.warn('ERROR: ' + error)
 }
 
 function getOBJRender(objFileStr) {
@@ -314,7 +314,6 @@ function onMouseClick(event) {
 			intersects[0].uv
 		)
 	}
-	console.log(intersects[0])
 }
 
 function getMousePosition(x, y) {

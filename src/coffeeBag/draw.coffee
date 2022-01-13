@@ -1,7 +1,4 @@
 
-# Does not import
-# import './build/three.js'
-
 Namespace('Labeling').Draw = do ->
 	# draw a stylized line connecting to a term, with curvature
 	# shared between player and creator, since it MUST be consistent

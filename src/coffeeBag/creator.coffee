@@ -14,7 +14,7 @@ Namespace('Labeling').Creator = do ->
 	# store image dimensions in case the user cancels the resize
 	_lastImgDimensions = {}
 
-	# track if the user is "get`ting started" or well on their way
+	# track if the user is "getting started" or well on their way
 	_gettingStarted = false
 
 	_defaultLabel = '[label title]'
