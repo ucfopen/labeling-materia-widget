@@ -15,6 +15,24 @@ Namespace('Labeling').Engine = do ->
 	# the current dragging term
 	_curterm = null
 
+	# track whether mouse is currently dragging or not
+	_isDragging = false
+
+	# track which pass keyboard is on
+	_onlyUnfilled = true
+
+	# track number of filled labels
+	_numFilled = 0
+
+	# track how many labels have been visited in current pass
+	_numVisited = 0
+
+	# track where the keyboard focus was before opening modal
+	_prevFocus = null
+
+	# track whether any dialog is open
+	_dialogOpen = false
+
 	# anchor tag opacity
 	_anchorOpacityValue = 1.0
 
@@ -92,8 +110,10 @@ Namespace('Labeling').Engine = do ->
 			_arrangeList()
 		_g('checkBtn').addEventListener 'click', ->
 			_submitAnswers()
-		_g('cancelbtn').addEventListener 'click', _hideAlert
-		_g('backgroundcover').addEventListener 'click', _hideAlert
+		_g('cancelbtn').addEventListener 'click', _hideDialogs
+		_g('backgroundcover').addEventListener 'click', _hideDialogs
+		_g('instructionsBtn').addEventListener 'click', _showInstructions
+		document.addEventListener('keydown', _keyboardEvent)
 
 		# get canvas context
 		_canvas = _g('image')
@@ -125,11 +145,15 @@ Namespace('Labeling').Engine = do ->
 
 			term = document.createElement 'div'
 			term.id = 'term_' + question.mask
-			term.className = 'term'
+			term.className = 'term unplaced'
 			term.innerHTML = question.questions[0].text
+			term.setAttribute('aria-label', question.questions[0].text + ", Use the A and D keys to cycle through labels. Press Enter to select a label.")
 			term.addEventListener('mousedown', _mouseDownEvent, false)
 			term.addEventListener('touchstart', _mouseDownEvent, false)
 			term.addEventListener('MSPointerDown', _mouseDownEvent, false)
+			term.addEventListener('focus', _selectTerm, false)
+			term.addEventListener('blur', _deselectTerm, false)
+			term.setAttribute("tabindex", 0)
 
 			fontSize = (15 - question.questions[0].text.length / 10)
 			fontSize = 12 if fontSize < 12
@@ -141,7 +165,7 @@ Namespace('Labeling').Engine = do ->
 			question.options.labelBoxX = parseInt(question.options.labelBoxX)
 			question.options.labelBoxY = parseInt(question.options.labelBoxY)
 
-			_g('termlist').appendChild term
+			_g('unplaced-terms').appendChild term
 
 		# defer such that it is run once the labels are ready in the DOM
 		setTimeout ->
@@ -193,7 +217,7 @@ Namespace('Labeling').Engine = do ->
 			_drawStrokedLine(lines[i][0] - _offsetX,lines[i][1] - _offsetY,lines[i][2] - _offsetX,lines[i][3] - _offsetY,'#fff','#000',context)
 			_drawDot(dots[i][0],dots[i][1],6,2,context,'rgba(255,255,255,' + _anchorOpacityValue + ')','rgba(0,0,0,' + _anchorOpacityValue + ')')
 
-		_g('gotitbtn').addEventListener 'click', _hideAlert
+		_g('gotitbtn').addEventListener 'click', _hideDialogs
 
 	# arrange the items in the left list
 	_arrangeList = ->
@@ -210,31 +234,28 @@ Namespace('Labeling').Engine = do ->
 		maxY = 0
 		found = false
 
-		# move all the terms to their correct location
-		for question in _questions
-			node = _g('term_'+ question.mask)
+		# move all the unplaced terms to the left list
+		unplacedTerms = document.querySelectorAll('.unplaced')
+		for node in unplacedTerms
+			node.style.transform =
+			node.style.msTransform =
+			node.style.webkitTransform = 'translate(50px,'+y+'px)'
 
-			# if it's not placed, put it in the left list
-			if !node.getAttribute('data-placed')
-				node.style.transform =
-				node.style.msTransform =
-				node.style.webkitTransform = 'translate(50px,'+y+'px)'
+			# too high up, put it on the previous page
+			if y < 10
+				node.style.zIndex = -1
+				offScreen = true
+			# too far down, put it on the next page
+			else if y >= MAX_HEIGHT
+				node.style.zIndex = -1
+			# just right goldilocks
+			else
+				node.style.zIndex = ''
+				node.style.opacity = 1
+				found = true
 
-				# too high up, put it on the previous page
-				if y < 10
-					node.style.zIndex = -1
-					offScreen = true
-				# too far down, put it on the next page
-				else if y >= MAX_HEIGHT
-					node.style.zIndex = -1
-				# just right goldilocks
-				else
-					node.style.zIndex = ''
-					node.style.opacity = 1
-					found = true
-
-				maxY = y
-				y += node.getBoundingClientRect().height + 10
+			maxY = y
+			y += node.getBoundingClientRect().height + 10
 
 		# hide buttons if they should not be visible
 		_g('nextbtn').style.opacity = if maxY >= MAX_HEIGHT then 1 else 0
@@ -258,18 +279,20 @@ Namespace('Labeling').Engine = do ->
 		else
 			# no more terms, we're done!
 			if not found and _curPage is 0
-				_g('donearrow').style.opacity = '1'
+				_g('donearrow').style.display = 'block'
 				_g('checkBtn').classList.add 'done'
 				_isPuzzleComplete = true
 			# jk, reset the state
 			else
-				_g('donearrow').style.opacity = '0'
+				_g('donearrow').style.display = 'none'
 				_g('checkBtn').classList.remove 'done'
 				_isPuzzleComplete = false
 
 	# when a term is mouse downed
 	_mouseDownEvent = (e) ->
 		e = window.event if not e?
+
+		_isDragging = true
 
 		# show ghost term (but keep the opacity at 0)
 		_g('ghost').style.display = 'inline-block'
@@ -279,7 +302,7 @@ Namespace('Labeling').Engine = do ->
 		_curterm.style.zIndex = ++_zIndex
 
 		# disable easing while it drags
-		e.target.className = 'term moving'
+		e.target.className = 'term unplaced moving'
 
 		# if it's been placed, remove that association
 		if _curterm.getAttribute('data-placed')
@@ -290,9 +313,111 @@ Namespace('Labeling').Engine = do ->
 		e.preventDefault()
 		e.stopPropagation() if e.stopPropagation?
 
+	_selectTerm = (e) ->
+		_curterm = e.target
+		_isDragging = false
+
+	_deselectTerm = (e) ->
+		if _curterm is e.target
+			_curterm = null
+			_curMatch = null
+			_drawBoard()
+
+	_keyboardEvent = (e) ->
+		# if a term has been selected
+		if e.key is "Escape"
+			if _dialogOpen
+				_hideDialogs()
+			else
+				_showInstructions()
+		if e.key is "R" or e.key is "r"
+			# reset all labels
+			_resetAllLabels()
+		else if _curterm
+			# show ghost term (but keep the opacity at 0)
+			_g('ghost').style.display = 'inline-block'
+
+			if e.key is "ArrowRight" or e.key is "ArrowLeft" or e.key is "a" or e.key is "A" or e.key is "d" or e.key is "d"
+				_cycleDestinations(e)
+			else if e.key is "Enter" or e.code is "Space"
+				if not _curMatch
+					_cycleDestinations(e)
+				else
+					_mouseUpEvent(e)
+
+	_getNextMatch = (key = "ArrowRight") ->
+		# Start at current index
+		nextMatch = null
+		# get the current match's index
+		if (!_curMatch)
+			curMatchIndex = -1
+		else
+			curMatchIndex = _questions.findIndex((question) => question.id == _curMatch.id)
+		# decide direction
+		if key is "ArrowRight" or key is "d" or key is "d"
+			# get match to the right in list
+			nextMatch = _questions[(curMatchIndex + 1) % _questions.length];
+		else if key is "ArrowLeft" or key is "a" or key is "A"
+			if (curMatchIndex > 0)
+				# get match to the left in list
+				nextMatch = _questions[curMatchIndex - 1]
+			else
+				# go to end of list
+				nextMatch = _questions[_questions.length - 1]
+		# TO BE IMPLEMENTED POSSIBLY
+		# i = (curMatchIndex + 1) % _questions.length
+		# question = _questions[i]
+		# # Search for next label
+		# while not nextMatch
+		# 	if _numVisited is (_questions.length - _numFilled) + 1
+		# 		_onlyUnfilled = not _onlyUnfilled
+		# 		_numVisited = -1
+		# 	else if _onlyUnfilled and not _labelTextsByQuestionId[question.id] or not _onlyUnfilled and _labelTextsByQuestionId[question.id]
+		# 		nextMatch = question
+		# 		_numVisited++
+		# 		break
+		# 	i = (i + 1) % _questions.length
+		# 	question = _questions[i]
+		# 	_numVisited++
+
+		return nextMatch
+
+	_cycleDestinations = (e) ->
+		_lastID = if _curMatch? and _curMatch.id? then _curMatch.id else 0
+		if not _curMatch and e.key is "Enter" or e.code is "Space"
+			_curMatch = _getNextMatch()
+		else
+			_curMatch = _getNextMatch(e.key)
+
+		if _curMatch? and _curMatch.id? and _curMatch.id != _lastID
+			ripple = _g('ripple')
+			ripple.style.transform =
+			ripple.style.msTransform =
+			ripple.style.webkitTransform = 'translate(' + (_curMatch.options.endPointX + _offsetX) + 'px,' + (_curMatch.options.endPointY + _offsetY) + 'px)'
+			ripple.className = ''
+			ripple.className = 'play'
+
+		if _curMatch and _labelTextsByQuestionId[_curMatch.id] isnt ''
+			fadeOutCurMatch = true
+
+		for question in _questions
+			node = _g('term_' + question.mask)
+			if fadeOutCurMatch and node.getAttribute('data-placed') == _curMatch.id
+				_g('term_' + question.mask).style.opacity = 0.5
+				_curterm.style.zIndex = ++_zIndex
+			else
+				_g('term_' + question.mask).style.opacity = 1
+		termRect = _curterm.getBoundingClientRect();
+
+		if (_curterm.className.includes("placed"))
+			_drawBoard(termRect.right - termRect.width / 2, termRect.top + termRect.height / 2)
+		else
+			_drawBoard(termRect.right - termRect.width / 2, termRect.bottom - termRect.height / 2)
+
 	# when the widget area has a cursor or finger move
 	_mouseMoveEvent = (e) ->
 		# if no term is being dragged, we don't care
+		return  if not _isDragging
 		return	if not _curterm?
 
 		e = window.event if not e?
@@ -374,10 +499,24 @@ Namespace('Labeling').Engine = do ->
 		# apply easing (for snap back animation)
 		_curterm.className = 'term ease'
 
+		# the node we'll focus after term is placed
+		focusNode = null
+
 		# if it's matched with a dot
 		if _curMatch?
 			# used after reset
 			matched = true
+
+			# make copies of current match and term because we're moving them
+			_curMatchCopy = _curMatch
+			_curtermCopy = _curterm
+
+			# find the next term to focus on for later
+			# or, if all terms are placed, focus on submit button
+			if _numFilled == _questions.length - 1
+				focusNode = _g('checkBtn')
+			else
+				focusNode = (if not _curterm.getAttribute('data-placed') then _curterm.nextSibling) or document.querySelectorAll(".unplaced")[0] or _g('checkBtn')
 
 			# if the label spot already has something there
 			if _labelTextsByQuestionId[_curMatch.id]
@@ -385,9 +524,29 @@ Namespace('Labeling').Engine = do ->
 				for question in _questions
 					node = _g('term_' + question.mask)
 					if node.getAttribute('data-placed') == _curMatch.id
-						node.className = 'term ease'
+						node.className = 'term unplaced ease'
 						node.setAttribute('data-placed','')
+						# don't replace if it's the same term
+						console.log(node)
+						console.log(_curterm)
+						if node.id != _curterm.id
+							# term switcharoo
+							node_copy = node
+							node.remove()
+							_curterm = _curterm.parentElement.replaceChild(node_copy, _curterm)
+							# we'll actually focus on the new child
+							focusNode = node_copy
 						break
+				if _curterm.getAttribute('data-placed')
+					_numFilled--;
+			else if not _curterm.getAttribute('data-placed')
+				_numFilled++
+
+			# move term into the placed terms div
+			_g('placed-terms').appendChild(_curterm)
+			# reassign our variables to the copies we made earlier
+			_curterm = _curtermCopy
+			_curMatch = _curMatchCopy
 
 			# if it has been placed before, reset the place it was placed
 			if _curterm.getAttribute('data-placed')
@@ -400,14 +559,21 @@ Namespace('Labeling').Engine = do ->
 			_curterm.style.msTransform =
 			_curterm.style.transform =
 				'translate(' + (_curMatch.options.labelBoxX + 210 + _offsetX) + 'px,' + (_curMatch.options.labelBoxY + _offsetY - 20) + 'px)'
-			_curterm.className += ' placed'
+			_curterm.className = 'term ease placed'
 
 			# identify this element with the question it is answering
 			_curterm.setAttribute('data-placed', _curMatch.id)
 		else
 			# not matched with a dot, reset the place it was placed
 			_labelTextsByQuestionId[_curterm.getAttribute('data-placed')] = ''
+			if _curterm.getAttribute('data-placed')
+				_numFilled--
 			_curterm.setAttribute('data-placed','')
+			_curtermCopy = _curterm
+			_curterm.remove()
+			_curterm = _curtermCopy
+			_g('unplaced-terms').appendChild(_curterm)
+			_curterm.className = 'term ease unplaced'
 
 		# rearrange the terms list
 		_arrangeList()
@@ -415,6 +581,9 @@ Namespace('Labeling').Engine = do ->
 		# reset
 		_curterm = null
 		_curMatch = null
+
+		if (focusNode)
+			focusNode.focus()
 
 		# render changes
 		_drawBoard()
@@ -428,6 +597,24 @@ Namespace('Labeling').Engine = do ->
 
 		# prevent iPad/etc from scrolling
 		e.preventDefault()
+
+	# moves all terms back into the termlist
+	_resetAllLabels = () ->
+		# if we're cycling through destinations, clear current match
+		_curMatch = null
+		# terms! retreat to the termlist!
+		for question in _questions
+			node = _g('term_' + question.mask)
+			if node.getAttribute('data-placed')
+				node.className = 'term unplaced ease'
+				node.setAttribute('data-placed','')
+			_labelTextsByQuestionId[question.id] = ''
+		# get into position!
+		_arrangeList()
+
+		# render our changes
+		_drawBoard()
+
 
 	# draw a dot on the specified canvas context
 	_drawDot = (x,y,radius,border,context,borderColor,fillColor) ->
@@ -497,20 +684,49 @@ Namespace('Labeling').Engine = do ->
 
 	# show the "are you done?" warning dialog
 	_showAlert = ->
+		_prevFocus = document.activeElement
+		_g('game').setAttribute("aria-hidden", true)
+		_g('game').setAttribute("inert", true)
+		_g('alertbox').removeAttribute("inert")
+		_g('alertbox').setAttribute("aria-hidden", false)
 		_g('alertbox').classList.add 'show'
 		_g('backgroundcover').classList.add 'show'
 		_g('confirmbtn').removeEventListener 'click', _submitButtonConfirm
 		_g('confirmbtn').addEventListener 'click', _submitButtonConfirm
+		_g('confirmbtn').focus();
+		_dialogOpen = true
 
-	_submitButtonConfirm = ->
-		_hideAlert()
+	_submitButtonConfirm = () ->
+		_hideDialogs()
 		_submitAnswersToMateria()
 
-	# hide the warning dialog
-	_hideAlert = ->
+	# hide all  dialogs
+	_hideDialogs = ->
 		_g('alertbox').classList.remove 'show'
 		_g('backgroundcover').classList.remove 'show'
 		_g('previewbox').classList.remove 'show'
+		_g('alertbox').setAttribute("inert", true)
+		_g('alertbox').setAttribute("aria-hidden", true)
+		_g('backgroundcover').setAttribute("inert", true)
+		_g('previewbox').setAttribute("inert", true)
+		_g('previewbox').setAttribute("aria-hidden", true)
+		_g('game').setAttribute("aria-hidden", false)
+		_g('game').removeAttribute("inert")
+
+		_dialogOpen = false
+
+		if _prevFocus
+			_prevFocus.focus()
+		else
+			_g('instructionsBtn').focus()
+
+	_showInstructions = ->
+		_prevFocus = document.activeElement
+		_g('previewbox').classList.add 'show'
+		_g('previewbox').removeAttribute("inert")
+		_g('previewbox').setAttribute("aria-hidden", false)
+		_g('gotitbtn').focus();
+		_dialogOpen = true
 
 	# submit questions to Materia. Ask first if they aren't done$
 	_submitAnswers = ->
