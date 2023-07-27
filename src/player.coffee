@@ -139,6 +139,9 @@ Namespace('Labeling').Engine = do ->
 
 		_img.src = Materia.Engine.getImageAssetUrl (
 			if _qset.options.image then _qset.options.image.id else _qset.assets[0])
+		_img.alt = if _qset.options.image and _qset.options.image.alt then _qset.options.image.alt else "No description provided. Please contact author of this widget for an image description."
+		console.log(_qset.options.image)
+		_canvas.setAttribute('aria-label', if _qset.options.image and _qset.options.image.alt then _qset.options.image.alt else "No description provided. Please contact author of this widget for an image description.")
 
 		# create term divs
 		for question in _questions

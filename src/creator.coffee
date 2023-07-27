@@ -122,6 +122,10 @@ Namespace('Labeling').Creator = do ->
 		$('#btnMoveResizeDone').click ->
 			_resizeMode false
 
+		$('#btnChangeDescription').click ->
+			$('#descriptionchanger').addClass 'show'
+			$('#backgroundcover').addClass 'show'
+
 		$('#btnChooseImage').click ->
 			Materia.CreatorCore.showMediaImporter()
 
@@ -138,6 +142,11 @@ Namespace('Labeling').Creator = do ->
 			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
 			$('#title').html (title or 'My labeling widget')
+
+		window.setImageDescription = (alt = document.getElementById("alttext")) ->
+			$('#descriptionchanger').removeClass 'show'
+			$('#backgroundcover').removeClass 'show'
+			$('#image').attr('alt', alt)
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
@@ -222,6 +231,11 @@ Namespace('Labeling').Creator = do ->
 		_img.onload = ->
 			$('#imagewrapper').css('height', (_img.height * _qset.options.imageScale))
 			$('#imagewrapper').css('width', (_img.width * _qset.options.imageScale))
+		_img.alt = _qset.options.image.alt or ''
+
+		# set the image alt
+		$('#image').attr('alt', _img.alt)
+		$('#alttxt').val(_img.alt)
 
 		# set the resizable image wrapper to the size and pos from qset
 		$('#imagewrapper').css('left', (_qset.options.imageX))
@@ -491,7 +505,7 @@ Namespace('Labeling').Creator = do ->
 	# called from Materia creator page
 	onSaveClicked = (mode = 'save') ->
 		if not _buildSaveData()
-			return Materia.CreatorCore.cancelSave 'Widget needs a title and at least one term.'
+			return Materia.CreatorCore.cancelSave 'Widget needs a title, at least one term, and a description of the image.'
 		Materia.CreatorCore.save _title, _qset
 
 	onSaveComplete = (title, widget, qset, version) -> true
@@ -552,6 +566,9 @@ Namespace('Labeling').Creator = do ->
 		else if _anchorOpacity.indexOf('transparent') > -1
 			_anchorOpacityValue = 0.0
 
+		if $('#image').attr('alt') == ''
+			_okToSave = false
+
 		_qset.options =
 			backgroundTheme: _qset.options.backgroundTheme
 			backgroundColor: _qset.options.backgroundColor
@@ -559,6 +576,7 @@ Namespace('Labeling').Creator = do ->
 			image:
 				id: $('#image').attr('data-imgid')
 				materiaType: "asset"
+				alt: $('#image').attr('alt')
 			imageX: $('#imagewrapper').position().left
 			imageY: $('#imagewrapper').position().top
 			opacity: _anchorOpacityValue
@@ -591,6 +609,7 @@ Namespace('Labeling').Creator = do ->
 
 			$('#imagewrapper').css('left', (600 / 2) - (iw.width() / 2))
 			$('#imagewrapper').css('top', (550 / 2) - (iw.height() / 2))
+		_img.alt = ""
 
 
 

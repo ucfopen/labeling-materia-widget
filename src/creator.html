@@ -39,6 +39,7 @@
 			<div id='controls'>
 				<input type='button' value='Choose a different image' data-intro='Choose an image' id='btnChooseImage'>
 				<input type='button' value='Move &amp; resize image' id='btnMoveResize'>
+				<input type='button' value='Change image description' id='btnChangeDescription'>
 				<div class='helpbox' id='help_adding' style='display:none'>
 					<b>Adding labels:</b><br>
 					Click anywhere<br>on the image<br>
@@ -99,6 +100,14 @@
 				<b>Give your Labeling widget a title</b>
 				<form onsubmit='setTitle(titletxt.value);return false;'>
 					<input type='text' id='titletxt' name='titletxt' placeholder='My Labeling widget' autofocus='1'>
+					<input type='submit' value='Done'>
+				</form>
+			</div>
+
+			<div id='descriptionchanger' class='box fade'>
+				<b>Give your Image a description</b>
+				<form onsubmit='setImageDescription(alttxt.value);return false;'>
+					<input type='text' id='alttxt' required name='alttxt' placeholder='My image description' autofocus='1'>
 					<input type='submit' value='Done'>
 				</form>
 			</div>

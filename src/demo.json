@@ -164,7 +164,8 @@
         "image":
         {
           "materiaType": "asset",
-          "id": "<%MEDIA='assets/1.png'%>"
+          "id": "<%MEDIA='assets/1.png'%>",
+          "alt": "A political world map."
         },
         "imageScale": 0.56255813953488,
         "imageX": 20.35,

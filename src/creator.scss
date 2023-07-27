@@ -241,9 +241,15 @@ textarea {
 	}
 	[type=button],
 	[type=submit],
-	[type=text] {
+	[type=text],
+	[type=textbox] {
 		margin-left: 7px;
 	}
+}
+
+#image_alt {
+	width: 170px;
+	height: 200px;
 }
 
 #opacity-toggle {
