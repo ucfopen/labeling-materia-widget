@@ -70,6 +70,12 @@ html, body {
 	}
 }
 
+#unplaced-header, #placed-header {
+	height: 0;
+	width: 0;
+	opacity: 0;
+}
+
 #placed-terms, #unplaced-terms {
 	position: absolute;
 	top: 50px;

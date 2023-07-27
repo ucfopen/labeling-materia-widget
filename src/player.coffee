@@ -1,6 +1,7 @@
 Namespace('Labeling').Engine = do ->
 	_qset = null
 	_questions = null
+	_labels = null
 
 	# cache element lookups
 	_domCache = {}
@@ -29,6 +30,9 @@ Namespace('Labeling').Engine = do ->
 
 	# track where the keyboard focus was before opening modal
 	_prevFocus = null
+
+	# track which destination we're focusing
+	_destination = null
 
 	# track whether any dialog is open
 	_dialogOpen = false
@@ -71,8 +75,10 @@ Namespace('Labeling').Engine = do ->
 		_qset = qset
 
 		_questions = _qset.items
+		_labels = _qset.items
 		if (_questions[0].items)
 			_questions = _questions[0].items
+			_labels = _questions[0].items
 
 		# deal with some legacy qset things
 		if _qset.options.version is 2
@@ -134,8 +140,6 @@ Namespace('Labeling').Engine = do ->
 		_img.src = Materia.Engine.getImageAssetUrl (
 			if _qset.options.image then _qset.options.image.id else _qset.assets[0])
 
-		_questions = _shuffle _questions
-
 		# create term divs
 		for question in _questions
 			if not question.id
@@ -147,7 +151,7 @@ Namespace('Labeling').Engine = do ->
 			term.id = 'term_' + question.mask
 			term.className = 'term unplaced'
 			term.innerHTML = question.questions[0].text
-			term.setAttribute('aria-label', question.questions[0].text + ", Use the A and D keys to cycle through labels. Press Enter to select a label.")
+			term.setAttribute('aria-label', "Now on label: " + question.questions[0].text + ", currently unplaced")
 			term.addEventListener('mousedown', _mouseDownEvent, false)
 			term.addEventListener('touchstart', _mouseDownEvent, false)
 			term.addEventListener('MSPointerDown', _mouseDownEvent, false)
@@ -166,6 +170,11 @@ Namespace('Labeling').Engine = do ->
 			question.options.labelBoxY = parseInt(question.options.labelBoxY)
 
 			_g('unplaced-terms').appendChild term
+
+		# do the shuffle
+		_labels = _questions
+		_questions = _shuffle _questions
+		_labels = _shuffle _labels
 
 		# defer such that it is run once the labels are ready in the DOM
 		setTimeout ->
@@ -345,25 +354,28 @@ Namespace('Labeling').Engine = do ->
 				else
 					_mouseUpEvent(e)
 
+	# find next label to focus
+	# takes in the event.key
 	_getNextMatch = (key = "ArrowRight") ->
 		# Start at current index
 		nextMatch = null
+		nextIndex = 0
 		# get the current match's index
 		if (!_curMatch)
 			curMatchIndex = -1
 		else
-			curMatchIndex = _questions.findIndex((question) => question.id == _curMatch.id)
+			curMatchIndex = _labels.findIndex((question) => question.id == _curMatch.id)
 		# decide direction
 		if key is "ArrowRight" or key is "d" or key is "d"
 			# get match to the right in list
-			nextMatch = _questions[(curMatchIndex + 1) % _questions.length];
+			nextIndex = (curMatchIndex + 1) % _labels.length;
 		else if key is "ArrowLeft" or key is "a" or key is "A"
 			if (curMatchIndex > 0)
 				# get match to the left in list
-				nextMatch = _questions[curMatchIndex - 1]
+				nextIndex = curMatchIndex - 1
 			else
 				# go to end of list
-				nextMatch = _questions[_questions.length - 1]
+				nextIndex = _labels.length - 1
 		# TO BE IMPLEMENTED POSSIBLY
 		# i = (curMatchIndex + 1) % _questions.length
 		# question = _questions[i]
@@ -379,6 +391,14 @@ Namespace('Labeling').Engine = do ->
 		# 	i = (i + 1) % _questions.length
 		# 	question = _questions[i]
 		# 	_numVisited++
+
+		nextMatch = _labels[nextIndex];
+		_destination = nextIndex;
+
+		if nextMatch and _labelTextsByQuestionId[nextMatch.id] and _labelTextsByQuestionId[nextMatch.id] isnt ''
+			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", occupied by label " + _labelTextsByQuestionId[nextMatch.id])
+		else
+			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", empty")
 
 		return nextMatch
 
@@ -502,6 +522,9 @@ Namespace('Labeling').Engine = do ->
 		# the node we'll focus after term is placed
 		focusNode = null
 
+		# the aria-live update
+		ariaUpdate = ""
+
 		# if it's matched with a dot
 		if _curMatch?
 			# used after reset
@@ -527,8 +550,6 @@ Namespace('Labeling').Engine = do ->
 						node.className = 'term unplaced ease'
 						node.setAttribute('data-placed','')
 						# don't replace if it's the same term
-						console.log(node)
-						console.log(_curterm)
 						if node.id != _curterm.id
 							# term switcharoo
 							node_copy = node
@@ -536,11 +557,23 @@ Namespace('Labeling').Engine = do ->
 							_curterm = _curterm.parentElement.replaceChild(node_copy, _curterm)
 							# we'll actually focus on the new child
 							focusNode = node_copy
+							ariaUpdate = "Replaced label " + question.questions[0].text + " with " + _curterm.innerText + " at destination " + (_destination + 1)
+							node_copy.setAttribute('aria-label', "Now on label " + node_copy.innerText + ", currently unplaced")
+							_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently placed at Destination " + (_destination + 1))
+						else
+							ariaUpdate = "Label " + _curterm.innerText + " kept at destination " + (_destination + 1)
 						break
 				if _curterm.getAttribute('data-placed')
 					_numFilled--;
+					_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", unplaced ")
 			else if not _curterm.getAttribute('data-placed')
 				_numFilled++
+				ariaUpdate = "Placed label " + _curterm.innerText + " at destination " +  (_destination + 1)
+				_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently placed at Destination " + (_destination + 1))
+			else if _curterm.getAttribute('data-placed')
+				console.log('hi')
+				ariaUpdate = "Moved label " + _curterm.innerText + " to destination " +  (_destination + 1)
+				_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently placed at Destination " + (_destination + 1))
 
 			# move term into the placed terms div
 			_g('placed-terms').appendChild(_curterm)
@@ -575,6 +608,14 @@ Namespace('Labeling').Engine = do ->
 			_g('unplaced-terms').appendChild(_curterm)
 			_curterm.className = 'term ease unplaced'
 
+		# update term headers
+		if _numFilled == _questions.length
+			_g('unplaced-header').setAttribute('aria-label', "No unplaced labels. All labels have been placed.")
+			ariaUpdate = "Placed all labels."
+		else if _numFilled > 0
+			_g('placed-header').setAttribute('aria-label', "Placed labels. There are " + _numFilled + " labels placed.")
+			_g('unplaced-header').setAttribute('aria-label', "Unplaced labels. There are " + (_questions.length - _numFilled) + " labels remaining.")
+
 		# rearrange the terms list
 		_arrangeList()
 
@@ -584,6 +625,9 @@ Namespace('Labeling').Engine = do ->
 
 		if (focusNode)
 			focusNode.focus()
+
+		# play the aria live update after focusing
+		_assistiveAlert(ariaUpdate)
 
 		# render changes
 		_drawBoard()
@@ -727,6 +771,9 @@ Namespace('Labeling').Engine = do ->
 		_g('previewbox').setAttribute("aria-hidden", false)
 		_g('gotitbtn').focus();
 		_dialogOpen = true
+
+	_assistiveAlert = (msg) ->
+		_g('assistive-alert').innerHTML = msg
 
 	# submit questions to Materia. Ask first if they aren't done$
 	_submitAnswers = ->

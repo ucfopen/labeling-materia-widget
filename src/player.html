@@ -16,6 +16,7 @@
 		<script src="player.js"></script>
 	</head>
 	<body>
+		<div id='assistive-alert' aria-live='assertive'></div>
 		<div role="application" id="game" aria-hidden="true" inert="true">
 			<div id='header'>
 				<div class='logo'></div>
@@ -23,17 +24,19 @@
 				<button id='instructionsBtn'>Instructions</button>
 				<button id='checkBtn'>Submit Answers</button>
 			</div>
+			<h1 id="unplaced-header">Unplaced Labels</h1>
 			<div id='unplaced-terms'>
 				<div id='prevbtn' class='arrow icon-arrow-up2'></div>
 				<div id='nextbtn' class='arrow icon-arrow-down2'></div>
 				<div class='block bottom' id='blockbottom'></div>
 				<div class='block top' id='blocktop'></div>
 			</div>
-			<div id='placed-terms'>
-			</div>
 			<div id="board" class="screen board">
 				<canvas id='image' width=800 height=800></canvas>
 				<div id='ripple'></div>
+			</div>
+			<h1 id="placed-header" aria-label="Placed labels. There are no placed labels">Placed Labels</h1>
+			<div id='placed-terms'>
 			</div>
 		</div>
 		<div id='backgroundcover' class='fade'></div>
@@ -42,7 +45,7 @@
 			<input id='cancelbtn' type='button' value='Let me finish'>
 			<input id='confirmbtn' class='green' type='button' value='Submit Anyway'>
 		</div>
-		<div class='box preview show' id='previewbox' aria-hidden="false" aria-role="alertdialog" aria-describedby="controls_header" role="dialog">
+		<div class='box preview show' id='previewbox' aria-hidden="false" role="alertdialog" aria-describedby="controls_header">
 			<h2>How to play</h2>
 			<p id="instructions">Drag labels to their corresponding destinations.</p>
 			<div class='board' aria-hidden="true">
@@ -63,8 +66,8 @@
 			<figure id="keyboard_instructions">
 				<figcaption id="controls_header">Keyboard Controls</figcaption>
 				<ul id="controls_list">
-					<li><strong>Tab</strong>: Select a term from the termlist.</li>
-					<li><strong>Arrow keys</strong>: With a term selected, use the arrow keys to cycle through destinations.</li>
+					<li aria-label="Arrow keys or Tab key: Use the arrow keys or 'Tab' key to navigate to labels."><span aria-hidden="true"><strong>Tab</strong>: Select a label.</span></li>
+					<li aria-label="'A' and 'D' keys: With a label selected, use the 'A' and 'D' keys to cycle through destinations."><span aria-hidden="true"><strong>Arrow keys</strong>: With a label selected, use the arrow keys to cycle through destinations.</span></li>
 					<li><strong>Enter</strong> or <strong>Space</strong>: Select a destination</li>
 					<li><strong>Esc</strong>: Open or close instructions.</li>
 					<li><strong>"R" key</strong>: Reset all labels.</li>
