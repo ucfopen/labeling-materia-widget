@@ -398,9 +398,9 @@ Namespace('Labeling').Engine = do ->
 		_destination = nextIndex;
 
 		if nextMatch and _labelTextsByQuestionId[nextMatch.id] and _labelTextsByQuestionId[nextMatch.id] isnt ''
-			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", occupied by label " + _labelTextsByQuestionId[nextMatch.id])
+			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", occupied by label " + _labelTextsByQuestionId[nextMatch.id] + (if nextMatch.questions[0].description then ". Destination description: " +  nextMatch.questions[0].description + "." ))
 		else
-			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", empty")
+			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", empty; " + (if nextMatch.questions[0].description then ". Destination description: " +  nextMatch.questions[0].description + "." ))
 
 		return nextMatch
 
@@ -738,7 +738,7 @@ Namespace('Labeling').Engine = do ->
 		_g('backgroundcover').classList.add 'show'
 		_g('confirmbtn').removeEventListener 'click', _submitButtonConfirm
 		_g('confirmbtn').addEventListener 'click', _submitButtonConfirm
-		_g('confirmbtn').focus();
+		_g('cancelbtn').focus();
 		_dialogOpen = true
 
 	_submitButtonConfirm = () ->

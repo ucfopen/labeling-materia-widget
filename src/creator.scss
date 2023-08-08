@@ -274,6 +274,10 @@ textarea {
 
 	overflow-x: hidden;
 	overflow-y: auto;
+
+	&:focus {
+		border: solid 2px #27c0ff;
+	}
 }
 
 div.term {
@@ -322,7 +326,7 @@ div.term {
 	&:hover .delete {
 		opacity: 1;
 	}
-	&:hover {
+	&:hover, &:focus {
 		border: solid 2px #27c0ff;
 		margin: -12px;
 	}
