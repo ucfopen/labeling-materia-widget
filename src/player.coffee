@@ -140,7 +140,6 @@ Namespace('Labeling').Engine = do ->
 		_img.src = Materia.Engine.getImageAssetUrl (
 			if _qset.options.image then _qset.options.image.id else _qset.assets[0])
 		_img.alt = if _qset.options.image and _qset.options.image.alt then _qset.options.image.alt else "No description provided. Please contact author of this widget for an image description."
-		console.log(_qset.options.image)
 		_canvas.setAttribute('aria-label', if _qset.options.image and _qset.options.image.alt then _qset.options.image.alt else "No description provided. Please contact author of this widget for an image description.")
 
 		# create term divs
@@ -337,7 +336,7 @@ Namespace('Labeling').Engine = do ->
 
 	_keyboardEvent = (e) ->
 		# if a term has been selected
-		if e.key is "Escape"
+		if e.key is "H" or e.key is "h"
 			if _dialogOpen
 				_hideDialogs()
 			else
@@ -574,7 +573,6 @@ Namespace('Labeling').Engine = do ->
 				ariaUpdate = "Placed label " + _curterm.innerText + " at destination " +  (_destination + 1)
 				_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently placed at Destination " + (_destination + 1))
 			else if _curterm.getAttribute('data-placed')
-				console.log('hi')
 				ariaUpdate = "Moved label " + _curterm.innerText + " to destination " +  (_destination + 1)
 				_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently placed at Destination " + (_destination + 1))
 
@@ -773,6 +771,8 @@ Namespace('Labeling').Engine = do ->
 		_g('previewbox').removeAttribute("inert")
 		_g('previewbox').setAttribute("aria-hidden", false)
 		_g('gotitbtn').focus();
+		_g('game').setAttribute("aria-hidden", true)
+		_g('game').setAttribute("inert", true)
 		_dialogOpen = true
 
 	_assistiveAlert = (msg) ->
