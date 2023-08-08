@@ -398,9 +398,9 @@ Namespace('Labeling').Engine = do ->
 		_destination = nextIndex;
 
 		if nextMatch and _labelTextsByQuestionId[nextMatch.id] and _labelTextsByQuestionId[nextMatch.id] isnt ''
-			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", occupied by label " + _labelTextsByQuestionId[nextMatch.id] + (if nextMatch.questions[0].description then ". Destination description: " +  nextMatch.questions[0].description + "." ))
+			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", occupied by label " + _labelTextsByQuestionId[nextMatch.id] + (if nextMatch.questions[0].description then ". Destination description: " +  nextMatch.questions[0].description + "." else ""))
 		else
-			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", empty; " + (if nextMatch.questions[0].description then ". Destination description: " +  nextMatch.questions[0].description + "." ))
+			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", empty; " + (if nextMatch.questions[0].description then ". Destination description: " +  nextMatch.questions[0].description + "."  else ""))
 
 		return nextMatch
 
