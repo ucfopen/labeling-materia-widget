@@ -300,7 +300,7 @@ Namespace('Labeling').Creator = do ->
 
 		term = document.createElement 'div'
 		term.id = 'term_' + Math.random(); # fake id for linking with dot
-		term.innerHTML = "<div class='label-input' id='text-input' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>"+text+"</div><div class='delete'></div><div class='label-input' id='description-input' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>"+description+"</div>"
+		term.innerHTML = "<div class='label-input' id='text-input' tabindex='0' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>"+text+"</div><div class='delete'></div><div class='label-input' id='description-input' contenteditable='true' tabindex='0' onkeypress='return (this.innerText.length <= 400)'>"+description+"</div>"
 		term.className = 'term'
 
 		# if we're generating a generic one, decide on a position
@@ -383,9 +383,8 @@ Namespace('Labeling').Creator = do ->
 		term.childNodes[2].onkeydown = _termKeyDown
 
 		# check if blank when the text is cleared
-		term.childNodes[0].onblur = _termBlurred(event, 0)
-
-		term.childNodes[2].onblur = _termBlurred(event, 2)
+		term.childNodes[0].onblur = (e) => _termBlurred(term.childNodes[0], 0)
+		term.childNodes[2].onblur = (e) => _termBlurred(term.childNodes[2], 2)
 
 		# clean up pasted content to make sure we don't accidentally get invisible html garbage
 		term.childNodes[0].onpaste = _termPaste
@@ -460,12 +459,11 @@ Namespace('Labeling').Creator = do ->
 				window.getSelection().removeAllRanges() # needed for contenteditable blur
 
 	# If the term is blank, put dummy text in it
-	_termBlurred = (e, type) ->
-		e = window.event if not e?
+	_termBlurred = (target, type) ->
 		if type == 0
-			e.target.innerHTML = _defaultLabel if e.target.innerHTML is ''
+			target.innerHTML = _defaultLabel if target.innerHTML is ''
 		else if type == 2
-			e.target.innerHTML = _defaultDescription if e.target.innerHTML is ''
+			target.innerHTML = _defaultDescription if target.innerHTML is ''
 
 	# Convert anything on the clipboard into pure text before pasting it into the label
 	_termPaste = (e) ->

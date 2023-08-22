@@ -380,7 +380,6 @@ Namespace('Labeling').Engine = do ->
 
 		nextMatch = _labels[nextIndex];
 		_destination = nextIndex;
-		console.log(nextMatch)
 
 		if nextMatch and _labelTextsByQuestionId[nextMatch.id] and _labelTextsByQuestionId[nextMatch.id] isnt ''
 			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", occupied by label " + _labelTextsByQuestionId[nextMatch.id] + (if nextMatch.options.description then ". Destination description: " +  nextMatch.options.description else ""))
@@ -536,7 +535,6 @@ Namespace('Labeling').Engine = do ->
 					if node.getAttribute('data-placed') == _curMatch.id
 						# don't replace if it's the same term
 						if node.id != _curterm.id
-							console.log('wat')
 							node.className = 'term unplaced ease'
 							node.setAttribute('data-placed','')
 							# term switcharoo
@@ -549,7 +547,6 @@ Namespace('Labeling').Engine = do ->
 							node_copy.setAttribute('aria-label', "Now on label " + node_copy.innerText + ", currently unplaced")
 							_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently placed at Destination " + (_destination + 1))
 						else
-							console.log('yes')
 							ariaUpdate = "Label " + _curterm.innerText + " kept at destination " + (_destination + 1)
 							matched = false
 						break
@@ -557,12 +554,10 @@ Namespace('Labeling').Engine = do ->
 					_numFilled--;
 					_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", unplaced ")
 			else if not _curterm.getAttribute('data-placed')
-				console.log('placed label')
 				_numFilled++
 				ariaUpdate = "Placed label " + _curterm.innerText + " at destination " +  (_destination + 1)
 				_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently placed at Destination " + (_destination + 1))
 			else if _curterm.getAttribute('data-placed')
-				console.log('moved label')
 				ariaUpdate = "Moved label " + _curterm.innerText + " to destination " +  (_destination + 1)
 				_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently placed at Destination " + (_destination + 1))
 
