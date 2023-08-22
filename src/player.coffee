@@ -380,11 +380,12 @@ Namespace('Labeling').Engine = do ->
 
 		nextMatch = _labels[nextIndex];
 		_destination = nextIndex;
+		console.log(nextMatch)
 
 		if nextMatch and _labelTextsByQuestionId[nextMatch.id] and _labelTextsByQuestionId[nextMatch.id] isnt ''
-			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", occupied by label " + _labelTextsByQuestionId[nextMatch.id] + (if nextMatch.questions[0].description then ". Destination description: " +  nextMatch.questions[0].description else ""))
+			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", occupied by label " + _labelTextsByQuestionId[nextMatch.id] + (if nextMatch.options.description then ". Destination description: " +  nextMatch.options.description else ""))
 		else
-			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", empty; " + (if nextMatch.questions[0].description then ". Destination description: " +  nextMatch.questions[0].description else ""))
+			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", empty; " + (if nextMatch.options.description then ". Destination description: " +  nextMatch.options.description else ""))
 
 		return nextMatch
 

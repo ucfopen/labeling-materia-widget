@@ -257,7 +257,7 @@ Namespace('Labeling').Creator = do ->
 		if questions[0]? and questions[0].items
 			questions = questions[0].items
 		for item in questions
-			_makeTerm(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id)
+			_makeTerm(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id, item.options.description or _defaultDescription)
 
 	# draw lines on the board
 	_drawBoard = ->
@@ -540,7 +540,7 @@ Namespace('Labeling').Creator = do ->
 	# place the questions in an arbitrary location to be moved
 	onQuestionImportComplete = (items) ->
 		for item in items
-			_makeTerm(150,300,item.questions[0].text,null,null,item.id,item.questions[0].description)
+			_makeTerm(150,300,item.questions[0].text,null,null,item.id,item.options.description or _defaultDescription)
 
 	# generate the qset
 	_buildSaveData = ->
@@ -562,6 +562,8 @@ Namespace('Labeling').Creator = do ->
 			item = {}
 			label = dot.childNodes[0].innerHTML
 			description = dot.childNodes[2].innerHTML
+			if description == _defaultDescription
+				description = ''
 
 			answer =
 				text: label
@@ -571,11 +573,11 @@ Namespace('Labeling').Creator = do ->
 			item.assets = []
 			question =
 				text: label
-				description: description
 			item.questions = [question]
 			item.type = 'QA'
 			item.id = dot.getAttribute('data-id') or ''
 			item.options =
+				description: description
 				labelBoxX: parseInt(dot.style.left.replace('px',''))
 				labelBoxY: parseInt(dot.style.top.replace('px',''))
 				endPointX: parseInt(dot.getAttribute('data-x'))
