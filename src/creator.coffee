@@ -126,6 +126,7 @@ Namespace('Labeling').Creator = do ->
 		$('#btnChangeDescription').click ->
 			$('#descriptionchanger').addClass 'show'
 			$('#backgroundcover').addClass 'show'
+			$('.arrow_box').addClass('hide')
 
 		$('#btnChooseImage').click ->
 			Materia.CreatorCore.showMediaImporter()
@@ -237,6 +238,10 @@ Namespace('Labeling').Creator = do ->
 		# set the image alt
 		$('#image').attr('alt', _img.alt)
 		$('#alttxt').val(_img.alt)
+
+		# if image has no description, prompt creator make one
+		if _img.alt == ''
+			$('.arrow_box').removeClass('hide')
 
 		# set the resizable image wrapper to the size and pos from qset
 		$('#imagewrapper').css('left', (_qset.options.imageX))
@@ -356,17 +361,15 @@ Namespace('Labeling').Creator = do ->
 		term.childNodes[0].onclick = ->
 			term.childNodes[0].focus()
 			document.execCommand 'selectAll',false,null
-			if term.childNodes[0].innerHTML == _defaultLabel then term.childNodes[0].innerHTML = ''
 		term.childNodes[2].onclick = ->
 			term.childNodes[2].focus()
 			document.execCommand 'selectAll',false,null
-			if term.childNodes[2].innerHTML == _defaultDescription then term.childNodes[2].innerHTML = ''
 
 		term.childNodes[0].onfocus = ->
-			if term.childNodes[0].innerHTML == _defaultDescription then term.childNodes[0].innerHTML = ''
+			document.execCommand 'selectAll',false,null
 
 		term.childNodes[2].onfocus = ->
-			if term.childNodes[2].innerHTML == _defaultDescription then term.childNodes[2].innerHTML = ''
+			document.execCommand 'selectAll',false,null
 
 		# resize text on change
 		term.childNodes[0].onkeyup = _termKeyUp
@@ -608,9 +611,6 @@ Namespace('Labeling').Creator = do ->
 
 		_qset.version = "2"
 
-
-		console.log(_qset.items)
-
 		_okToSave
 
 	# called from Materia creator page
@@ -639,7 +639,9 @@ Namespace('Labeling').Creator = do ->
 			$('#imagewrapper').css('top', (550 / 2) - (iw.height() / 2))
 		_img.alt = ""
 
-
+		# add image description dialog
+		$('#descriptionchanger').addClass 'show'
+		$('#backgroundcover').addClass 'show'
 
 		_makeDraggable()
 

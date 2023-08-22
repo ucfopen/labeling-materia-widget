@@ -10,7 +10,8 @@
           "type": "QA",
           "questions": [
             {
-              "text": "North America"
+              "text": "North America",
+              "description": "Bordered by the Pacific Ocean to the west, the Atlantic Ocean to the east, and Arctic Ocean to the north. Home to the largest fresh water lake and smallest river in the world."
             }
           ],
           "answers": [
@@ -32,7 +33,8 @@
           "type": "QA",
           "questions": [
             {
-              "text": "South America"
+              "text": "South America",
+              "description": "Has the least number of countries, and is home to the driest desert and the second longest river in the world."
             }
           ],
           "answers": [
@@ -54,7 +56,8 @@
           "type": "QA",
           "questions": [
             {
-              "text": "Asia"
+              "text": "Asia",
+              "description": "Largest of the world's continents in size and population. It is also home to the longest high speed railway in the world."
             }
           ],
           "answers": [
@@ -76,7 +79,8 @@
           "type": "QA",
           "questions": [
             {
-              "text": "Europe"
+              "text": "Europe",
+              "description": "Home to the smallest country in the world. Three-fourths of the world's potatoes are grown here."
             }
           ],
           "answers": [
@@ -98,7 +102,8 @@
           "type": "QA",
           "questions": [
             {
-              "text": "Australia"
+              "text": "Australia",
+              "description": "Smallest of the world's continents. Home to the kangaroo, emu, and platypus."
             }
           ],
           "answers": [
@@ -120,7 +125,8 @@
           "type": "QA",
           "questions": [
             {
-              "text": "Antarctica"
+              "text": "Antarctica",
+              "description": "Coldest place on Earth. Located at the South Pole."
             }
           ],
           "answers": [
@@ -142,7 +148,8 @@
           "type": "QA",
           "questions": [
             {
-              "text": "Africa"
+              "text": "Africa",
+              "description": " Bordered by the Atlantic and Indian Oceans. Home to the longest river and largest desert in the world."
             }
           ],
           "answers": [

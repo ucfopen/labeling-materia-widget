@@ -189,7 +189,6 @@ Namespace('Labeling').Engine = do ->
 		document.addEventListener('touchend', _mouseUpEvent, false)
 		document.addEventListener('mouseup', _mouseUpEvent, false)
 		document.addEventListener('MSPointerUp', _mouseUpEvent, false)
-		document.addEventListener('mouseup', _mouseUpEvent, false)
 		document.addEventListener('touchmove', _mouseMoveEvent, false)
 		document.addEventListener('MSPointerMove', _mouseMoveEvent, false)
 		document.addEventListener('mousemove', _mouseMoveEvent, false)
@@ -378,29 +377,14 @@ Namespace('Labeling').Engine = do ->
 			else
 				# go to end of list
 				nextIndex = _labels.length - 1
-		# TO BE IMPLEMENTED POSSIBLY
-		# i = (curMatchIndex + 1) % _questions.length
-		# question = _questions[i]
-		# # Search for next label
-		# while not nextMatch
-		# 	if _numVisited is (_questions.length - _numFilled) + 1
-		# 		_onlyUnfilled = not _onlyUnfilled
-		# 		_numVisited = -1
-		# 	else if _onlyUnfilled and not _labelTextsByQuestionId[question.id] or not _onlyUnfilled and _labelTextsByQuestionId[question.id]
-		# 		nextMatch = question
-		# 		_numVisited++
-		# 		break
-		# 	i = (i + 1) % _questions.length
-		# 	question = _questions[i]
-		# 	_numVisited++
 
 		nextMatch = _labels[nextIndex];
 		_destination = nextIndex;
 
 		if nextMatch and _labelTextsByQuestionId[nextMatch.id] and _labelTextsByQuestionId[nextMatch.id] isnt ''
-			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", occupied by label " + _labelTextsByQuestionId[nextMatch.id] + (if nextMatch.questions[0].description then ". Destination description: " +  nextMatch.questions[0].description + "." else ""))
+			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", occupied by label " + _labelTextsByQuestionId[nextMatch.id] + (if nextMatch.questions[0].description then ". Destination description: " +  nextMatch.questions[0].description else ""))
 		else
-			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", empty; " + (if nextMatch.questions[0].description then ". Destination description: " +  nextMatch.questions[0].description + "."  else ""))
+			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", empty; " + (if nextMatch.questions[0].description then ". Destination description: " +  nextMatch.questions[0].description else ""))
 
 		return nextMatch
 
@@ -549,10 +533,11 @@ Namespace('Labeling').Engine = do ->
 				for question in _questions
 					node = _g('term_' + question.mask)
 					if node.getAttribute('data-placed') == _curMatch.id
-						node.className = 'term unplaced ease'
-						node.setAttribute('data-placed','')
 						# don't replace if it's the same term
 						if node.id != _curterm.id
+							console.log('wat')
+							node.className = 'term unplaced ease'
+							node.setAttribute('data-placed','')
 							# term switcharoo
 							node_copy = node
 							node.remove()
@@ -563,51 +548,56 @@ Namespace('Labeling').Engine = do ->
 							node_copy.setAttribute('aria-label', "Now on label " + node_copy.innerText + ", currently unplaced")
 							_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently placed at Destination " + (_destination + 1))
 						else
+							console.log('yes')
 							ariaUpdate = "Label " + _curterm.innerText + " kept at destination " + (_destination + 1)
+							matched = false
 						break
 				if _curterm.getAttribute('data-placed')
 					_numFilled--;
 					_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", unplaced ")
 			else if not _curterm.getAttribute('data-placed')
+				console.log('placed label')
 				_numFilled++
 				ariaUpdate = "Placed label " + _curterm.innerText + " at destination " +  (_destination + 1)
 				_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently placed at Destination " + (_destination + 1))
 			else if _curterm.getAttribute('data-placed')
+				console.log('moved label')
 				ariaUpdate = "Moved label " + _curterm.innerText + " to destination " +  (_destination + 1)
 				_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently placed at Destination " + (_destination + 1))
 
-			# move term into the placed terms div
-			_g('placed-terms').appendChild(_curterm)
-			# reassign our variables to the copies we made earlier
-			_curterm = _curtermCopy
-			_curMatch = _curMatchCopy
+			if matched
+				# move term into the placed terms div
+				_g('placed-terms').appendChild(_curterm)
+				# reassign our variables to the copies we made earlier
+				_curterm = _curtermCopy
+				_curMatch = _curMatchCopy
 
-			# if it has been placed before, reset the place it was placed
-			if _curterm.getAttribute('data-placed')
-				_labelTextsByQuestionId[_curterm.getAttribute('data-placed')] = ''
-			# set the label key value array to this current answer
-			_labelTextsByQuestionId[_curMatch.id] = _curterm.innerHTML
+				# if it has been placed before, reset the place it was placed
+				if _curterm.getAttribute('data-placed')
+					_labelTextsByQuestionId[_curterm.getAttribute('data-placed')] = ''
+				# set the label key value array to this current answer
+				_labelTextsByQuestionId[_curMatch.id] = _curterm.innerHTML
 
-			# move the label to where it belongs
-			_curterm.style.webkitTransform =
-			_curterm.style.msTransform =
-			_curterm.style.transform =
-				'translate(' + (_curMatch.options.labelBoxX + 210 + _offsetX) + 'px,' + (_curMatch.options.labelBoxY + _offsetY - 20) + 'px)'
-			_curterm.className = 'term ease placed'
+				# move the label to where it belongs
+				_curterm.style.webkitTransform =
+				_curterm.style.msTransform =
+				_curterm.style.transform =
+					'translate(' + (_curMatch.options.labelBoxX + 210 + _offsetX) + 'px,' + (_curMatch.options.labelBoxY + _offsetY - 20) + 'px)'
+				_curterm.className = 'term ease placed'
 
-			# identify this element with the question it is answering
-			_curterm.setAttribute('data-placed', _curMatch.id)
+				# identify this element with the question it is answering
+				_curterm.setAttribute('data-placed', _curMatch.id)
 		else
 			# not matched with a dot, reset the place it was placed
-			_labelTextsByQuestionId[_curterm.getAttribute('data-placed')] = ''
-			if _curterm.getAttribute('data-placed')
+			if _curterm.getAttribute('data-placed') != null
 				_numFilled--
-			_curterm.setAttribute('data-placed','')
+				_labelTextsByQuestionId[_curterm.getAttribute('data-placed')] = ''
+				_curterm.setAttribute('data-placed','')
+			_curterm.className = 'term ease unplaced'
 			_curtermCopy = _curterm
 			_curterm.remove()
-			_curterm = _curtermCopy
-			_g('unplaced-terms').appendChild(_curterm)
-			_curterm.className = 'term ease unplaced'
+			# move term into the placed terms div
+			_g('unplaced-terms').appendChild(_curtermCopy)
 
 		# update term headers
 		if _numFilled == _questions.length
@@ -647,17 +637,21 @@ Namespace('Labeling').Engine = do ->
 	_resetAllLabels = () ->
 		# if we're cycling through destinations, clear current match
 		_curMatch = null
-		# terms! retreat to the termlist!
+		# terms, retreat!
 		for question in _questions
 			node = _g('term_' + question.mask)
-			if node.getAttribute('data-placed')
-				node.className = 'term unplaced ease'
-				node.setAttribute('data-placed','')
+			node.className = 'term unplaced ease'
+			node.setAttribute('data-placed','')
+			node.setAttribute('aria-label',  "Now on label: " + question.questions[0].text + ", currently unplaced")
 			_labelTextsByQuestionId[question.id] = ''
-		# get into position!
+
+		# labels, shut up!
+		_labelTextsByQuestionId = {}
+
+		# terms, resume default positions!
 		_arrangeList()
 
-		# render our changes
+		# ready to execute plan B.
 		_drawBoard()
 
 
@@ -716,14 +710,16 @@ Namespace('Labeling').Engine = do ->
 				dotBorder = 'rgba(255,255,255,' + _anchorOpacityValue + ')'
 				dotBackground = 'rgba(0,0,0,' + _anchorOpacityValue + ')'
 
-				# move the ghost label and make it semi-transparent
-				ghost.style.webkitTransform =
-				ghost.style.msTransform =
-				ghost.style.transform = 'translate(' + (question.options.labelBoxX + 210 + _offsetX) + 'px,' + (question.options.labelBoxY + _offsetY + 35) + 'px)'
-				ghost.style.opacity = 0.5
-				_g('ghost').className = 'term'
-
-				_drawStrokedLine(question.options.endPointX, question.options.endPointY, mouseX - _offsetX - 240, mouseY - _offsetY - 80, 'rgba(255,255,255,1)', 'rgba(0,0,0,1)')
+				# if the match doesn't have a label already
+				if not _labelTextsByQuestionId[_curMatch.id]
+					# move the ghost label and make it semi-transparent
+					ghost.style.webkitTransform =
+					ghost.style.msTransform =
+					ghost.style.transform = 'translate(' + (question.options.labelBoxX + 210 + _offsetX) + 'px,' + (question.options.labelBoxY + _offsetY + 15) + 'px)'
+					ghost.style.opacity = 0.5
+					_g('ghost').className = 'term'
+			else if not _curMatch
+				_g('term_' + question.mask).style.opacity = 1
 
 			_drawDot(question.options.endPointX + _offsetX,question.options.endPointY + _offsetY, 9, 3, _context, dotBorder, dotBackground)
 
