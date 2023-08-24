@@ -646,6 +646,8 @@ Namespace('Labeling').Engine = do ->
 					_g('unplaced-terms').appendChild(node_copy)
 					break
 
+		_assistiveAlert("Label removed.")
+
 		_arrangeList()
 		_drawBoard()
 
@@ -674,6 +676,9 @@ Namespace('Labeling').Engine = do ->
 
 		# ready to execute plan B.
 		_drawBoard()
+
+		# notify superiors
+		_assistiveAlert("All labels have been reset.")
 
 
 	# draw a dot on the specified canvas context
