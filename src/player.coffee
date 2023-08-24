@@ -660,7 +660,7 @@ Namespace('Labeling').Engine = do ->
 			node.removeAttribute('data-placed')
 			node.setAttribute('aria-label',  "Now on label: " + question.questions[0].text + ", currently unplaced")
 			_labelTextsByQuestionId[question.id] = ''
-			node_copy = _curterm
+			node_copy = node
 			node.remove()
 			# move term into the placed terms div
 			_g('unplaced-terms').appendChild(node_copy)
