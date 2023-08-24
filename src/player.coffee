@@ -339,10 +339,10 @@ Namespace('Labeling').Engine = do ->
 				_hideDialogs()
 			else
 				_showInstructions()
-		if e.key is "R" or e.key is "r"
+		if (e.ctrlKey or e.metaKey) and (e.key is "R" or e.key is "r")
 			# reset all labels
 			_resetAllLabels()
-		else if e.key is "Q" or e.key is "q"
+		else if e.key is "R" or e.key is "r"
 			if _curterm then _removeLabel()
 		else if _curterm
 			# show ghost term (but keep the opacity at 0)
@@ -632,6 +632,23 @@ Namespace('Labeling').Engine = do ->
 		# prevent iPad/etc from scrolling
 		e.preventDefault()
 
+	_removeLabel = () ->
+		if _curterm != null
+			for question in _questions
+				if _curterm.getAttribute('data-placed') == question.id
+					_curterm.className = 'term unplaced ease'
+					_curterm.removeAttribute('data-placed')
+					_curterm.setAttribute('aria-label',  "Now on label: " + question.questions[0].text + ", currently unplaced")
+					_labelTextsByQuestionId[question.id] = ''
+					node_copy = _curterm
+					_curterm.remove()
+					# move term into the placed terms div
+					_g('unplaced-terms').appendChild(node_copy)
+					break
+
+		_arrangeList()
+		_drawBoard()
+
 	# moves all terms back into the termlist
 	_resetAllLabels = () ->
 		# if we're cycling through destinations, clear current match
@@ -643,6 +660,11 @@ Namespace('Labeling').Engine = do ->
 			node.removeAttribute('data-placed')
 			node.setAttribute('aria-label',  "Now on label: " + question.questions[0].text + ", currently unplaced")
 			_labelTextsByQuestionId[question.id] = ''
+			node_copy = _curterm
+			node.remove()
+			# move term into the placed terms div
+			_g('unplaced-terms').appendChild(node_copy)
+
 
 		# labels, shut up!
 		_labelTextsByQuestionId = {}

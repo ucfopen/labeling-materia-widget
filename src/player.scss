@@ -195,11 +195,22 @@ div.term {
 
 	#controls_header {
 		font-weight: bold;
+		padding-bottom: 5px;
 	}
 
-	li {
-		list-style: none;
-		font-size: 0.75em;
+	table {
+		border-collapse: collapse;
+		width: 100%;
+	}
+
+	th, td {
+		border: 1px solid gray;
+		padding: 2px 8px;
+		text-align: left;
+	}
+
+	tr {
+		text-align: left;
 	}
 }
 
@@ -439,7 +450,7 @@ div.arrow {
 	position: absolute;
 	opacity: 0;
 	z-index: -1;
-	width: 390px;
+	width: 425px;
 	margin: auto;
 	left: 0;
 	right: 0;
