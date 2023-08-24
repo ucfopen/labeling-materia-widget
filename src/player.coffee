@@ -19,20 +19,17 @@ Namespace('Labeling').Engine = do ->
 	# track whether mouse is currently dragging or not
 	_isDragging = false
 
+	# track whether dragged item was placed
+	_wasPlaced = false
+
 	# track which pass keyboard is on
 	_onlyUnfilled = true
-
-	# track number of filled labels
-	_numFilled = 0
 
 	# track how many labels have been visited in current pass
 	_numVisited = 0
 
 	# track where the keyboard focus was before opening modal
 	_prevFocus = null
-
-	# track which destination we're focusing
-	_destination = null
 
 	# track whether any dialog is open
 	_dialogOpen = false
@@ -106,6 +103,7 @@ Namespace('Labeling').Engine = do ->
 			instance.name = "Widget Title Goes Here"
 		_g('title').innerHTML = instance.name
 		_g('title').style['font-size'] = ((20 - instance.name.length / 30) + 'px')
+		_g('instructions-header').setAttribute('aria-label',  "Welcome to " + instance.name + ", a labeling game! How to play: ")
 
 		# set events
 		_g('nextbtn').addEventListener 'mousedown', ->
@@ -317,7 +315,8 @@ Namespace('Labeling').Engine = do ->
 		# if it's been placed, remove that association
 		if _curterm.getAttribute('data-placed')
 			_labelTextsByQuestionId[_curterm.getAttribute('data-placed')] = ''
-			_curterm.setAttribute('data-placed','')
+			_curterm.removeAttribute('data-placed')
+			_wasPlaced = true
 
 		# don't scroll the page on an iPad
 		e.preventDefault()
@@ -343,6 +342,8 @@ Namespace('Labeling').Engine = do ->
 		if e.key is "R" or e.key is "r"
 			# reset all labels
 			_resetAllLabels()
+		else if e.key is "Q" or e.key is "q"
+			if _curterm then _removeLabel()
 		else if _curterm
 			# show ghost term (but keep the opacity at 0)
 			_g('ghost').style.display = 'inline-block'
@@ -379,10 +380,16 @@ Namespace('Labeling').Engine = do ->
 				nextIndex = _labels.length - 1
 
 		nextMatch = _labels[nextIndex];
-		_destination = nextIndex;
 
+		# update aria-live region
 		if nextMatch and _labelTextsByQuestionId[nextMatch.id] and _labelTextsByQuestionId[nextMatch.id] isnt ''
-			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", occupied by label " + _labelTextsByQuestionId[nextMatch.id] + (if nextMatch.options.description then ". Destination description: " +  nextMatch.options.description else ""))
+			# same destination
+			if _curterm.getAttribute('data-placed') == nextMatch.id
+				_assistiveAlert("Keep at destination " + (nextIndex + 1) + (if nextMatch.options.description then ". Destination description: " +  nextMatch.options.description else ""))
+			# new destination, occupied
+			else
+				_assistiveAlert("Place at destination " + (nextIndex + 1) + ", occupied by label " + _labelTextsByQuestionId[nextMatch.id] + (if nextMatch.options.description then ". Destination description: " +  nextMatch.options.description else ""))
+		# new destination, empty
 		else
 			_assistiveAlert("Place at destination " + (nextIndex + 1) + ", empty; " + (if nextMatch.options.description then ". Destination description: " +  nextMatch.options.description else ""))
 
@@ -505,7 +512,6 @@ Namespace('Labeling').Engine = do ->
 		# apply easing (for snap back animation)
 		_curterm.className = 'term ease'
 
-		# the node we'll focus after term is placed
 		focusNode = null
 
 		# the aria-live update
@@ -516,16 +522,14 @@ Namespace('Labeling').Engine = do ->
 			# used after reset
 			matched = true
 
+			_destination = _labels.findIndex((question) => question.id == _curMatch.id)
+
 			# make copies of current match and term because we're moving them
 			_curMatchCopy = _curMatch
 			_curtermCopy = _curterm
 
-			# find the next term to focus on for later
-			# or, if all terms are placed, focus on submit button
-			if _numFilled == _questions.length - 1
-				focusNode = _g('checkBtn')
-			else
-				focusNode = (if not _curterm.getAttribute('data-placed') then _curterm.nextSibling) or document.querySelectorAll(".unplaced")[0] or _g('checkBtn')
+			# the node we'll focus after term is placed
+			focusNode = (if not _curterm.getAttribute('data-placed') then _curterm.nextSibling) or document.querySelectorAll(".unplaced")[0] or _g('checkBtn')
 
 			# if the label spot already has something there
 			if _labelTextsByQuestionId[_curMatch.id]
@@ -536,7 +540,7 @@ Namespace('Labeling').Engine = do ->
 						# don't replace if it's the same term
 						if node.id != _curterm.id
 							node.className = 'term unplaced ease'
-							node.setAttribute('data-placed','')
+							node.removeAttribute('data-placed')
 							# term switcharoo
 							node_copy = node
 							node.remove()
@@ -550,11 +554,7 @@ Namespace('Labeling').Engine = do ->
 							ariaUpdate = "Label " + _curterm.innerText + " kept at destination " + (_destination + 1)
 							matched = false
 						break
-				if _curterm.getAttribute('data-placed')
-					_numFilled--;
-					_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", unplaced ")
 			else if not _curterm.getAttribute('data-placed')
-				_numFilled++
 				ariaUpdate = "Placed label " + _curterm.innerText + " at destination " +  (_destination + 1)
 				_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently placed at Destination " + (_destination + 1))
 			else if _curterm.getAttribute('data-placed')
@@ -585,23 +585,24 @@ Namespace('Labeling').Engine = do ->
 				_curterm.setAttribute('data-placed', _curMatch.id)
 		else
 			# not matched with a dot, reset the place it was placed
-			if _curterm.getAttribute('data-placed') != null
-				_numFilled--
-				_labelTextsByQuestionId[_curterm.getAttribute('data-placed')] = ''
-				_curterm.setAttribute('data-placed','')
+			_labelTextsByQuestionId[_curterm.getAttribute('data-placed')] = ''
+			_curterm.removeAttribute('data-placed')
+			_curterm.setAttribute('aria-label', "Now on label " + _curterm.innerText + ", currently unplaced")
 			_curterm.className = 'term ease unplaced'
-			_curtermCopy = _curterm
-			_curterm.remove()
-			# move term into the placed terms div
-			_g('unplaced-terms').appendChild(_curtermCopy)
+			if _wasPlaced
+				_curtermCopy = _curterm
+				_curterm.remove()
+				# move term into the placed terms div
+				_g('unplaced-terms').appendChild(_curtermCopy)
 
 		# update term headers
-		if _numFilled == _questions.length
+		numFilled = _questions.length - document.querySelectorAll('.unplaced').length
+		if numFilled == _questions.length
 			_g('unplaced-header').setAttribute('aria-label', "No unplaced labels. All labels have been placed.")
-			ariaUpdate = "Placed all labels."
-		else if _numFilled > 0
-			_g('placed-header').setAttribute('aria-label', "Placed labels. There are " + _numFilled + " labels placed.")
-			_g('unplaced-header').setAttribute('aria-label', "Unplaced labels. There are " + (_questions.length - _numFilled) + " labels remaining.")
+			ariaUpdate = "Placed all labels. Submit your answers to see your score."
+		else if numFilled > 0
+			_g('placed-header').setAttribute('aria-label', "Placed labels. There are " + numFilled + " labels placed.")
+			_g('unplaced-header').setAttribute('aria-label', "Unplaced labels. There are " + (_questions.length - numFilled) + " labels remaining.")
 
 		# rearrange the terms list
 		_arrangeList()
@@ -609,6 +610,8 @@ Namespace('Labeling').Engine = do ->
 		# reset
 		_curterm = null
 		_curMatch = null
+		_isDragging = false
+		_wasPlaced = false
 
 		if (focusNode)
 			focusNode.focus()
@@ -637,7 +640,7 @@ Namespace('Labeling').Engine = do ->
 		for question in _questions
 			node = _g('term_' + question.mask)
 			node.className = 'term unplaced ease'
-			node.setAttribute('data-placed','')
+			node.removeAttribute('data-placed')
 			node.setAttribute('aria-label',  "Now on label: " + question.questions[0].text + ", currently unplaced")
 			_labelTextsByQuestionId[question.id] = ''
 
