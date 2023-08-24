@@ -529,7 +529,7 @@ Namespace('Labeling').Engine = do ->
 			_curtermCopy = _curterm
 
 			# the node we'll focus after term is placed
-			focusNode = (if not _curterm.getAttribute('data-placed') then _curterm.nextSibling) or document.querySelectorAll(".unplaced")[0] or _g('checkBtn')
+			focusNode = (if not _curterm.getAttribute('data-placed') then _curterm.nextSibling) or document.querySelectorAll(".unplaced")[0]
 
 			# if the label spot already has something there
 			if _labelTextsByQuestionId[_curMatch.id]
