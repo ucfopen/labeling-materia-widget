@@ -189,9 +189,9 @@ div.term {
 }
 
 #keyboard_instructions {
-	background-color: #e7e7e7;
 	padding: 1em;
 	color: #505050;
+	max-width: 350px;
 
 	#controls_header {
 		font-weight: bold;
@@ -450,7 +450,7 @@ div.arrow {
 	position: absolute;
 	opacity: 0;
 	z-index: -1;
-	width: 425px;
+	width: 650px;
 	margin: auto;
 	left: 0;
 	right: 0;
@@ -461,6 +461,12 @@ div.arrow {
 	&.show {
 		opacity: 1;
 		z-index: 19000;
+	}
+
+	.instructions-content {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
 	}
 
 	.board {

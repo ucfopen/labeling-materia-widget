@@ -613,8 +613,8 @@ Namespace('Labeling').Engine = do ->
 		_isDragging = false
 		_wasPlaced = false
 
-		if (focusNode)
-			focusNode.focus()
+		# if (focusNode)
+		# 	focusNode.focus()
 
 		# play the aria live update after focusing
 		_assistiveAlert(ariaUpdate)
