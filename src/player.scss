@@ -710,3 +710,10 @@ and (max-device-width : 1024px)  {
 	}
 }
 
+#assistive-alert {
+	height: 0;
+	width: 0;
+	position: absolute;
+	opacity: 0;
+}
+

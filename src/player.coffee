@@ -741,7 +741,7 @@ Namespace('Labeling').Engine = do ->
 					# move the ghost label and make it semi-transparent
 					ghost.style.webkitTransform =
 					ghost.style.msTransform =
-					ghost.style.transform = 'translate(' + (question.options.labelBoxX + 210 + _offsetX) + 'px,' + (question.options.labelBoxY + _offsetY + 15) + 'px)'
+					ghost.style.transform = 'translate(' + (question.options.labelBoxX + 210 + _offsetX) + 'px,' + (question.options.labelBoxY + _offsetY + 35) + 'px)'
 					ghost.style.opacity = 0.5
 					_g('ghost').className = 'term'
 			else if not _curMatch
