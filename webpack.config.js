@@ -4,6 +4,7 @@ const widgetWebpack = require('materia-widget-development-kit/webpack-widget')
 const copy = widgetWebpack.getDefaultCopyList()
 
 const outputPath = path.join(process.cwd(), 'build')
+const srcPath = path.join(__dirname, 'src') + path.sep
 
 const customCopy = copy.concat([
 	{
@@ -14,31 +15,18 @@ const customCopy = copy.concat([
 ])
 
 const entries = {
-	'creator.js': [
-		path.join(__dirname, 'src', 'spectrum.custom.js'),
-		path.join(__dirname, 'src', 'draw.coffee'),
-		path.join(__dirname, 'src', 'creator.coffee')
+	'creator': [
+		path.join(srcPath, 'creator.html'),
+		path.join(srcPath, 'creator.scss'),
+		path.join(srcPath, 'spectrum.custom.js'),
+		path.join(srcPath, 'draw.coffee'),
+		path.join(srcPath, 'creator.coffee'),
 	],
-	'player.js': [
-		path.join(__dirname, 'src', 'draw.coffee'),
-		path.join(__dirname, 'src', 'player.coffee')
-	],
-	'creator.css': [
-		path.join(__dirname, 'src', 'creator.html'),
-		path.join(__dirname, 'src', 'creator.scss')
-	],
-	'player.css': [
-		path.join(__dirname, 'src', 'player.html'),
-		path.join(__dirname, 'src', 'player.scss')
-	],
-	'guides/guideStyles.css': [
-		path.join(__dirname, 'src', '_guides', 'guideStyles.scss'),
-	],
-	'guides/player.temp.html': [
-		path.join(__dirname, 'src', '_guides', 'player.md')
-	],
-	'guides/creator.temp.html': [
-		path.join(__dirname, 'src', '_guides', 'creator.md')
+	'player': [
+		path.join(srcPath, 'player.html'),
+		path.join(srcPath, 'player.scss'),
+		path.join(srcPath, 'draw.coffee'),
+		path.join(srcPath, 'player.coffee'),
 	]
 }
 
