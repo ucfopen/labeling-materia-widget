@@ -29,7 +29,7 @@ meta_data:
   accessibility_keyboard: Full # values can be Full | Limited | None
   accessibility_reader: Limited # values can be Full | Limited | None
   accessibility_description: >
-    Destinations do not have non-visual descriptions. Standard navigation is supported. Some operations require the use of custom controls. These controls are communicated visually and to screenreaders.
+    Standard navigation is supported. Some operations require the use of custom controls which are communicated visually and to screenreaders. For full screenreader support, widget authors can add label descriptions in addition to label titles.
   supported_data:
     - Question/Answer
   about: >
