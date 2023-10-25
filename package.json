@@ -12,7 +12,7 @@
     "test-ci": "echo 'tests not implemented'"
   },
   "dependencies": {
-    "materia-widget-development-kit": "../../MWDK4",
+    "materia-widget-development-kit": "~3.0.0",
     "meta-marked": "^0.4.2"
   },
   "license": "AGPL-3.0",
