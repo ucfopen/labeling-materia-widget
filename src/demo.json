@@ -20,6 +20,7 @@
             }
           ],
           "options": {
+            "description": "Bordered by the Pacific Ocean to the west, the Atlantic Ocean to the east, and Arctic Ocean to the north. Has 23 countries.",
             "labelBoxY": 61,
             "labelBoxX": 36.75,
             "endPointY": 215,
@@ -42,6 +43,7 @@
             }
           ],
           "options": {
+            "description": "Has 12 countries, and is home to the driest desert and the second longest river in the world.",
             "labelBoxY": 457,
             "labelBoxX": 29.75,
             "endPointY": 315,
@@ -64,6 +66,7 @@
             }
           ],
           "options": {
+            "description": "Largest of the world's continents in size and population. Has 50 countries. It is also home to the longest high speed railway in the world.",
             "labelBoxY": 55,
             "labelBoxX": 427.75,
             "endPointY": 198,
@@ -86,6 +89,7 @@
             }
           ],
           "options": {
+            "description": "A northern continent with 50 countries, one of which is the smallest country in the world. Three-fourths of the world's potatoes are grown here.",
             "labelBoxY": 26,
             "labelBoxX": 234.75,
             "endPointY": 190,
@@ -108,6 +112,7 @@
             }
           ],
           "options": {
+            "description": "Smallest of the world's continents. Home to the kangaroo, emu, and platypus. Has 6 countries.",
             "labelBoxY": 456,
             "labelBoxX": 445.75,
             "endPointY": 334,
@@ -130,6 +135,7 @@
             }
           ],
           "options": {
+            "description": "Coldest place on Earth. Located at the South Pole. Has 0 countries.",
             "labelBoxY": 484,
             "labelBoxX": 227.75,
             "endPointY": 422,
@@ -152,6 +158,7 @@
             }
           ],
           "options": {
+            "description": "Bordered by the Atlantic and Indian Oceans. Home to the longest river and largest desert in the world. Has 54 countries.",
             "labelBoxY": 355,
             "labelBoxX": 301.75,
             "endPointY": 266,
@@ -164,7 +171,8 @@
         "image":
         {
           "materiaType": "asset",
-          "id": "<%MEDIA='assets/1.png'%>"
+          "id": "<%MEDIA='assets/1.png'%>",
+          "alt": "A political world map."
         },
         "imageScale": 0.56255813953488,
         "imageX": 20.35,
