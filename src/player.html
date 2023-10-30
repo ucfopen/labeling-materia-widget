@@ -16,49 +16,92 @@
 		<script src="player.js"></script>
 	</head>
 	<body>
-		<div id='header'>
-			<div class='logo'></div>
-			<h1 id='title'></h1>
-			<button id='checkBtn'>Submit Answers</button>
-		</div>
-		<div id='termlist'>
-			<div id='prevbtn' class='arrow icon-arrow-up2'></div>
-			<div id='nextbtn' class='arrow icon-arrow-down2'></div>
-			<div class='block bottom' id='blockbottom'></div>
-			<div class='block top' id='blocktop'></div>
-		</div>
-		<div id="board" class="screen board">
-			<canvas id='image' width=800 height=800></canvas>
-			<div id='ripple'></div>
+		<div id='assistive-alert' aria-live='assertive'></div>
+		<div role="application" id="game" aria-hidden="true" inert="true">
+			<div id='header'>
+				<div class='logo'></div>
+				<h1 id='title'></h1>
+				<button id='instructionsBtn' aria-label="Instructions; Use Tab and Shift+Tab to navigate between labels. With a label selected, use the arrow keys or the 'A' and 'D' keys to cycle through destinations. Press Enter or Space to choose a destination. To reset a selected label, press the 'R' key. To completely reset all labels, press Ctrl+R. To open the instructions, press the 'H' key.">Instructions</button>
+				<button id='checkBtn'>Submit Answers</button>
+			</div>
+			<h1 id="unplaced-header">Unplaced Labels</h1>
+			<div id='unplaced-terms'>
+				<div id='prevbtn' class='arrow icon-arrow-up2'></div>
+				<div id='nextbtn' class='arrow icon-arrow-down2'></div>
+				<div class='block bottom' id='blockbottom'></div>
+				<div class='block top' id='blocktop'></div>
+			</div>
+			<div id="board" class="screen board">
+				<canvas id='image' width=800 height=800></canvas>
+				<div id='ripple'></div>
+			</div>
+			<h1 id="placed-header" aria-label="Placed labels. There are no placed labels">Placed Labels</h1>
+			<div id='placed-terms'>
+			</div>
 		</div>
 		<div id='backgroundcover' class='fade'></div>
-		<div id='alertbox' class='box fade'>
+		<div id='alertbox' class='box fade' aria-describedby="alertcaption" aria-role="alertdialog" inert="true" aria-hidden="true" role="dialog">
 			<span id='alertcaption'>You haven't placed all the labels yet.</span><br>
 			<input id='cancelbtn' type='button' value='Let me finish'>
 			<input id='confirmbtn' class='green' type='button' value='Submit Anyway'>
 		</div>
-		<div class='box preview show' id='previewbox'>
-			How to play
-			<div class='board'>
-				<div class='terms'>
-					<div class='term first'></div>
-					<div class='term second'></div>
-					<div class='term third'></div>
+		<div class='box preview show' id='previewbox' aria-hidden="false" role="alertdialog" aria-describedby="controls_header">
+			<h2 id="instructions-header">How to play</h2>
+			<p id="instructions">Drag labels to their corresponding destinations.</p>
+			<div class="instructions-content">
+				<div class='board' aria-hidden="true">
+					<div class='terms'>
+						<div class='term first'></div>
+						<div class='term second'></div>
+						<div class='term third'></div>
+					</div>
+					<canvas id='previewimg0' class='previewimg' width=300 height=150></canvas>
+					<canvas id='previewimg1' class='previewimg' width=300 height=150></canvas>
+					<canvas id='previewimg2' class='previewimg' width=300 height=150></canvas>
+					<canvas id='previewimg3' class='previewimg' width=300 height=150></canvas>
+					<div class='img'></div>
+					<div class='cursor'>
+						<img src='assets/cursor.svg'>
+					</div>
 				</div>
-				<canvas id='previewimg0' class='previewimg' width=300 height=150></canvas>
-				<canvas id='previewimg1' class='previewimg' width=300 height=150></canvas>
-				<canvas id='previewimg2' class='previewimg' width=300 height=150></canvas>
-				<canvas id='previewimg3' class='previewimg' width=300 height=150></canvas>
-				<div class='img'></div>
-				<div class='cursor'>
-					<img src='assets/cursor.svg'>
-				</div>
+				<figure id="keyboard_instructions">
+					<figcaption id="controls_header">Keyboard Controls</figcaption>
+					<table>
+						<tr>
+						  <th>Shortcut</th>
+						  <th>Description</th>
+						</tr>
+						<tr>
+						  <td><strong>Tab</strong></td>
+						  <td>Use the 'Tab' key to navigate to labels.</td>
+						</tr>
+						<tr>
+						  <td><strong>Arrow keys</strong></td>
+						  <td>With a label selected, use the arrow keys to cycle through destinations.</td>
+						</tr>
+						<tr>
+						  <td><strong>Enter/Space</strong></td>
+						  <td>Select a destination</td>
+						</tr>
+						<tr>
+						  <td><strong>H</strong></td>
+						  <td>Open or close instructions.</td>
+						</tr>
+						<tr>
+						  <td><strong>R</strong></td>
+						  <td>Reset selected label.</td>
+						</tr>
+						<tr>
+						  <td><strong>Ctrl+R</strong></td>
+						  <td>Reset all labels.</td>
+						</tr>
+					  </table>
+				</figure>
 			</div>
-			<span>Drag labels to their corresponding destinations.</span><br>
-			<input class='green' type='button' id='gotitbtn' value='Got it!'>
+			<input class='green' type='button' id='gotitbtn' value='Got it!' aria-label="Use Tab and Shift+Tab to navigate between labels. With a label selected, use the arrow keys or the 'A' and 'D' keys to cycle through destinations. Press Enter or Space to choose a destination. To remove a label, press the 'R' key. To completely reset all labels, press Ctrl+R. To open the instructions, press the 'H' key.">
 		</div>
-		<div id='ghost' class='term' style='opacity:0'>&nbsp;</div>
-		<div id='donearrow'><b>Click to finish</b></div>
+		<div aria-hidden="true" id='ghost' class='term' style='opacity:0'>&nbsp;</div>
+		<div id='donearrow' aria-hidden="true"><b>Click to finish</b></div>
 
 		<!-- INITIALIZE -->
 		<script>

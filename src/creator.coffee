@@ -18,6 +18,7 @@ Namespace('Labeling').Creator = do ->
 	_gettingStarted = false
 
 	_defaultLabel = '[label title]'
+	_defaultDescription = '[ARIA label description]'
 
 	initNewWidget = (widget, baseUrl) ->
 		$('#image').hide()
@@ -122,6 +123,11 @@ Namespace('Labeling').Creator = do ->
 		$('#btnMoveResizeDone').click ->
 			_resizeMode false
 
+		$('#btnChangeDescription').click ->
+			$('#descriptionchanger').addClass 'show'
+			$('#backgroundcover').addClass 'show'
+			$('.arrow_box').addClass('hide')
+
 		$('#btnChooseImage').click ->
 			Materia.CreatorCore.showMediaImporter()
 
@@ -138,6 +144,11 @@ Namespace('Labeling').Creator = do ->
 			$('#titlechanger').removeClass 'show'
 			$('#backgroundcover').removeClass 'show'
 			$('#title').html (title or 'My labeling widget')
+
+		window.setImageDescription = (alt = document.getElementById("alttext")) ->
+			$('#descriptionchanger').removeClass 'show'
+			$('#backgroundcover').removeClass 'show'
+			$('#image').attr('alt', alt)
 
 		document.getElementById('canvas').addEventListener('click', _addTerm, false)
 
@@ -222,6 +233,15 @@ Namespace('Labeling').Creator = do ->
 		_img.onload = ->
 			$('#imagewrapper').css('height', (_img.height * _qset.options.imageScale))
 			$('#imagewrapper').css('width', (_img.width * _qset.options.imageScale))
+		_img.alt = _qset.options.image.alt or ''
+
+		# set the image alt
+		$('#image').attr('alt', _img.alt)
+		$('#alttxt').val(_img.alt)
+
+		# if image has no description, prompt creator make one
+		if _img.alt == ''
+			$('.arrow_box').removeClass('hide')
 
 		# set the resizable image wrapper to the size and pos from qset
 		$('#imagewrapper').css('left', (_qset.options.imageX))
@@ -237,7 +257,7 @@ Namespace('Labeling').Creator = do ->
 		if questions[0]? and questions[0].items
 			questions = questions[0].items
 		for item in questions
-			_makeTerm(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id)
+			_makeTerm(item.options.endPointX, item.options.endPointY, item.questions[0].text, item.options.labelBoxX, item.options.labelBoxY, item.id, item.options.description or _defaultDescription)
 
 	# draw lines on the board
 	_drawBoard = ->
@@ -274,13 +294,13 @@ Namespace('Labeling').Creator = do ->
 		,400
 
 	# generate a term div
-	_makeTerm = (x, y, text = _defaultLabel, labelX=null, labelY=null, id='') ->
+	_makeTerm = (x, y, text = _defaultLabel, labelX=null, labelY=null, id='', description = _defaultDescription) ->
 		dotx = x
 		doty = y
 
 		term = document.createElement 'div'
 		term.id = 'term_' + Math.random(); # fake id for linking with dot
-		term.innerHTML = "<div class='label-input' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>"+text+"</div><div class='delete'></div>"
+		term.innerHTML = "<div class='label-input' id='text-input' tabindex='0' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>"+text+"</div><div class='delete'></div><div class='label-input' id='description-input' contenteditable='true' tabindex='0' onkeypress='return (this.innerText.length <= 400)'>"+description+"</div>"
 		term.className = 'term'
 
 		# if we're generating a generic one, decide on a position
@@ -338,24 +358,37 @@ Namespace('Labeling').Creator = do ->
 		$('#terms').append dot
 
 		# edit on click
-		term.onclick = ->
+		term.childNodes[0].onclick = ->
 			term.childNodes[0].focus()
 			document.execCommand 'selectAll',false,null
-			if term.childNodes[0].innerHTML == _defaultLabel then term.childNodes[0].innerHTML = ''
+		term.childNodes[2].onclick = ->
+			term.childNodes[2].focus()
+			document.execCommand 'selectAll',false,null
+
+		term.childNodes[0].onfocus = ->
+			document.execCommand 'selectAll',false,null
+
+		term.childNodes[2].onfocus = ->
+			document.execCommand 'selectAll',false,null
 
 		# resize text on change
 		term.childNodes[0].onkeyup = _termKeyUp
+		term.childNodes[2].onkeyup = _termKeyUp
 		# set initial font size
 		term.childNodes[0].onkeyup target: term.childNodes[0]
+		term.childNodes[2].onkeyup target: term.childNodes[2]
 
 		# enter key press should stop editing
 		term.childNodes[0].onkeydown = _termKeyDown
+		term.childNodes[2].onkeydown = _termKeyDown
 
 		# check if blank when the text is cleared
-		term.childNodes[0].onblur = _termBlurred
+		term.childNodes[0].onblur = (e) => _termBlurred(term.childNodes[0], 0)
+		term.childNodes[2].onblur = (e) => _termBlurred(term.childNodes[2], 2)
 
 		# clean up pasted content to make sure we don't accidentally get invisible html garbage
 		term.childNodes[0].onpaste = _termPaste
+		term.childNodes[2].onpaste = _termPaste
 
 		# make delete button remove it from the list
 		term.childNodes[1].onclick = ->
@@ -409,7 +442,10 @@ Namespace('Labeling').Creator = do ->
 			# put event in a sleeper hold
 			e.stopPropagation() if e.stopPropagation?
 			e.preventDefault()
+			if e.target.id == "text-input"
+				e.target.parentElement.childNodes[2].focus()
 			return false
+
 
 		# Escape
 		if e.keyCode is 27
@@ -423,9 +459,11 @@ Namespace('Labeling').Creator = do ->
 				window.getSelection().removeAllRanges() # needed for contenteditable blur
 
 	# If the term is blank, put dummy text in it
-	_termBlurred = (e) ->
-		e = window.event if not e?
-		e.target.innerHTML = _defaultLabel if e.target.innerHTML is ''
+	_termBlurred = (target, type) ->
+		if type == 0
+			target.innerHTML = _defaultLabel if target.innerHTML is ''
+		else if type == 2
+			target.innerHTML = _defaultDescription if target.innerHTML is ''
 
 	# Convert anything on the clipboard into pure text before pasting it into the label
 	_termPaste = (e) ->
@@ -491,7 +529,7 @@ Namespace('Labeling').Creator = do ->
 	# called from Materia creator page
 	onSaveClicked = (mode = 'save') ->
 		if not _buildSaveData()
-			return Materia.CreatorCore.cancelSave 'Widget needs a title and at least one term.'
+			return Materia.CreatorCore.cancelSave 'Widget needs a title, at least one term, and a description of the image.'
 		Materia.CreatorCore.save _title, _qset
 
 	onSaveComplete = (title, widget, qset, version) -> true
@@ -500,7 +538,7 @@ Namespace('Labeling').Creator = do ->
 	# place the questions in an arbitrary location to be moved
 	onQuestionImportComplete = (items) ->
 		for item in items
-			_makeTerm(150,300,item.questions[0].text,null,null,item.id)
+			_makeTerm(150,300,item.questions[0].text,null,null,item.id,item.options.description or _defaultDescription)
 
 	# generate the qset
 	_buildSaveData = ->
@@ -521,6 +559,9 @@ Namespace('Labeling').Creator = do ->
 		for dot in dots
 			item = {}
 			label = dot.childNodes[0].innerHTML
+			description = dot.childNodes[2].innerHTML
+			if description == _defaultDescription
+				description = ''
 
 			answer =
 				text: label
@@ -534,6 +575,7 @@ Namespace('Labeling').Creator = do ->
 			item.type = 'QA'
 			item.id = dot.getAttribute('data-id') or ''
 			item.options =
+				description: description
 				labelBoxX: parseInt(dot.style.left.replace('px',''))
 				labelBoxY: parseInt(dot.style.top.replace('px',''))
 				endPointX: parseInt(dot.getAttribute('data-x'))
@@ -552,6 +594,9 @@ Namespace('Labeling').Creator = do ->
 		else if _anchorOpacity.indexOf('transparent') > -1
 			_anchorOpacityValue = 0.0
 
+		if $('#image').attr('alt') == ''
+			_okToSave = false
+
 		_qset.options =
 			backgroundTheme: _qset.options.backgroundTheme
 			backgroundColor: _qset.options.backgroundColor
@@ -559,6 +604,7 @@ Namespace('Labeling').Creator = do ->
 			image:
 				id: $('#image').attr('data-imgid')
 				materiaType: "asset"
+				alt: $('#image').attr('alt')
 			imageX: $('#imagewrapper').position().left
 			imageY: $('#imagewrapper').position().top
 			opacity: _anchorOpacityValue
@@ -591,8 +637,11 @@ Namespace('Labeling').Creator = do ->
 
 			$('#imagewrapper').css('left', (600 / 2) - (iw.width() / 2))
 			$('#imagewrapper').css('top', (550 / 2) - (iw.height() / 2))
+		_img.alt = ""
 
-
+		# add image description dialog
+		$('#descriptionchanger').addClass 'show'
+		$('#backgroundcover').addClass 'show'
 
 		_makeDraggable()
 
