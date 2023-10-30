@@ -278,6 +278,11 @@ textarea {
 	&:focus {
 		border: solid 2px #27c0ff;
 	}
+
+	&.description-input {
+		margin-top: 0.5em;
+		font-style: italic;
+	}
 }
 
 div.term {

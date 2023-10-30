@@ -17,8 +17,8 @@ Namespace('Labeling').Creator = do ->
 	# track if the user is "getting started" or well on their way
 	_gettingStarted = false
 
-	_defaultLabel = '[label title]'
-	_defaultDescription = '[ARIA label description]'
+	_defaultLabel = 'Enter label title'
+	_defaultDescription = 'Anchor point alt text'
 
 	initNewWidget = (widget, baseUrl) ->
 		$('#image').hide()
@@ -300,7 +300,7 @@ Namespace('Labeling').Creator = do ->
 
 		term = document.createElement 'div'
 		term.id = 'term_' + Math.random(); # fake id for linking with dot
-		term.innerHTML = "<div class='label-input' id='text-input' tabindex='0' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>"+text+"</div><div class='delete'></div><div class='label-input' id='description-input' contenteditable='true' tabindex='0' onkeypress='return (this.innerText.length <= 400)'>"+description+"</div>"
+		term.innerHTML = "<div class='label-input' id='text-input' tabindex='0' contenteditable='true' onkeypress='return (this.innerText.length <= 400)'>"+text+"</div><div class='delete'></div><div class='label-input description-input' contenteditable='true' tabindex='0' onkeypress='return (this.innerText.length <= 400)'>"+description+"</div>"
 		term.className = 'term'
 
 		# if we're generating a generic one, decide on a position

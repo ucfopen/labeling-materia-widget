@@ -29,7 +29,8 @@ meta_data:
   accessibility_keyboard: Full # values can be Full | Limited | None
   accessibility_reader: Limited # values can be Full | Limited | None
   accessibility_description: >
-    Destinations do not have non-visual descriptions. Standard navigation is supported. Some operations require the use of custom controls. These controls are communicated visually and to screenreaders.
+    Alt text can be provided for the labeled image as well as individual anchor points, but their inclusion is at the author's discretion.
+    Keyboard controls are communicated visually and to screen readers.
   supported_data:
     - Question/Answer
   about: >
