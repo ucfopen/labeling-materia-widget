@@ -44,3 +44,5 @@ meta_data:
     A quiz tool which requires students to
     correctly identify certain parts of an
     image by placing labels.
+  update_method: github
+  repo: ucfopen/labeling-materia-widget
